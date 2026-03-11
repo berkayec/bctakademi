@@ -336,26 +336,12 @@ function QuizSection({ quiz, isAuthenticated, onSuccess }: { quiz: QuizQuestion[
           <Button disabled={selectedOption === null} onClick={handleSubmit} className="w-full h-14 bg-slate-950 text-white rounded-2xl font-bold border-none shadow-xl active:scale-[0.98] transition-all">Cevabı Kontrol Et</Button>
         ) : (
           currentQIndex < quiz.length - 1 ? (
-            <Button onClick={handleNext} className="w-full h-14 bg-teal-500 text-white rounded-2xl font-bold border-none shadow-xl active:scale-[0.98```
-# Streamline the global application shell by removing redundant scroll logic.
-cat > src/components/layout/AppShell.tsx << 'EOF'
-import React, { useEffect } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
-import { ScrollToTop } from './ScrollToTop';
-/**
- * Global application shell that wraps all routes.
- * Handles cross-cutting concerns like scrolling to top on navigation
- * and setting page metadata.
- */
-export function AppShell() {
-  const { pathname } = useLocation();
-  useEffect(() => {
-    document.title = 'BCTAkademi - Biyomedikal Cihaz Teknolojileri';
-  }, [pathname]);
-  return (
-    <>
-      <ScrollToTop />
-      <Outlet />
-    </>
+            <Button onClick={handleNext} className="w-full h-14 bg-teal-500 text-white rounded-2xl font-bold border-none shadow-xl active:scale-[0.98] transition-all">Sonraki Soru</Button>
+          ) : (
+            <Button onClick={onSuccess} className="w-full h-14 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-bold border-none shadow-xl active:scale-[0.98] transition-all">Quiz Tamamlandı ({score}/{quiz.length})</Button>
+          )
+        )}
+      </div>
+    </div>
   );
 }
