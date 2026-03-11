@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Navbar } from '@/components/layout/Navbar';
 import { curriculum, QuizQuestion } from '@/lib/curriculum';
@@ -10,7 +10,8 @@ import {
   CheckCircle,
   HelpCircle,
   Award,
-  Menu as MenuIcon
+  Menu as MenuIcon,
+  AlertCircle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -22,6 +23,7 @@ export function UnitContentView() {
   const [unitCompleted, setUnitCompleted] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [hasCompletedCurrentQuiz, setHasCompletedCurrentQuiz] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const category = curriculum.find(c => c.id === categoryId);
   const course = category?.courses.find(c => c.id === courseId);
@@ -30,27 +32,43 @@ export function UnitContentView() {
   const trackVideo = useUserStore(s => s.trackVideo);
   const isAuthenticated = useUserStore(s => s.isAuthenticated);
   const userPoints = useUserStore(s => s.user?.points ?? 0);
-  const handleScroll = () => {
+  const handleScroll = useCallback(() => {
     if (scrollContainerRef.current) {
       const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
       const progress = (scrollTop / (scrollHeight - clientHeight)) * 100;
       setScrollProgress(isNaN(progress) ? 0 : Math.min(progress, 100));
     }
-  };
+  }, []);
   useEffect(() => {
     setActiveTopicIndex(0);
     setUnitCompleted(false);
     setScrollProgress(0);
+    setHasCompletedCurrentQuiz(false);
   }, [unitId]);
   useEffect(() => {
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollTo(0, 0);
       setScrollProgress(0);
+      setHasCompletedCurrentQuiz(false);
     }
   }, [activeTopicIndex]);
   if (!unit || !course) return <div className="p-20 text-center text-slate-500 font-bold">İçerik bulunamadı.</div>;
   const currentTopic = unit.topics[activeTopicIndex];
   const handleComplete = () => {
+    // Check if there's an uncompleted quiz
+    if (currentTopic.quiz && !hasCompletedCurrentQuiz) {
+      toast("Bilgi Kontrolü", {
+        description: "Devam etmeden önce konuyu pekiştirmek için aşağıdaki quizi çözmenizi öneririz.",
+        icon: <AlertCircle className="text-orange-500 w-4 h-4" />,
+        action: {
+          label: "Şimdi Çöz",
+          onClick: () => {
+            const quizEl = document.getElementById('quiz-section');
+            quizEl?.scrollIntoView({ behavior: 'smooth' });
+          }
+        }
+      });
+    }
     if (activeTopicIndex === unit.topics.length - 1) {
       const oldTitle = getUserTitle(userPoints);
       completeUnit(unit.id);
@@ -76,6 +94,9 @@ export function UnitContentView() {
     if (currentTopic.videoYoutubeId && isAuthenticated) {
       trackVideo(currentTopic.videoYoutubeId);
     }
+  };
+  const handleQuizSuccess = () => {
+    setHasCompletedCurrentQuiz(true);
   };
   const TopicList = ({ isMobile = false }: { isMobile?: boolean }) => (
     <div className={cn("space-y-2", isMobile ? "px-1" : "p-4")}>
@@ -136,14 +157,13 @@ export function UnitContentView() {
                     <Link to={`/dersler/${categoryId}/${courseId}`}>Derse Dön</Link>
                   </Button>
                   <Button asChild className="bg-teal-500 hover:bg-teal-600 rounded-xl border-none h-12 px-8 font-bold">
-                    <Link to="/dersler">Sıradaki Kurs</Link>
+                    <Link to="/dersler">Diğer Kurslar</Link>
                   </Button>
                 </div>
               </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
-        {/* Desktop Sidebar */}
         <div className="hidden md:flex w-80 flex-col border-r bg-white/40 backdrop-blur-xl border-slate-200">
           <div className="p-6 border-b bg-white/60">
             <Link to={`/dersler/${categoryId}/${courseId}`} className="flex items-center text-[10px] font-bold text-teal-600 hover:underline transition-all uppercase mb-3 tracking-widest">
@@ -155,7 +175,6 @@ export function UnitContentView() {
             <TopicList />
           </ScrollArea>
         </div>
-        {/* Content Area */}
         <div className="flex-1 flex flex-col bg-white overflow-hidden relative">
           <header className="px-6 md:px-8 py-4 border-b flex items-center justify-between bg-white/80 backdrop-blur-md z-10 sticky top-0">
             <div className="flex items-center gap-3">
@@ -183,7 +202,7 @@ export function UnitContentView() {
             </div>
             <div className="flex items-center gap-2">
               <Button size="sm" onClick={handleComplete} className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-5 md:px-8 rounded-xl h-10 shadow-lg shadow-emerald-500/20 border-none transition-all active:scale-95">
-                {activeTopicIndex === unit.topics.length - 1 ? 'Üniteyi Bitir' : 'Sonraki'}
+                {activeTopicIndex === unit.topics.length - 1 ? 'Üniteyi Bitir' : 'Sonraki Konu'}
               </Button>
             </div>
             <div className="absolute bottom-0 left-0 h-1 bg-teal-500 transition-all duration-300" style={{ width: `${scrollProgress}%` }} />
@@ -215,8 +234,13 @@ export function UnitContentView() {
                 </div>
               </article>
               {currentTopic.quiz && (
-                <div className="py-12 border-t border-slate-100">
-                  <QuizSection key={currentTopic.id} quiz={currentTopic.quiz} isAuthenticated={isAuthenticated} />
+                <div id="quiz-section" className="py-12 border-t border-slate-100">
+                  <QuizSection 
+                    key={currentTopic.id} 
+                    quiz={currentTopic.quiz} 
+                    isAuthenticated={isAuthenticated} 
+                    onSuccess={handleQuizSuccess}
+                  />
                 </div>
               )}
             </div>
@@ -226,7 +250,7 @@ export function UnitContentView() {
     </div>
   );
 }
-function QuizSection({ quiz, isAuthenticated }: { quiz: QuizQuestion[], isAuthenticated: boolean }) {
+function QuizSection({ quiz, isAuthenticated, onSuccess }: { quiz: QuizQuestion[], isAuthenticated: boolean, onSuccess: () => void }) {
   const [currentQIndex, setCurrentQIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -251,6 +275,11 @@ function QuizSection({ quiz, isAuthenticated }: { quiz: QuizQuestion[], isAuthen
     setIsSubmitted(false);
     setCurrentQIndex(prev => prev + 1);
   };
+  useEffect(() => {
+    if (isSubmitted && currentQIndex === quiz.length - 1) {
+      onSuccess();
+    }
+  }, [isSubmitted, currentQIndex, quiz.length, onSuccess]);
   return (
     <div className="bg-slate-50 rounded-[2.5rem] p-6 md:p-12 border border-slate-200 shadow-sm">
       <div className="flex items-center gap-2 text-teal-600 mb-8">
@@ -297,7 +326,7 @@ function QuizSection({ quiz, isAuthenticated }: { quiz: QuizQuestion[], isAuthen
                 isCorrect ? "bg-emerald-50 text-emerald-800" : "bg-rose-50 text-rose-800"
               )}
             >
-              <p className="font-bold mb-1">{isCorrect ? "Doğru!" : "Yanlış Cevap"}</p>
+              <p className="font-bold mb-1">{isCorrect ? "Doğru!" : "Hatalı Cevap"}</p>
               {currentQ.explanation}
             </motion.div>
           )}
@@ -313,7 +342,7 @@ function QuizSection({ quiz, isAuthenticated }: { quiz: QuizQuestion[], isAuthen
                 <Award className="w-8 h-8 text-teal-600" />
               </div>
               <p className="text-3xl font-display font-bold text-teal-600">Skor: {score} / {quiz.length}</p>
-              <p className="text-slate-500 mt-2 font-medium">Bu konuyu başarıyla tamamladınız!</p>
+              <p className="text-slate-500 mt-2 font-medium">Bu bölümün değerlendirmesini tamamladın!</p>
             </div>
           )
         )}

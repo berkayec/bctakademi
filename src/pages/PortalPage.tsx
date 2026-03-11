@@ -15,8 +15,8 @@ export function PortalPage() {
   const isAuthenticated = useUserStore((s) => s.isAuthenticated);
   const [isHydrated, setIsHydrated] = useState(false);
   useEffect(() => {
-    // Check for hydration to prevent flicker
-    const timer = setTimeout(() => setIsHydrated(true), 100);
+    // Hydration check for store persistence
+    const timer = setTimeout(() => setIsHydrated(true), 150);
     return () => clearTimeout(timer);
   }, []);
   useEffect(() => {
@@ -35,8 +35,15 @@ export function PortalPage() {
   const recommendations = useMemo(() => {
     if (!user) return [];
     const allCourses = curriculum.flatMap(c => c.courses);
+    const completedUnits = user.completedUnits;
+    // Sort courses: Priority to those with ZERO units completed, then by remaining units
     return allCourses
-      .filter(c => !user.completedUnits.some(unitId => c.units.some(u => u.id === unitId)))
+      .map(course => ({
+        ...course,
+        completedCount: course.units.filter(u => completedUnits.includes(u.id)).length
+      }))
+      .filter(c => c.completedCount < c.units.length)
+      .sort((a, b) => a.completedCount - b.completedCount)
       .slice(0, 2);
   }, [user]);
   if (!isHydrated || !user) {
@@ -61,7 +68,10 @@ export function PortalPage() {
   const currentTitle = getUserTitle(points);
   const nextTitleThresholds = [500, 1500, 3000, 10000];
   const nextThreshold = nextTitleThresholds.find(t => t > points) || 10000;
-  const levelProgress = Math.min(Math.max((points / nextThreshold) * 100, 0), 100);
+  const prevThreshold = [...nextTitleThresholds].reverse().find(t => t <= points) || 0;
+  const range = nextThreshold - prevThreshold;
+  const progressInRange = points - prevThreshold;
+  const levelProgress = Math.min(Math.max((progressInRange / range) * 100, 0), 100);
   const activityData = [
     { day: 'Pzt', hours: 2.5 },
     { day: 'Sal', hours: 1.8 },
@@ -81,11 +91,11 @@ export function PortalPage() {
               <span className="font-bold uppercase tracking-[0.2em] text-xs">{currentTitle}</span>
             </div>
             <h1 className="text-3xl md:text-5xl font-display font-bold text-slate-900 tracking-tighter">BCTAkademi Portalı 👋</h1>
-            <p className="text-slate-500 text-lg font-medium">Hoş geldin {user.username}. Akademik gelişimin burada yönetiliyor.</p>
+            <p className="text-slate-500 text-lg font-medium">Hoş geldin {user.username}. Akademik ilerlemen anlık olarak güncelleniyor.</p>
           </div>
           <div className="flex gap-3">
              <Button variant="outline" className="rounded-xl h-12 font-bold border-slate-200 shadow-sm" asChild>
-               <Link to="/sertifikalar">Başarı Belgelerim</Link>
+               <Link to="/sertifikalar">Sertifikalarım</Link>
              </Button>
           </div>
         </header>
@@ -101,7 +111,7 @@ export function PortalPage() {
               </div>
               <CardTitle className="text-3xl md:text-5xl font-display leading-tight">{currentTitle}</CardTitle>
               <CardDescription className="text-slate-400 text-lg max-w-md mt-4">
-                Yeni yetkinlikler kazanmak için teknik modülleri tamamlamaya devam et.
+                Kariyer yolculuğunda yeni yetkinlikler kazanmak için teknik modülleri tamamlamaya devam et.
               </CardDescription>
             </CardHeader>
             <CardContent className="relative z-10 space-y-10 p-10 pt-0">
@@ -149,7 +159,7 @@ export function PortalPage() {
                 <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-6">
                   <Lock className="w-8 h-8 text-slate-400" />
                 </div>
-                <h4 className="text-2xl font-bold text-slate-900 mb-2">Performans Analizi Kilidi</h4>
+                <h4 className="text-2xl font-bold text-slate-900 mb-2">Performans Analizi</h4>
                 <p className="text-slate-500 text-lg max-w-xs leading-relaxed">Haftalık çalışma grafiğini açmak için en az 300 XP puanına ulaşmalısın.</p>
               </div>
             )}
@@ -162,9 +172,9 @@ export function PortalPage() {
                 <BarChart data={activityData}>
                   <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 700, fill: '#94a3b8' }} dy={10} />
                   <YAxis hide />
-                  <Tooltip 
-                    cursor={{ fill: '#f8fafc' }} 
-                    contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', zIndex: 10 }} 
+                  <Tooltip
+                    cursor={{ fill: '#f8fafc' }}
+                    contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', zIndex: 10 }}
                   />
                   <Bar dataKey="hours" radius={[8, 8, 0, 0]} barSize={45}>
                     {activityData.map((entry, index) => (
@@ -176,7 +186,7 @@ export function PortalPage() {
             </CardContent>
           </Card>
           <div className="space-y-8">
-            <h3 className="text-2xl font-bold text-slate-900 tracking-tight">Senin İçin Önerilenler</h3>
+            <h3 className="text-2xl font-bold text-slate-900 tracking-tight">Kariyer Önerileri</h3>
             <div className="space-y-4">
               {recommendations.length > 0 ? recommendations.map(rec => {
                 const cat = curriculum.find(cat => cat.courses.some(c => c.id === rec.id));
@@ -185,7 +195,9 @@ export function PortalPage() {
                     <div className="flex gap-5 p-5 rounded-[1.5rem] border border-slate-100 bg-white hover:border-teal-200 hover:bg-teal-50/20 transition-all shadow-sm">
                       <img src={rec.image} className="w-20 h-20 md:w-24 md:h-24 rounded-2xl object-cover shrink-0 shadow-sm" alt="" />
                       <div className="flex flex-col justify-center">
-                        <p className="text-[10px] font-bold text-teal-600 mb-1 uppercase tracking-widest">Önerilen Ders</p>
+                        <p className="text-[10px] font-bold text-teal-600 mb-1 uppercase tracking-widest">
+                          {rec.completedCount > 0 ? 'Eğitime Devam Et' : 'Yeni Başla'}
+                        </p>
                         <h4 className="font-bold text-slate-900 group-hover:text-teal-700 transition-colors line-clamp-1 text-base md:text-lg">{rec.title}</h4>
                       </div>
                     </div>
@@ -196,7 +208,7 @@ export function PortalPage() {
                   <div className="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <CheckCircle2 className="w-6 h-6 text-teal-600" />
                   </div>
-                  <p className="text-sm text-slate-600 font-bold leading-relaxed">Tebrikler! Mevcut tüm uzmanlık modüllerini tamamladın.</p>
+                  <p className="text-sm text-slate-600 font-bold leading-relaxed">Tebrikler! Mevcut tüm uzmanlık modüllerini başarıyla tamamladın.</p>
                 </div>
               )}
               <Button variant="ghost" className="w-full rounded-2xl h-14 text-slate-500 font-bold group hover:bg-slate-50" asChild>

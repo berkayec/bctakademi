@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { RootLayout } from '@/components/layout/RootLayout';
 import { curriculum, Course } from '@/lib/curriculum';
@@ -15,22 +15,24 @@ export function LessonsPage() {
   const categoryFromUrl = searchParams.get('cat') || 'all';
   const [searchQuery, setSearchQuery] = useState(queryFromUrl);
   const [activeTab, setActiveTab] = useState(categoryFromUrl);
-  // Update local state when URL changes (e.g., back navigation)
+  // Sync internal state if URL changes externally (back/forward)
   useEffect(() => {
     setSearchQuery(queryFromUrl);
     setActiveTab(categoryFromUrl);
   }, [queryFromUrl, categoryFromUrl]);
-  // Sync state to URL with a slight debounce behavior (using effect)
+  // Debounced URL synchronization
   useEffect(() => {
-    const params: Record<string, string> = {};
-    if (searchQuery) params.q = searchQuery;
-    if (activeTab !== 'all') params.cat = activeTab;
-    const currentQ = searchParams.get('q');
-    const currentCat = searchParams.get('cat') || 'all';
-    // Only update if actually different to prevent infinite loops
-    if (currentQ !== (params.q || null) || currentCat !== (params.cat || 'all')) {
-      setSearchParams(params, { replace: true });
-    }
+    const timer = setTimeout(() => {
+      const params = new URLSearchParams();
+      if (searchQuery) params.set('q', searchQuery);
+      if (activeTab !== 'all') params.set('cat', activeTab);
+      const newQuery = params.toString();
+      const currentQuery = searchParams.toString();
+      if (newQuery !== currentQuery) {
+        setSearchParams(params, { replace: true });
+      }
+    }, 300);
+    return () => clearTimeout(timer);
   }, [searchQuery, activeTab, setSearchParams, searchParams]);
   const filteredCategories = useMemo(() => {
     return curriculum.map(cat => ({
@@ -41,11 +43,10 @@ export function LessonsPage() {
       )
     })).filter(cat => cat.courses.length > 0);
   }, [searchQuery]);
-  const handleClear = () => {
+  const handleClear = useCallback(() => {
     setSearchQuery('');
     setActiveTab('all');
-    setSearchParams({});
-  };
+  }, []);
   return (
     <RootLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
@@ -64,7 +65,7 @@ export function LessonsPage() {
                 className="pl-12 pr-12 h-14 rounded-2xl border-slate-200 shadow-sm focus:ring-teal-500 text-base bg-white"
               />
               {searchQuery && (
-                <button 
+                <button
                   onClick={() => setSearchQuery('')}
                   className="absolute right-4 top-[calc(50%+12px)] -translate-y-1/2 p-1 hover:bg-slate-100 rounded-full transition-colors"
                 >
