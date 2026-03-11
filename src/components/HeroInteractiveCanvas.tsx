@@ -35,7 +35,7 @@ export function HeroInteractiveCanvas() {
     window.addEventListener('resize', handleResize);
     window.addEventListener('mousemove', handleMouseMove);
     const nodes: Node[] = [];
-    const nodeCount = Math.floor((width * height) / 12000); 
+    const nodeCount = Math.floor((width * height) / 12000);
     const initNodes = () => {
       nodes.length = 0;
       for (let i = 0; i < nodeCount; i++) {
@@ -46,8 +46,9 @@ export function HeroInteractiveCanvas() {
           y,
           originalX: x,
           originalY: y,
-          vx: (Math.random() - 0.5) * 0.3,
-          vy: (Math.random() - 0.5) * 0.3,
+          // Reduced node velocity from 0.3 to 0.1 for a more stable atmosphere
+          vx: (Math.random() - 0.5) * 0.1,
+          vy: (Math.random() - 0.5) * 0.1,
           opacity: Math.random() * 0.5 + 0.2
         });
       }
@@ -58,8 +59,8 @@ export function HeroInteractiveCanvas() {
     let currentParallaxY = 0;
     const draw = () => {
       ctx.clearRect(0, 0, width, height);
-      // Global fade-in on mount
-      if (opacityRef.current < 1) opacityRef.current += 0.01;
+      // Smoother global fade-in on mount (increment reduced from 0.01 to 0.005)
+      if (opacityRef.current < 1) opacityRef.current += 0.005;
       // Smooth parallax transition
       currentParallaxX += (mouseRef.current.targetX - currentParallaxX) * 0.05;
       currentParallaxY += (mouseRef.current.targetY - currentParallaxY) * 0.05;
@@ -108,7 +109,7 @@ export function HeroInteractiveCanvas() {
       const waveGradient = ctx.createLinearGradient(0, 0, width, 0);
       waveGradient.addColorStop(0, 'rgba(20, 184, 166, 0)');
       waveGradient.addColorStop(0.3, 'rgba(20, 184, 166, 0.4)');
-      waveGradient.addColorStop(0.5, 'rgba(243, 128, 32, 0.8)'); // Pulse highlight
+      waveGradient.addColorStop(0.5, 'rgba(243, 128, 32, 0.8)'); 
       waveGradient.addColorStop(0.7, 'rgba(20, 184, 166, 0.4)');
       waveGradient.addColorStop(1, 'rgba(20, 184, 166, 0)');
       ctx.strokeStyle = waveGradient;
@@ -123,21 +124,22 @@ export function HeroInteractiveCanvas() {
         if (waveCycle === 5) y -= 80; // R
         if (waveCycle === 6) y += 35; // S
         if (waveCycle === 12) y -= 15; // T
-        // Mouse Depth Interaction (Opposite parallax)
+        // Mouse Depth Interaction
         const mouseDx = x - (width / 2 + currentParallaxX * width * 0.4);
         const mouseDist = Math.abs(mouseDx);
         if (mouseDist < 300) {
           const power = (300 - mouseDist) / 300;
           y += Math.sin(offset * 6) * 12 * power;
         }
-        const renderX = x + parallaxShiftX * -0.6; 
+        const renderX = x + parallaxShiftX * -0.6;
         const renderY = centerY + y + parallaxShiftY * -0.4;
         if (i === 0) ctx.moveTo(renderX, renderY);
         else ctx.lineTo(renderX, renderY);
       }
       ctx.stroke();
       ctx.shadowBlur = 0;
-      offset += 0.035;
+      // Significantly slowed down ECG propagation from 0.035 to 0.012
+      offset += 0.012;
       animationFrameId = requestAnimationFrame(draw);
     };
     draw();

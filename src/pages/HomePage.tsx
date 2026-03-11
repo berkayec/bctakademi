@@ -62,11 +62,11 @@ export function HomePage() {
                 Biyomedikal Cihaz Teknolojileri Akademisi
               </p>
               <p className="max-w-3xl mx-auto text-lg md:text-2xl text-slate-400 leading-relaxed font-normal">
-                Türkiye'nin en kapsamlı biyomedikal eğitim platformu. Profesyonel teknik içerikler ve
+                Türkiye'nin en kapsamlı biyomedikal eğitim platformu. Profesyonel teknik içerikler ve 
                 klinik mühendislik temelleri ile uzmanlığınızı şekillendirin.
               </p>
             </motion.div>
-            {/* Light Glass Search Interface */}
+            {/* High-Contrast Light Search Interface */}
             <motion.div
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -75,11 +75,11 @@ export function HomePage() {
             >
               <form onSubmit={handleSearch} className="relative group">
                 <div className="absolute -inset-2 bg-gradient-to-r from-teal-500/10 to-orange-500/10 rounded-[2.2rem] blur-3xl opacity-0 group-focus-within:opacity-100 transition-all duration-700" />
-                <div className="relative flex p-2 bg-white/10 backdrop-blur-2xl rounded-[2rem] border border-white/10 shadow-2xl transition-all duration-300 hover:bg-white/15">
-                  <Search className="absolute left-7 top-1/2 -translate-y-1/2 w-6 h-6 text-white/70" />
+                <div className="relative flex p-2 bg-white/95 backdrop-blur-2xl rounded-[2rem] border border-white/20 shadow-2xl transition-all duration-300 hover:bg-white">
+                  <Search className="absolute left-7 top-1/2 -translate-y-1/2 w-6 h-6 text-slate-500" />
                   <Input
                     placeholder="Ders, cihaz veya teknik konu ara..."
-                    className="h-16 pl-16 pr-6 border-none shadow-none text-white bg-transparent text-xl focus-visible:ring-0 w-full placeholder:text-white/40 font-semibold"
+                    className="h-16 pl-16 pr-6 border-none shadow-none text-slate-900 bg-transparent text-xl focus-visible:ring-0 w-full placeholder:text-slate-400 font-semibold"
                     value={searchValue}
                     onChange={(e) => setSearchValue(e.target.value)}
                   />
