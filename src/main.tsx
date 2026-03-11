@@ -13,11 +13,13 @@ import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { RouteErrorBoundary } from '@/components/RouteErrorBoundary';
 import '@/index.css'
 import { HomePage } from '@/pages/HomePage'
+import { PortalPage } from '@/pages/PortalPage'
 import { LessonsPage } from '@/pages/LessonsPage'
 import { CourseDetailPage } from '@/pages/CourseDetailPage'
 import { UnitContentView } from '@/pages/UnitContentView'
 import { ResourcesPage } from '@/pages/ResourcesPage'
 import { BlogPage } from '@/pages/BlogPage'
+import { ContactPage } from '@/pages/ContactPage'
 import { RootLayout } from '@/components/layout/RootLayout'
 const queryClient = new QueryClient();
 const router = createBrowserRouter([
@@ -26,6 +28,15 @@ const router = createBrowserRouter([
     element: (
       <RootLayout>
         <HomePage />
+      </RootLayout>
+    ),
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/portal",
+    element: (
+      <RootLayout>
+        <PortalPage />
       </RootLayout>
     ),
     errorElement: <RouteErrorBoundary />,
@@ -51,14 +62,23 @@ const router = createBrowserRouter([
     errorElement: <RouteErrorBoundary />,
   },
   {
-    path: "/resources",
-    element: <Navigate to="/kaynaklar" replace />,
-  },
-  {
     path: "/blog",
     element: <BlogPage />,
     errorElement: <RouteErrorBoundary />,
   },
+  {
+    path: "/iletisim",
+    element: (
+      <RootLayout>
+        <ContactPage />
+      </RootLayout>
+    ),
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "*",
+    element: <Navigate to="/" replace />,
+  }
 ]);
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
