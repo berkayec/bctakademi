@@ -1,145 +1,141 @@
-import { BookOpen, FileText, Video, Presentation } from 'lucide-react';
+import { FileText, Video, Presentation } from 'lucide-react';
 export const navLinks = [
-  { name: 'Home', href: '/' },
-  { name: 'Lessons', href: '/lessons' },
-  { name: 'Resources', href: '/resources' },
+  { name: 'Ana Sayfa', href: '/' },
+  { name: 'Dersler', href: '/dersler' },
+  { name: 'Kaynaklar', href: '/kaynaklar' },
   { name: 'Blog', href: '/blog' },
 ];
-export const curriculum = {
-  grade9: {
-    title: '9th Grade Curriculum',
-    lessons: [
+export interface Topic {
+  id: string;
+  title: string;
+  content: string;
+}
+export interface Unit {
+  id: string;
+  title: string;
+  description: string;
+  topics: Topic[];
+}
+export interface Course {
+  id: string;
+  title: string;
+  description: string;
+  image: string;
+  units: Unit[];
+}
+export interface Grade {
+  id: string;
+  title: string;
+  courses: Course[];
+}
+export const grades: Grade[] = [
+  {
+    id: '9-sinif',
+    title: '9. Sınıf',
+    courses: [
       {
-        id: 'g9-1',
-        title: 'Introduction to Biomedical Tech',
-        description: 'Foundations of medical device technology and its role in modern healthcare.',
-        duration: '45 mins',
-        tags: ['Foundations', 'Safety'],
+        id: 'biyo-olcme',
+        title: 'Biyoölçme',
+        description: 'Biyomedikal cihazlarda temel ölçme teknikleri ve elektriksel güvenlik.',
         image: 'https://images.unsplash.com/photo-1576091160550-2173bdb999ef?auto=format&fit=crop&q=80&w=800',
-      },
-      {
-        id: 'g9-2',
-        title: 'Basic Anatomy for Engineers',
-        description: 'Understanding human systems from a mechanical and electrical perspective.',
-        duration: '60 mins',
-        tags: ['Anatomy', 'Biology'],
-        image: 'https://images.unsplash.com/photo-1530210124550-912dc1381cb8?auto=format&fit=crop&q=80&w=800',
-      },
-    ],
+        units: [
+          {
+            id: 'unit-1',
+            title: 'Ünite 1: Temel Elektriksel Ölçümler',
+            description: 'Gerilim, akım ve direnç ölçme teknikleri.',
+            topics: [
+              { id: 't1', title: 'Multimetre Kullanımı', content: 'Dijital multimetre ile temel ölçümler...' },
+              { id: 't2', title: 'Osiloskop Temelleri', content: 'Sinyal görüntüleme ve analiz...' }
+            ]
+          }
+        ]
+      }
+    ]
   },
-  grade10: {
-    title: '10th Grade Curriculum',
-    lessons: [
+  {
+    id: '10-sinif',
+    title: '10. Sınıf',
+    courses: [
       {
-        id: 'g10-1',
-        title: 'Sensors & Transducers',
-        description: 'Exploring how physical biological signals are converted into electrical data.',
-        duration: '55 mins',
-        tags: ['Electronics', 'Signal'],
+        id: 'biyoenstrumantasyon-atolyesi',
+        title: 'Biyoenstrümantasyon Atölyesi',
+        description: 'Tıbbi cihazların çalışma prensipleri ve arıza giderme.',
         image: 'https://images.unsplash.com/photo-1555664424-778a1e5e1b48?auto=format&fit=crop&q=80&w=800',
+        units: []
       },
       {
-        id: 'g10-2',
-        title: 'Medical Imaging Fundamentals',
-        description: 'Introduction to X-Ray, MRI, and Ultrasound technology principles.',
-        duration: '75 mins',
-        tags: ['Imaging', 'Radiology'],
-        image: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&q=80&w=800',
-      },
-    ],
+        id: 'mesleki-fizyoloji',
+        title: 'Mesleki Fizyoloji ve Terminoloji',
+        description: 'İnsan vücudu sistemleri ve tıbbi terimler.',
+        image: 'https://images.unsplash.com/photo-1530210124550-912dc1381cb8?auto=format&fit=crop&q=80&w=800',
+        units: []
+      }
+    ]
   },
-  coreFields: {
-    title: 'Core Field Lessons',
-    lessons: [
+  {
+    id: 'alan-dersleri',
+    title: 'Alan Dersleri',
+    courses: [
       {
-        id: 'core-1',
-        title: 'Clinical Engineering',
-        description: 'Management and maintenance of medical equipment in hospital settings.',
-        duration: '90 mins',
-        tags: ['Maintenance', 'Management'],
+        id: 'yasam-destek-cihazlari',
+        title: 'Yaşam Destek Cihazları',
+        description: 'Vantilatör, defibrilatör ve diyaliz makineleri.',
         image: 'https://images.unsplash.com/photo-1581093588401-fbb62a02f120?auto=format&fit=crop&q=80&w=800',
-      },
-      {
-        id: 'core-2',
-        title: 'Bio-Signal Processing',
-        description: 'Advanced techniques for analyzing ECG, EEG, and EMG signals.',
-        duration: '120 mins',
-        tags: ['Data Science', 'Signal'],
-        image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800',
-      },
-    ],
-  },
-};
+        units: []
+      }
+    ]
+  }
+];
 export const resources = [
   {
     id: 'res-1',
     type: 'PDF',
-    title: 'Safety Standards Handbook',
-    description: 'Essential electrical safety guidelines for medical devices.',
+    title: 'Elektriksel Güvenlik Standartları',
+    description: 'Tıbbi cihazlar için IEC 60601 standartları özeti.',
     icon: FileText,
-    category: 'Safety',
+    category: 'Güvenlik',
     fileSize: '2.4 MB',
   },
   {
     id: 'res-2',
-    type: 'Presentation',
-    title: 'The Future of Prosthetics',
-    description: 'Visual slides covering robotic limbs and neural interfaces.',
+    type: 'Sunum',
+    title: 'Protez Teknolojilerinin Geleceği',
+    description: 'Robotik uzuvlar ve nöral arayüzler sunumu.',
     icon: Presentation,
-    category: 'Innovation',
+    category: 'İnovasyon',
     fileSize: '15.8 MB',
   },
   {
     id: 'res-3',
     type: 'Video',
-    title: 'Hemodialysis Machine Walkthrough',
-    description: 'Step-by-step breakdown of blood purification systems.',
+    title: 'Hemodiyaliz Cihazı Kurulumu',
+    description: 'Diyaliz sistemlerinin adım adım devreye alınması.',
     icon: Video,
-    category: 'Equipment',
+    category: 'Ekipman',
     duration: '12:45',
-  },
-  {
-    id: 'res-4',
-    type: 'PDF',
-    title: 'Maintenance Logbook Template',
-    description: 'Ready-to-use template for medical equipment tracking.',
-    icon: FileText,
-    category: 'Equipment',
-    fileSize: '0.8 MB',
-  },
+  }
 ];
 export const blogPosts = [
   {
     id: 'post-1',
-    title: 'The Rise of AI in Diagnostic Imaging',
-    excerpt: 'How machine learning algorithms are revolutionizing the way radiologists detect early-stage pathologies.',
-    date: 'Oct 24, 2023',
-    readTime: '6 min read',
+    title: 'Tanısal Görüntülemede Yapay Zeka',
+    excerpt: 'Makine öğrenimi algoritmalarının radyoloji alanındaki devrimi.',
+    date: '24 Ekim 2023',
+    readTime: '6 dk okuma',
     author: 'Dr. Sarah Chen',
-    category: 'AI & Imaging',
+    category: 'AI & Görüntüleme',
     image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=800',
     featured: true,
   },
   {
     id: 'post-2',
-    title: 'Wearable Tech: Beyond Heart Rate Tracking',
-    excerpt: 'Exploring the next generation of continuous glucose monitoring and sweat analysis patches.',
-    date: 'Oct 18, 2023',
-    readTime: '4 min read',
+    title: 'Giyilebilir Teknolojiler: Nabız Takibinin Ötesi',
+    excerpt: 'Yeni nesil sürekli glikoz izleme ve ter analizi yamaları.',
+    date: '18 Ekim 2023',
+    readTime: '4 dk okuma',
     author: 'James Wilson',
-    category: 'Wearables',
+    category: 'Giyilebilir',
     image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800',
     featured: false,
-  },
-  {
-    id: 'post-3',
-    title: '3D Printing in Surgical Planning',
-    excerpt: 'How patient-specific anatomical models are reducing time in the operating room.',
-    date: 'Oct 12, 2023',
-    readTime: '8 min read',
-    author: 'Elena Rodriguez',
-    category: 'Surgery',
-    image: 'https://images.unsplash.com/photo-1581093588401-fbb62a02f120?auto=format&fit=crop&q=80&w=800',
-    featured: false,
-  },
+  }
 ];

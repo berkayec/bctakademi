@@ -13,6 +13,8 @@ import { RouteErrorBoundary } from '@/components/RouteErrorBoundary';
 import '@/index.css'
 import { HomePage } from '@/pages/HomePage'
 import { LessonsPage } from '@/pages/LessonsPage'
+import { CourseDetailPage } from '@/pages/CourseDetailPage'
+import { UnitContentView } from '@/pages/UnitContentView'
 import { ResourcesPage } from '@/pages/ResourcesPage'
 import { BlogPage } from '@/pages/BlogPage'
 import { RootLayout } from '@/components/layout/RootLayout'
@@ -28,12 +30,22 @@ const router = createBrowserRouter([
     errorElement: <RouteErrorBoundary />,
   },
   {
-    path: "/lessons",
+    path: "/dersler",
     element: <LessonsPage />,
     errorElement: <RouteErrorBoundary />,
   },
   {
-    path: "/resources",
+    path: "/dersler/:gradeId/:courseId",
+    element: <CourseDetailPage />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/dersler/:gradeId/:courseId/:unitId",
+    element: <UnitContentView />,
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/kaynaklar",
     element: <ResourcesPage />,
     errorElement: <RouteErrorBoundary />,
   },

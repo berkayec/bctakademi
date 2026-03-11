@@ -4,16 +4,17 @@ import { resources } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Search, Download, ExternalLink, FileText, Video, Presentation, Filter } from 'lucide-react';
+import { Search, Download, ExternalLink } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 export function ResourcesPage() {
-  const [filter, setFilter] = useState('All');
+  const [filter, setFilter] = useState('Tümü');
   const [search, setSearch] = useState('');
-  const categories = ['All', 'PDF', 'Video', 'Presentation'];
+  const categories = ['Tümü', 'PDF', 'Video', 'Sunum'];
   const filteredResources = resources.filter(res => {
-    const matchesFilter = filter === 'All' || res.type === filter;
-    const matchesSearch = res.title.toLowerCase().includes(search.toLowerCase()) || 
+    const typeLabel = res.type === 'Sunum' ? 'Sunum' : res.type;
+    const matchesFilter = filter === 'Tümü' || typeLabel === filter;
+    const matchesSearch = res.title.toLowerCase().includes(search.toLowerCase()) ||
                           res.description.toLowerCase().includes(search.toLowerCase());
     return matchesFilter && matchesSearch;
   });
@@ -22,13 +23,13 @@ export function ResourcesPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
           <div className="space-y-1">
-            <h1 className="text-4xl font-display font-bold text-slate-900 tracking-tight">Resource Center</h1>
-            <p className="text-slate-500">Access technical documents, videos, and visual aids for your studies.</p>
+            <h1 className="text-4xl font-display font-bold text-slate-900 tracking-tight">Kaynak Merkezi</h1>
+            <p className="text-slate-500">Çalışmalarınız için teknik belgelere, videolara ve görsel yardımlara erişin.</p>
           </div>
           <div className="relative w-full md:w-96 group">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-teal-500 transition-colors" />
-            <Input 
-              placeholder="Search assets..." 
+            <Input
+              placeholder="Kaynak ara..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-10 rounded-xl border-slate-200"
@@ -42,26 +43,23 @@ export function ResourcesPage() {
               onClick={() => setFilter(cat)}
               className={cn(
                 "px-4 py-2 rounded-full text-sm font-medium transition-all border",
-                filter === cat 
-                  ? "bg-slate-900 text-white border-slate-900" 
+                filter === cat
+                  ? "bg-slate-900 text-white border-slate-900"
                   : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
               )}
             >
-              {cat}s
+              {cat === 'Tümü' ? 'Tümü' : `${cat}'ler`}
             </button>
           ))}
         </div>
-        <motion.div 
-          layout
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-        >
-          <AnimatePresence>
+        <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <AnimatePresence mode="popLayout">
             {filteredResources.map((res) => {
               const Icon = res.icon;
               const typeColors: Record<string, string> = {
                 PDF: 'bg-teal-50 text-teal-600',
                 Video: 'bg-blue-50 text-blue-600',
-                Presentation: 'bg-orange-50 text-orange-600'
+                Sunum: 'bg-orange-50 text-orange-600'
               };
               return (
                 <motion.div
@@ -74,7 +72,7 @@ export function ResourcesPage() {
                   className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-shadow flex flex-col h-full"
                 >
                   <div className="flex items-start justify-between mb-6">
-                    <div className={cn("p-3 rounded-2xl", typeColors[res.type])}>
+                    <div className={cn("p-3 rounded-2xl", typeColors[res.type as string] || 'bg-slate-50')}>
                       <Icon className="w-6 h-6" />
                     </div>
                     <Badge variant="outline" className="text-[10px] uppercase font-bold tracking-wider">
@@ -82,25 +80,16 @@ export function ResourcesPage() {
                     </Badge>
                   </div>
                   <h3 className="text-xl font-bold text-slate-900 mb-2">{res.title}</h3>
-                  <p className="text-slate-600 text-sm mb-6 flex-1">
-                    {res.description}
-                  </p>
+                  <p className="text-slate-600 text-sm mb-6 flex-1">{res.description}</p>
                   <div className="flex items-center justify-between mb-4 text-xs text-slate-400 font-medium">
                     <span>{res.type}</span>
                     <span>{res.fileSize || res.duration}</span>
                   </div>
-                  <Button 
-                    variant="outline" 
-                    className="w-full border-slate-200 text-slate-900 hover:bg-slate-50 hover:border-slate-300 rounded-xl"
-                  >
+                  <Button variant="outline" className="w-full border-slate-200 text-slate-900 hover:bg-slate-50 hover:border-slate-300 rounded-xl">
                     {res.type === 'Video' ? (
-                      <>
-                        <ExternalLink className="w-4 h-4 mr-2" /> Watch Video
-                      </>
+                      <><ExternalLink className="w-4 h-4 mr-2" /> İzle</>
                     ) : (
-                      <>
-                        <Download className="w-4 h-4 mr-2" /> Download {res.type}
-                      </>
+                      <><Download className="w-4 h-4 mr-2" /> İndir</>
                     )}
                   </Button>
                 </motion.div>

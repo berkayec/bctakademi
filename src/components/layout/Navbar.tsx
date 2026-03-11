@@ -16,10 +16,9 @@ export function Navbar() {
               <Activity className="w-5 h-5 text-white" />
             </div>
             <span className="font-display font-bold text-xl tracking-tight">
-              BioMed<span className="text-teal-400">Tech</span>
+              BCT<span className="text-teal-400">Öğretmeni</span>
             </span>
           </Link>
-          {/* Desktop Links */}
           <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => {
               const isActive = location.pathname === link.href;
@@ -40,10 +39,9 @@ export function Navbar() {
               );
             })}
             <Button className="bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-full px-6 transition-transform active:scale-95">
-              Portal Access
+              Öğrenci Girişi
             </Button>
           </div>
-          {/* Mobile Menu Button */}
           <div className="md:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
@@ -55,7 +53,6 @@ export function Navbar() {
           </div>
         </div>
       </div>
-      {/* Mobile Navigation */}
       <div
         className={cn(
           "md:hidden absolute w-full bg-slate-950 border-b border-slate-800 transition-all duration-300 ease-in-out z-40 shadow-2xl",
@@ -81,7 +78,7 @@ export function Navbar() {
           })}
           <div className="pt-4">
             <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white h-12 text-base">
-              Portal Access
+              Öğrenci Girişi
             </Button>
           </div>
         </div>
