@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { motion, useScroll, useSpring, useTransform, useMotionValue } from 'framer-motion';
 import { HeroInteractiveCanvas } from '@/components/HeroInteractiveCanvas';
+import { RootLayout } from '@/components/layout/RootLayout';
 export function HomePage() {
   const navigate = useNavigate();
   const [searchValue, setSearchValue] = useState('');
@@ -31,107 +32,109 @@ export function HomePage() {
     }
   };
   return (
-    <div className="flex flex-col" onMouseMove={handleMouseMove}>
-      <motion.div className="fixed top-0 left-0 right-0 h-1 bg-orange-500 origin-left z-[60]" style={{ scaleX }} />
-      {/* Hero Section */}
-      <section className="relative bg-slate-950 pt-24 pb-36 md:pt-32 md:pb-48 overflow-hidden min-h-[90vh] flex items-center">
-        {/* Tech Grid & Node Interactive Background */}
-        <div className="absolute inset-0 z-0">
-          <HeroInteractiveCanvas />
-        </div>
-        {/* Parallax Overlay Layer */}
-        <motion.div
-          className="absolute inset-0 z-0 pointer-events-none opacity-30"
-          style={{ x: bgX, y: bgY }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-transparent to-slate-950" />
-        </motion.div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
-          <div className="text-center space-y-12">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              className="flex flex-col items-center"
-            >
-              <h1 className="text-display text-white mb-6 tracking-tighter drop-shadow-2xl">
-                Geleceğin Sağlık <br className="hidden sm:block" />
-                <span className="text-orange-500">Teknolojisini Keşfet</span>
-              </h1>
-              <p className="max-w-xl mx-auto text-2xs md:text-xs text-teal-400 font-black tracking-[0.6em] uppercase mb-10">
-                Biyomedikal Cihaz Teknolojileri Akademisi
-              </p>
-              <p className="max-w-3xl mx-auto text-lg md:text-2xl text-slate-400 leading-relaxed font-normal">
-                Türkiye'nin en kapsamlı biyomedikal eğitim platformu. Profesyonel teknik içerikler ve 
-                klinik mühendislik temelleri ile uzmanlığınızı şekillendirin.
-              </p>
-            </motion.div>
-            {/* High-Contrast Light Search Interface */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.3, duration: 0.6 }}
-              className="max-w-2xl mx-auto"
-            >
-              <form onSubmit={handleSearch} className="relative group">
-                <div className="absolute -inset-2 bg-gradient-to-r from-teal-500/10 to-orange-500/10 rounded-[2.2rem] blur-3xl opacity-0 group-focus-within:opacity-100 transition-all duration-700" />
-                <div className="relative flex p-2 bg-white/95 backdrop-blur-2xl rounded-[2rem] border border-white/20 shadow-2xl transition-all duration-300 hover:bg-white">
-                  <Search className="absolute left-7 top-1/2 -translate-y-1/2 w-6 h-6 text-slate-500" />
-                  <Input
-                    placeholder="Ders, cihaz veya teknik konu ara..."
-                    className="h-16 pl-16 pr-6 border-none shadow-none text-slate-900 bg-transparent text-xl focus-visible:ring-0 w-full placeholder:text-slate-400 font-semibold"
-                    value={searchValue}
-                    onChange={(e) => setSearchValue(e.target.value)}
-                  />
-                  <Button
-                    type="submit"
-                    className="h-14 px-10 bg-gradient-primary hover:scale-[1.02] text-white font-bold rounded-2xl hidden sm:flex border-none my-auto mr-1 shadow-xl shadow-orange-500/30 active:scale-95 transition-all"
-                  >
-                    Ara
+    <RootLayout>
+      <div className="flex flex-col" onMouseMove={handleMouseMove}>
+        <motion.div className="fixed top-0 left-0 right-0 h-1 bg-orange-500 origin-left z-[60]" style={{ scaleX }} />
+        {/* Hero Section */}
+        <section className="relative bg-slate-950 pt-24 pb-36 md:pt-32 md:pb-48 overflow-hidden min-h-[90vh] flex items-center">
+          {/* Tech Grid & Node Interactive Background */}
+          <div className="absolute inset-0 z-0">
+            <HeroInteractiveCanvas />
+          </div>
+          {/* Parallax Overlay Layer */}
+          <motion.div
+            className="absolute inset-0 z-0 pointer-events-none opacity-30"
+            style={{ x: bgX, y: bgY }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-transparent to-slate-950" />
+          </motion.div>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
+            <div className="text-center space-y-12">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+                className="flex flex-col items-center"
+              >
+                <h1 className="text-display text-white mb-6 tracking-tighter drop-shadow-2xl">
+                  Geleceğin Sağlık <br className="hidden sm:block" />
+                  <span className="text-orange-500">Teknolojisini Keşfet</span>
+                </h1>
+                <p className="max-w-xl mx-auto text-2xs md:text-xs text-teal-400 font-black tracking-[0.6em] uppercase mb-10">
+                  Biyomedikal Cihaz Teknolojileri Akademisi
+                </p>
+                <p className="max-w-3xl mx-auto text-lg md:text-2xl text-slate-400 leading-relaxed font-normal">
+                  Türkiye'nin en kapsamlı biyomedikal eğitim platformu. Profesyonel teknik içerikler ve
+                  klinik mühendislik temelleri ile uzmanlığınızı şekillendirin.
+                </p>
+              </motion.div>
+              {/* High-Contrast Light Search Interface */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.3, duration: 0.6 }}
+                className="max-w-2xl mx-auto"
+              >
+                <form onSubmit={handleSearch} className="relative group">
+                  <div className="absolute -inset-2 bg-gradient-to-r from-teal-500/10 to-orange-500/10 rounded-[2.2rem] blur-3xl opacity-0 group-focus-within:opacity-100 transition-all duration-700" />
+                  <div className="relative flex p-2 bg-white/95 backdrop-blur-2xl rounded-[2rem] border border-white/20 shadow-2xl transition-all duration-300 hover:bg-white">
+                    <Search className="absolute left-7 top-1/2 -translate-y-1/2 w-6 h-6 text-slate-500" />
+                    <Input
+                      placeholder="Ders, cihaz veya teknik konu ara..."
+                      className="h-16 pl-16 pr-6 border-none shadow-none text-slate-900 bg-transparent text-xl focus-visible:ring-0 w-full placeholder:text-slate-400 font-semibold"
+                      value={searchValue}
+                      onChange={(e) => setSearchValue(e.target.value)}
+                    />
+                    <Button
+                      type="submit"
+                      className="h-14 px-10 bg-gradient-primary hover:scale-[1.02] text-white font-bold rounded-2xl hidden sm:flex border-none my-auto mr-1 shadow-xl shadow-orange-500/30 active:scale-95 transition-all"
+                    >
+                      Ara
+                    </Button>
+                  </div>
+                </form>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="flex flex-col sm:flex-row justify-center gap-6 pt-6"
+              >
+                <Link to="/dersler">
+                  <Button className="w-full sm:w-auto h-16 px-12 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xl rounded-2xl group shadow-lg transition-all hover:scale-105 border-none">
+                    Eğitimi İncele <ArrowRight className="ml-2 w-6 h-6 group-hover:translate-x-1 transition-transform" />
                   </Button>
-                </div>
-              </form>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-              className="flex flex-col sm:flex-row justify-center gap-6 pt-6"
-            >
-              <Link to="/dersler">
-                <Button className="w-full sm:w-auto h-16 px-12 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xl rounded-2xl group shadow-lg transition-all hover:scale-105 border-none">
-                  Eğitimi İncele <ArrowRight className="ml-2 w-6 h-6 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </Link>
-              <Link to="/blog">
-                <Button className="w-full sm:w-auto h-16 px-12 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-2xl text-xl transition-all hover:scale-105 border-none shadow-lg">
-                  <Newspaper className="mr-2 w-6 h-6" /> Güncel Haberler
-                </Button>
-              </Link>
-            </motion.div>
+                </Link>
+                <Link to="/blog">
+                  <Button className="w-full sm:w-auto h-16 px-12 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-2xl text-xl transition-all hover:scale-105 border-none shadow-lg">
+                    <Newspaper className="mr-2 w-6 h-6" /> Güncel Haberler
+                  </Button>
+                </Link>
+              </motion.div>
+            </div>
           </div>
-        </div>
-      </section>
-      {/* Features Section */}
-      <section className="py-24 bg-white border-b border-slate-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-            {[
-              { icon: ShieldCheck, title: "Profesyonel İçerik", desc: "Endüstri odaklı derinlemesine teknik incelemeler ve cihaz bakım protokolleri." },
-              { icon: Microscope, title: "Teknik Derinlik", desc: "Sensörlerden mikrodenetleyicilere, klinik mühendislik uygulamalarından kalibrasyon temellerine." },
-              { icon: Cpu, title: "Modern Teknoloji", desc: "Yeni nesil görüntüleme sistemleri ve modern yaşam destek üniteleri üzerine güncel modüller." }
-            ].map((f, i) => (
-              <div key={i} className="group p-10 rounded-[2.5rem] bg-slate-50/50 border border-slate-100 hover:bg-white hover:shadow-2xl transition-all duration-500">
-                <div className="w-16 h-16 rounded-2xl bg-teal-500 flex items-center justify-center text-white mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg shadow-teal-500/20">
-                  <f.icon className="w-8 h-8" />
+        </section>
+        {/* Features Section */}
+        <section className="py-24 bg-white border-b border-slate-100">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+              {[
+                { icon: ShieldCheck, title: "Profesyonel İçerik", desc: "Endüstri odaklı derinlemesine teknik incelemeler ve cihaz bakım protokolleri." },
+                { icon: Microscope, title: "Teknik Derinlik", desc: "Sensörlerden mikrodenetleyicilere, klinik mühendislik uygulamalarından kalibrasyon temellerine." },
+                { icon: Cpu, title: "Modern Teknoloji", desc: "Yeni nesil görüntüleme sistemleri ve modern yaşam destek üniteleri üzerine güncel modüller." }
+              ].map((f, i) => (
+                <div key={i} className="group p-10 rounded-[2.5rem] bg-slate-50/50 border border-slate-100 hover:bg-white hover:shadow-2xl transition-all duration-500">
+                  <div className="w-16 h-16 rounded-2xl bg-teal-500 flex items-center justify-center text-white mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg shadow-teal-500/20">
+                    <f.icon className="w-8 h-8" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-slate-900 mb-4">{f.title}</h3>
+                  <p className="text-slate-600 leading-relaxed font-medium">{f.desc}</p>
                 </div>
-                <h3 className="text-2xl font-bold text-slate-900 mb-4">{f.title}</h3>
-                <p className="text-slate-600 leading-relaxed font-medium">{f.desc}</p>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
-    </div>
+        </section>
+      </div>
+    </RootLayout>
   );
 }

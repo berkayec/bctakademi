@@ -9,10 +9,6 @@ interface Node {
   originalY: number;
   opacity: number;
 }
-/**
- * BackgroundNodes Layer: Handles the floating particles and parallax effect
- * using Canvas for efficient rendering of hundreds of connected points.
- */
 const BackgroundNodes = memo(() => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mouseRef = useRef({ x: 0, y: 0, targetX: 0, targetY: 0 });
@@ -111,10 +107,6 @@ const BackgroundNodes = memo(() => {
   return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none opacity-50" />;
 });
 BackgroundNodes.displayName = 'BackgroundNodes';
-/**
- * ECGWavePattern Layer: Pre-renders one full screen cycle of the ECG wave.
- * Used for GPU-accelerated CSS translation to ensure ultra-smooth 60fps.
- */
 const ECGWavePattern = memo(({ width, height }: { width: number; height: number }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
@@ -137,14 +129,12 @@ const ECGWavePattern = memo(({ width, height }: { width: number; height: number 
     ctx.shadowColor = 'rgba(20, 184, 166, 0.3)';
     for (let i = 0; i <= numPoints; i++) {
       const x = i * step;
-      let y = Math.sin(i * 0.2) * 2; // Subtle baseline jitter
-      // PQRST cycle logic for static pattern
-      // One cycle roughly every 45 points
+      let y = Math.sin(i * 0.2) * 2; 
       const waveCycle = i % 45;
-      if (waveCycle === 2) y -= 10;   // P
-      if (waveCycle === 5) y -= 75;   // R
-      if (waveCycle === 6) y += 35;   // S
-      if (waveCycle === 12) y -= 12;  // T
+      if (waveCycle === 2) y -= 10;   
+      if (waveCycle === 5) y -= 75;   
+      if (waveCycle === 6) y += 35;   
+      if (waveCycle === 12) y -= 12;  
       const renderX = x;
       const renderY = centerY + y;
       if (i === 0) ctx.moveTo(renderX, renderY);
@@ -155,13 +145,11 @@ const ECGWavePattern = memo(({ width, height }: { width: number; height: number 
   return <canvas ref={canvasRef} width={width} height={height} className="shrink-0" />;
 });
 ECGWavePattern.displayName = 'ECGWavePattern';
-/**
- * HeroInteractiveCanvas: Optimized 2-layer background system.
- * Background nodes run on Canvas RAF for depth.
- * ECG Wave runs on GPU (CSS transforms) for ultra-smooth scrolling.
- */
 export function HeroInteractiveCanvas() {
-  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  const [dimensions, setDimensions] = useState(() => ({
+    width: typeof window !== 'undefined' ? window.innerWidth : 0,
+    height: typeof window !== 'undefined' ? window.innerHeight * 0.95 : 0
+  }));
   useEffect(() => {
     const updateSize = () => {
       setDimensions({
@@ -176,11 +164,6 @@ export function HeroInteractiveCanvas() {
   return (
     <div className="relative w-full h-full overflow-hidden">
       <BackgroundNodes />
-      {/* 
-        ECG Scrolling Layer: 
-        Uses two identical canvases side-by-side to create a seamless loop 
-        when translated from 0 to -100%. 
-      */}
       {dimensions.width > 0 && (
         <div className="absolute inset-0 flex items-center pointer-events-none opacity-40">
           <motion.div

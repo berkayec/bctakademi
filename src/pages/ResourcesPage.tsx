@@ -17,8 +17,7 @@ export function ResourcesPage() {
   const isAuthenticated = useUserStore(s => s.isAuthenticated);
   const categories = ['Tümü', 'PDF', 'Video', 'Sunum'];
   const filteredResources = resources.filter(res => {
-    const typeLabel = res.type === 'Sunum' ? 'Sunum' : res.type;
-    const matchesFilter = filter === 'Tümü' || typeLabel === filter;
+    const matchesFilter = filter === 'Tümü' || res.type === filter;
     const matchesSearch =
       res.title.toLowerCase().includes(search.toLowerCase()) ||
       res.description.toLowerCase().includes(search.toLowerCase());
@@ -28,18 +27,16 @@ export function ResourcesPage() {
     if (processingId) return;
     setProcessingId(resId);
     const loadingToast = toast.loading(type === 'Video' ? "Oynatıcı hazırlanıyor..." : "Dosya hazırlanıyor...");
-    // Simulate preparation delay
     await new Promise(r => setTimeout(r, 1200));
     if (isAuthenticated) {
       trackResource(resId);
-      toast.success("+10 XP Kazandın!", { 
+      toast.success("+10 XP Kazandın!", {
         id: loadingToast,
-        icon: <Sparkles className="text-orange-500 w-4 h-4" /> 
+        icon: <Sparkles className="text-orange-500 w-4 h-4" />
       });
     } else {
       toast.dismiss(loadingToast);
     }
-    // Functional simulation: Open a placeholder or the actual resource
     window.open('https://google.com', '_blank');
     setProcessingId(null);
   };

@@ -1,6 +1,5 @@
 import '@/lib/errorReporter';
 import { enableMapSet } from "immer";
-
 import { createRoot } from 'react-dom/client'
 import {
   createBrowserRouter,
@@ -20,7 +19,6 @@ import { ResourcesPage } from '@/pages/ResourcesPage'
 import { BlogPage } from '@/pages/BlogPage'
 import { ContactPage } from '@/pages/ContactPage'
 import { CertificatePage } from '@/pages/CertificatePage'
-import { RootLayout } from '@/components/layout/RootLayout'
 import { AppShell } from '@/components/layout/AppShell'
 // Enable Immer Map/Set support
 enableMapSet();
@@ -39,19 +37,11 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: (
-          <RootLayout>
-            <HomePage />
-          </RootLayout>
-        ),
+        element: <HomePage />,
       },
       {
         path: "/portal",
-        element: (
-          <RootLayout>
-            <PortalPage />
-          </RootLayout>
-        ),
+        element: <PortalPage />,
       },
       {
         path: "/dersler",
@@ -75,19 +65,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/iletisim",
-        element: (
-          <RootLayout>
-            <ContactPage />
-          </RootLayout>
-        ),
+        element: <ContactPage />,
       },
       {
         path: "/sertifikalar",
-        element: (
-          <RootLayout>
-            <CertificatePage />
-          </RootLayout>
-        ),
+        element: <CertificatePage />,
       },
       {
         path: "*",
