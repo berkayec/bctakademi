@@ -1,6 +1,6 @@
 import '@/lib/errorReporter';
 import { enableMapSet } from "immer";
-import { StrictMode } from 'react'
+
 import { createRoot } from 'react-dom/client'
 import {
   createBrowserRouter,
@@ -99,11 +99,9 @@ const router = createBrowserRouter([
 const rootElement = document.getElementById('root');
 if (!rootElement) throw new Error('Failed to find the root element');
 createRoot(rootElement).render(
-  <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <ErrorBoundary>
-        <RouterProvider router={router} />
-      </ErrorBoundary>
-    </QueryClientProvider>
-  </StrictMode>,
+  <QueryClientProvider client={queryClient}>
+    <ErrorBoundary>
+      <RouterProvider router={router} />
+    </ErrorBoundary>
+  </QueryClientProvider>
 )
