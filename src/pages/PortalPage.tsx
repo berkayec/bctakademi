@@ -1,17 +1,31 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Play, FileText, CheckCircle2, ArrowRight, TrendingUp, BookOpen, Clock, Award } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Play, FileText, CheckCircle2, ArrowRight, TrendingUp, BookOpen, Clock, Award, Lock } from 'lucide-react';
 import { grades } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+import { useUserStore, getUserTitle } from '@/store/use-user-store';
 export function PortalPage() {
+  const navigate = useNavigate();
+  const user = useUserStore((s) => s.user);
+  const isAuthenticated = useUserStore((s) => s.isAuthenticated);
+  React.useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
+  if (!user) return null;
+  const currentTitle = getUserTitle(user.points);
+  const nextTitleThresholds = [500, 1500, 3000, 10000];
+  const nextThreshold = nextTitleThresholds.find(t => t > user.points) || 10000;
+  const levelProgress = (user.points / nextThreshold) * 100;
   const stats = [
-    { label: 'Tamamlanan', value: '12', icon: CheckCircle2, color: 'text-emerald-500', bg: 'bg-emerald-50' },
-    { label: 'Devam Eden', value: '3', icon: Play, color: 'text-orange-500', bg: 'bg-orange-50' },
-    { label: 'Kaynaklar', value: '8', icon: FileText, color: 'text-blue-500', bg: 'bg-blue-50' }
+    { label: 'Tamamlanan', value: user.completedUnits.length.toString(), icon: CheckCircle2, color: 'text-emerald-500', bg: 'bg-emerald-50' },
+    { label: 'XP Puanı', value: user.points.toString(), icon: TrendingUp, color: 'text-orange-500', bg: 'bg-orange-50' },
+    { label: 'Kaynaklar', value: user.accessedResources.length.toString(), icon: FileText, color: 'text-blue-500', bg: 'bg-blue-50' }
   ];
   const activityData = [
     { day: 'Pzt', hours: 2.5 },
@@ -31,16 +45,15 @@ export function PortalPage() {
           <div className="space-y-2">
             <div className="flex items-center gap-3 text-teal-600 mb-2">
               <Award className="w-5 h-5" />
-              <span className="font-bold uppercase tracking-widest text-xs">Akademik Panel</span>
+              <span className="font-bold uppercase tracking-widest text-xs">{currentTitle}</span>
             </div>
-            <h1 className="text-4xl font-display font-bold text-slate-900 tracking-tight">Hoş Geldin, Ahmet 👋</h1>
-            <p className="text-slate-500 text-lg">Biyomedikal yolculuğunda %45 yol kat ettin. Harika gidiyorsun!</p>
+            <h1 className="text-4xl font-display font-bold text-slate-900 tracking-tight">Hoş Geldin, {user.username} 👋</h1>
+            <p className="text-slate-500 text-lg">Biyomedikal yolculuğunda emin adımlarla ilerliyorsun.</p>
           </div>
           <div className="flex gap-3">
              <Button variant="outline" className="rounded-xl" asChild>
                <Link to="/sertifikalar">Sertifikalarım</Link>
              </Button>
-             <Button className="bg-slate-900 text-white rounded-xl">Profilini Düzenle</Button>
           </div>
         </header>
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -50,45 +63,39 @@ export function PortalPage() {
             </div>
             <CardHeader className="relative z-10 p-8">
               <div className="flex items-center gap-2 mb-4">
-                 <Badge className="bg-teal-500 hover:bg-teal-500 px-4 py-1 border-none">Aktif Öğrenim</Badge>
-                 <span className="text-xs text-slate-400 flex items-center gap-1"><Clock className="w-3 h-3" /> Son aktivite: 2 saat önce</span>
+                 <Badge className="bg-teal-500 hover:bg-teal-500 px-4 py-1 border-none">Ünvan İlerlemesi</Badge>
+                 <span className="text-xs text-slate-400 font-bold uppercase tracking-widest">Sonraki Hedef: {nextThreshold} XP</span>
               </div>
-              <CardTitle className="text-3xl md:text-4xl font-display leading-tight">{featuredCourse.title}</CardTitle>
+              <CardTitle className="text-3xl md:text-4xl font-display leading-tight">{currentTitle}</CardTitle>
               <CardDescription className="text-slate-400 text-lg max-w-md mt-4">
-                {featuredCourse.description}
+                Yeni ünvanlar kazanmak için daha fazla ünite tamamla ve testleri çöz.
               </CardDescription>
             </CardHeader>
             <CardContent className="relative z-10 space-y-8 p-8 pt-0">
               <div className="space-y-3">
                 <div className="flex justify-between text-sm font-bold tracking-wider uppercase opacity-80">
-                  <span>Kurs İlerlemesi</span>
-                  <span className="text-teal-400">%45</span>
+                  <span>Seviye İlerlemesi</span>
+                  <span className="text-teal-400">%{Math.round(levelProgress)}</span>
                 </div>
                 <div className="h-3 bg-slate-800 rounded-full overflow-hidden">
                    <motion.div
                     initial={{ width: 0 }}
-                    animate={{ width: '45%' }}
+                    animate={{ width: `${levelProgress}%` }}
                     transition={{ duration: 1.5, ease: "easeOut" }}
                     className="h-full bg-gradient-to-r from-teal-500 to-teal-300 relative"
-                   >
-                     <motion.div
-                      animate={{ opacity: [0.3, 0.6, 0.3] }}
-                      transition={{ repeat: Infinity, duration: 2 }}
-                      className="absolute inset-0 bg-white" 
-                     />
-                   </motion.div>
+                   />
                 </div>
               </div>
-              <Link to={`/dersler/${grades[0].id}/${featuredCourse.id}`} className="block">
+              <Link to="/dersler" className="block">
                 <Button className="w-full md:w-auto bg-orange-500 hover:bg-orange-600 text-white h-14 px-10 rounded-2xl font-bold transition-transform hover:scale-105 shadow-lg shadow-orange-500/20">
-                  Öğrenmeye Devam Et <ArrowRight className="ml-2 w-5 h-5" />
+                  Dersleri Keşfet <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
             </CardContent>
           </Card>
           <div className="space-y-4 flex flex-col justify-between">
             {stats.map((stat) => (
-              <Card key={stat.label} className="border-slate-100 shadow-sm hover:shadow-md hover:scale-[1.02] transition-all cursor-pointer flex-1">
+              <Card key={stat.label} className="border-slate-100 shadow-sm hover:shadow-md hover:scale-[1.02] transition-all flex-1">
                 <CardContent className="p-6 flex items-center gap-5">
                   <div className={`p-4 rounded-2xl ${stat.bg} ${stat.color}`}>
                     <stat.icon className="w-7 h-7" />
@@ -103,10 +110,17 @@ export function PortalPage() {
           </div>
         </section>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <Card className="lg:col-span-2 rounded-3xl border-slate-100">
+          <Card className="lg:col-span-2 rounded-3xl border-slate-100 relative">
+            {user.points < 300 && (
+              <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] z-20 flex flex-col items-center justify-center rounded-3xl p-6 text-center">
+                <Lock className="w-12 h-12 text-slate-400 mb-4" />
+                <h4 className="text-xl font-bold text-slate-900 mb-2">Detaylı Analiz Kilidi</h4>
+                <p className="text-slate-500 text-sm max-w-xs">Haftalık aktivite analizini görmek için en az 300 XP puanına ulaşmalısın.</p>
+              </div>
+            )}
             <CardHeader>
               <CardTitle className="text-xl font-bold">Haftalık Aktivite</CardTitle>
-              <CardDescription>Bu hafta toplam 15.3 saat çalışma yaptın.</CardDescription>
+              <CardDescription>Öğrenme istatistiklerin burada görünür.</CardDescription>
             </CardHeader>
             <CardContent className="h-64">
               <ResponsiveContainer width="100%" height="100%">

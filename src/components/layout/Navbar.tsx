@@ -1,17 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, Activity, LayoutDashboard, Search } from 'lucide-react';
+import { Menu, X, Activity, LayoutDashboard, Search, User, LogOut, Award } from 'lucide-react';
 import { navLinks } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useUserStore, getUserTitle } from '@/store/use-user-store';
+import { AuthModal } from '@/components/auth/AuthModal';
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const location = useLocation();
   const navigate = useNavigate();
+  const isAuthenticated = useUserStore((s) => s.isAuthenticated);
+  const user = useUserStore((s) => s.user);
+  const logout = useUserStore((s) => s.logout);
+  const handlePortalClick = () => {
+    if (isAuthenticated) {
+      navigate('/portal');
+    } else {
+      setIsAuthOpen(true);
+    }
+  };
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -59,95 +72,70 @@ export function Navbar() {
           <div className="flex items-center gap-4">
             <div className="relative hidden lg:flex items-center">
               <form onSubmit={handleSearch} className="flex items-center relative">
-                <Search className="absolute left-3 w-4 h-4 text-slate-400" />
+                <Search className="absolute left-3 w-4 h-4 text-slate-500" />
                 <Input
-                  className="bg-slate-900 border-slate-800 w-48 focus:w-64 transition-all rounded-xl h-10 pl-10 text-xs font-bold text-white placeholder:text-slate-500 focus-visible:ring-teal-500"
-                  placeholder="Hızlı Arama..."
+                  className="bg-slate-900 border-slate-800 w-40 focus:w-56 transition-all rounded-xl h-10 pl-10 text-xs font-bold text-white placeholder:text-slate-500 focus-visible:ring-teal-500"
+                  placeholder="Ara..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </form>
             </div>
-            <Link to="/portal" className="hidden sm:block">
-              <Button className="bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl px-6 h-11 transition-all active:scale-95 shadow-lg shadow-orange-500/20">
-                <LayoutDashboard className="w-4 h-4 mr-2" /> Portal
-              </Button>
-            </Link>
+            {isAuthenticated && user ? (
+              <div className="hidden sm:flex items-center gap-4 bg-slate-900/50 p-1 pr-4 rounded-full border border-slate-800">
+                <div className="w-8 h-8 rounded-full bg-teal-500 flex items-center justify-center text-xs font-bold">
+                  {user.username.charAt(0).toUpperCase()}
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-bold text-teal-400 uppercase leading-none">{getUserTitle(user.points)}</span>
+                  <span className="text-[10px] text-slate-400 font-bold">{user.points} XP</span>
+                </div>
+              </div>
+            ) : null}
+            <Button 
+              onClick={handlePortalClick}
+              className="bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl px-6 h-11 transition-all active:scale-95 shadow-lg shadow-orange-500/20"
+            >
+              <LayoutDashboard className="w-4 h-4 mr-2" /> Portal
+            </Button>
             <div className="md:hidden flex items-center gap-2">
-              <button
-                onClick={() => setIsSearchOpen(!isSearchOpen)}
-                className="p-2 text-slate-300 hover:text-white transition-colors"
-              >
+              <button onClick={() => setIsSearchOpen(!isSearchOpen)} className="p-2 text-slate-300 hover:text-white">
                 <Search className="w-6 h-6" />
               </button>
-              <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="p-2 text-slate-300 hover:text-white transition-colors"
-                aria-label="Menü"
-              >
+              <button onClick={() => setIsOpen(!isOpen)} className="p-2 text-slate-300 hover:text-white" aria-label="Menü">
                 {isOpen ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7" />}
               </button>
             </div>
           </div>
         </div>
       </div>
-      {/* Mobile Search Overlay */}
       <AnimatePresence>
         {isSearchOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="bg-slate-900 border-b border-slate-800 md:hidden overflow-hidden"
-          >
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="bg-slate-900 border-b border-slate-800 md:hidden overflow-hidden">
             <div className="p-4">
               <form onSubmit={handleSearch} className="relative">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                <Input
-                  className="bg-slate-950 border-slate-800 h-14 pl-12 rounded-xl text-white focus:ring-teal-500"
-                  placeholder="Ders veya konu ara..."
-                  autoFocus
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
+                <Input className="bg-slate-950 border-slate-800 h-14 pl-12 rounded-xl text-white focus:ring-teal-500" placeholder="Arama yap..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
               </form>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-      {/* Mobile Menu */}
-      <div
-        className={cn(
-          "md:hidden absolute w-full bg-slate-950 border-b border-slate-800 transition-all duration-300 ease-in-out z-40 shadow-2xl overflow-hidden",
-          isOpen ? "max-h-[500px] opacity-100 py-10" : "max-h-0 opacity-0"
-        )}
-      >
+      <div className={cn("md:hidden absolute w-full bg-slate-950 border-b border-slate-800 transition-all duration-300 z-40 overflow-hidden", isOpen ? "max-h-[600px] opacity-100 py-10" : "max-h-0 opacity-0")}>
         <div className="px-6 space-y-6">
-          {navLinks.map((link) => {
-            const isActive = location.pathname === link.href;
-            return (
-              <Link
-                key={link.name}
-                to={link.href}
-                className={cn(
-                  "block text-xl font-bold transition-all",
-                  isActive ? "text-teal-400 pl-4 border-l-4 border-teal-400" : "text-slate-400 hover:text-white"
-                )}
-                onClick={() => setIsOpen(false)}
-              >
-                {link.name}
-              </Link>
-            );
-          })}
-          <div className="pt-6">
-            <Link to="/portal" onClick={() => setIsOpen(false)}>
-              <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white h-14 text-lg font-bold rounded-2xl">
-                Öğrenci Portalı
-              </Button>
+          {navLinks.map((link) => (
+            <Link key={link.name} to={link.href} className="block text-xl font-bold text-slate-400 hover:text-white" onClick={() => setIsOpen(false)}>
+              {link.name}
             </Link>
-          </div>
+          ))}
+          {isAuthenticated && (
+            <button onClick={() => { logout(); setIsOpen(false); }} className="flex items-center gap-2 text-xl font-bold text-rose-400">
+              <LogOut className="w-5 h-5" /> Çıkış Yap
+            </button>
+          )}
         </div>
       </div>
+      <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
     </nav>
   );
 }

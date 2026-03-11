@@ -17,6 +17,8 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { useUserStore, getUserTitle } from '@/store/use-user-store';
+import { toast } from 'sonner';
 export function UnitContentView() {
   const { categoryId, courseId, unitId } = useParams();
   const [activeTopicIndex, setActiveTopicIndex] = useState(0);
@@ -25,6 +27,9 @@ export function UnitContentView() {
   const category = curriculum.find(c => c.id === categoryId);
   const course = category?.courses.find(c => c.id === courseId);
   const unit = course?.units.find(u => u.id === unitId);
+  const completeUnit = useUserStore(s => s.completeUnit);
+  const trackVideo = useUserStore(s => s.trackVideo);
+  const user = useUserStore(s => s.user);
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const target = e.currentTarget;
     const progress = (target.scrollTop / (target.scrollHeight - target.clientHeight)) * 100;
@@ -38,9 +43,24 @@ export function UnitContentView() {
   const currentTopic = unit.topics[activeTopicIndex];
   const handleComplete = () => {
     if (activeTopicIndex === unit.topics.length - 1) {
+      const oldTitle = user ? getUserTitle(user.points) : '';
+      completeUnit(unit.id);
       setUnitCompleted(true);
+      setTimeout(() => {
+        if (user && oldTitle !== getUserTitle(user.points + 100)) {
+          toast.success("SEVİYE ATLADIN!", {
+            description: `Yeni unvanın: ${getUserTitle(user.points + 100)}`,
+            duration: 5000,
+          });
+        }
+      }, 500);
     } else {
       setActiveTopicIndex(prev => prev + 1);
+    }
+  };
+  const handleVideoPlay = () => {
+    if (currentTopic.videoYoutubeId) {
+      trackVideo(currentTopic.videoYoutubeId);
     }
   };
   return (
@@ -59,7 +79,7 @@ export function UnitContentView() {
                   <CheckCircle className="w-12 h-12 text-white" />
                 </div>
                 <h2 className="text-3xl font-display font-bold text-white">Tebrikler!</h2>
-                <p className="text-slate-400 text-lg">"{unit.title}" ünitesini başarıyla tamamladınız.</p>
+                <p className="text-slate-400 text-lg">"{unit.title}" ünitesini başarıyla tamamladınız ve 100 XP kazandınız.</p>
                 <div className="flex gap-4 justify-center">
                   <Button asChild variant="outline" className="border-slate-700 text-white hover:bg-slate-800 rounded-xl">
                     <Link to={`/dersler/${categoryId}/${courseId}`}>Geri Dön</Link>
@@ -72,7 +92,6 @@ export function UnitContentView() {
             </motion.div>
           )}
         </AnimatePresence>
-        {/* Sidebar */}
         <div className="hidden md:flex w-80 flex-col border-r bg-white/40 backdrop-blur-xl border-slate-200">
           <div className="p-6 border-b bg-white/60">
             <Link to={`/dersler/${categoryId}/${courseId}`} className="flex items-center text-xs font-bold text-slate-400 hover:text-teal-600 transition-colors uppercase mb-4">
@@ -112,16 +131,12 @@ export function UnitContentView() {
             </div>
           </ScrollArea>
         </div>
-        {/* Content Area */}
         <div className="flex-1 flex flex-col bg-white overflow-hidden relative">
           <header className="px-8 py-4 border-b flex items-center justify-between bg-white/80 backdrop-blur-md z-10">
             <div className="flex items-center gap-4">
                <h2 className="text-lg font-bold text-slate-900 truncate max-w-[200px] sm:max-w-md">{currentTopic.title}</h2>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" className="text-slate-400 hover:text-slate-600 hidden sm:flex">
-                <Share2 className="w-5 h-5" />
-              </Button>
               <Button size="sm" onClick={handleComplete} className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-6 rounded-xl h-10 shadow-lg shadow-emerald-500/20">
                 {activeTopicIndex === unit.topics.length - 1 ? 'Üniteyi Bitir' : 'Sonraki Konu'}
               </Button>
@@ -133,6 +148,7 @@ export function UnitContentView() {
               {currentTopic.videoYoutubeId && (
                 <div className="aspect-video bg-slate-900 rounded-3xl overflow-hidden shadow-2xl relative group">
                   <iframe
+                    onLoad={handleVideoPlay}
                     className="w-full h-full border-none"
                     src={`https://www.youtube.com/embed/${currentTopic.videoYoutubeId}`}
                     title={currentTopic.title}
@@ -149,24 +165,6 @@ export function UnitContentView() {
                   {currentTopic.content}
                 </div>
               </article>
-              {currentTopic.attachments && currentTopic.attachments.length > 0 && (
-                <section className="pt-8 border-t border-slate-100">
-                  <h4 className="text-sm font-bold text-slate-900 uppercase tracking-widest mb-4">Ekler & Kaynaklar</h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {currentTopic.attachments.map((file, i) => (
-                      <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-200 hover:border-teal-300 transition-colors group">
-                        <div className="flex items-center gap-3">
-                          <FileText className="w-5 h-5 text-teal-600" />
-                          <span className="text-sm font-semibold text-slate-700">{file.title}</span>
-                        </div>
-                        <Button variant="ghost" size="icon" className="group-hover:text-teal-600">
-                          <Download className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-              )}
               {currentTopic.quiz && (
                 <div className="py-12 border-t">
                   <QuizSection key={currentTopic.id} quiz={currentTopic.quiz} />
@@ -184,11 +182,16 @@ function QuizSection({ quiz }: { quiz: QuizQuestion[] }) {
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [score, setScore] = useState(0);
+  const addPoints = useUserStore(s => s.addPoints);
   const currentQ = quiz[currentQIndex];
   const isCorrect = selectedOption === currentQ.correctAnswer;
   const handleSubmit = () => {
     setIsSubmitted(true);
-    if (isCorrect) setScore(prev => prev + 1);
+    if (isCorrect) {
+      setScore(prev => prev + 1);
+      addPoints(15);
+      toast.success("+15 XP Kazandın!");
+    }
   };
   const handleNext = () => {
     setSelectedOption(null);
@@ -214,9 +217,7 @@ function QuizSection({ quiz }: { quiz: QuizQuestion[] }) {
               onClick={() => setSelectedOption(i)}
               className={cn(
                 "p-5 rounded-2xl text-left font-medium transition-all border outline-none text-lg",
-                selectedOption === i
-                  ? "bg-teal-50 border-teal-500 text-teal-900 shadow-md"
-                  : "bg-white border-slate-200 hover:border-slate-300",
+                selectedOption === i ? "bg-teal-50 border-teal-500 text-teal-900" : "bg-white border-slate-200",
                 isSubmitted && i === currentQ.correctAnswer && "bg-emerald-50 border-emerald-500 text-emerald-900",
                 isSubmitted && selectedOption === i && i !== currentQ.correctAnswer && "bg-rose-50 border-rose-500 text-rose-900"
               )}
@@ -225,34 +226,15 @@ function QuizSection({ quiz }: { quiz: QuizQuestion[] }) {
             </button>
           ))}
         </div>
-        <AnimatePresence>
-          {isSubmitted && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={cn(
-              "p-6 rounded-2xl flex items-start gap-4 shadow-sm",
-              isCorrect ? "bg-emerald-50 text-emerald-800" : "bg-rose-50 text-rose-800"
-            )}>
-              {isCorrect ? <CheckCircle className="w-6 h-6 shrink-0 mt-0.5" /> : <AlertCircle className="w-6 h-6 shrink-0 mt-0.5" />}
-              <div>
-                <p className="font-bold text-lg">{isCorrect ? 'Tebrikler!' : 'Yanlış Cevap'}</p>
-                <p className="text-base opacity-90 leading-relaxed mt-2">{currentQ.explanation}</p>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
         {!isSubmitted ? (
-          <Button disabled={selectedOption === null} onClick={handleSubmit} className="w-full h-14 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-2xl text-lg transition-transform active:scale-95 shadow-xl">Cevabı Kontrol Et</Button>
+          <Button disabled={selectedOption === null} onClick={handleSubmit} className="w-full h-14 bg-slate-900 text-white rounded-2xl font-bold">Cevabı Kontrol Et</Button>
         ) : (
           currentQIndex < quiz.length - 1 ? (
-            <Button onClick={handleNext} className="w-full h-14 bg-teal-500 hover:bg-teal-600 text-white font-bold rounded-2xl text-lg shadow-xl shadow-teal-500/20">Sonraki Soru <ChevronRight className="ml-2 w-5 h-5" /></Button>
+            <Button onClick={handleNext} className="w-full h-14 bg-teal-500 text-white rounded-2xl font-bold">Sonraki Soru</Button>
           ) : (
-            <div className="text-center p-8 bg-white rounded-3xl border border-dashed border-slate-200 shadow-sm">
-              <div className="flex flex-col items-center gap-4">
-                <Award className="w-12 h-12 text-teal-600" />
-                <div>
-                  <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">Test Tamamlandı</p>
-                  <p className="text-4xl font-display font-bold text-teal-600 mt-1">Skor: {score} / {quiz.length}</p>
-                </div>
-              </div>
+            <div className="text-center p-8 bg-white rounded-3xl border border-dashed border-slate-200">
+              <Award className="w-12 h-12 text-teal-600 mx-auto mb-2" />
+              <p className="text-2xl font-display font-bold text-teal-600">Skor: {score} / {quiz.length}</p>
             </div>
           )
         )}
