@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, Activity, ShieldCheck, Microscope, Cpu, GraduationCap, Search, Globe, ChevronRight } from 'lucide-react';
+import { ArrowRight, Activity, ShieldCheck, Microscope, Cpu, GraduationCap, Search, Globe, ChevronRight, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { motion } from 'framer-motion';
@@ -47,8 +47,8 @@ export function HomePage() {
                 <div className="absolute -inset-1 bg-gradient-to-r from-teal-500 to-blue-600 rounded-2xl blur opacity-20 group-focus-within:opacity-40 transition-opacity" />
                 <div className="relative flex p-1.5 bg-white rounded-2xl border-none shadow-2xl">
                   <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                  <Input 
-                    placeholder="Biyoölçme, Defibrilatör veya İSG ara..." 
+                  <Input
+                    placeholder="Biyoölçme, Defibrilatör veya İSG ara..."
                     className="h-14 pl-14 pr-4 border-none shadow-none text-slate-900 bg-transparent text-lg focus-visible:ring-0"
                     value={searchValue}
                     onChange={(e) => setSearchValue(e.target.value)}

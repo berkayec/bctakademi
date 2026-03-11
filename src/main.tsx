@@ -47,12 +47,12 @@ const router = createBrowserRouter([
     errorElement: <RouteErrorBoundary />,
   },
   {
-    path: "/dersler/:gradeId/:courseId",
+    path: "/dersler/:categoryId/:courseId",
     element: <CourseDetailPage />,
     errorElement: <RouteErrorBoundary />,
   },
   {
-    path: "/dersler/:gradeId/:courseId/:unitId",
+    path: "/dersler/:categoryId/:courseId/:unitId",
     element: <UnitContentView />,
     errorElement: <RouteErrorBoundary />,
   },
