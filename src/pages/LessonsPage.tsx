@@ -15,12 +15,10 @@ export function LessonsPage() {
   const categoryFromUrl = searchParams.get('cat') || 'all';
   const [searchQuery, setSearchQuery] = useState(queryFromUrl);
   const [activeTab, setActiveTab] = useState(categoryFromUrl);
-  // Sync internal state if URL changes externally (back/forward)
   useEffect(() => {
     setSearchQuery(queryFromUrl);
     setActiveTab(categoryFromUrl);
   }, [queryFromUrl, categoryFromUrl]);
-  // Debounced URL synchronization
   useEffect(() => {
     const timer = setTimeout(() => {
       const params = new URLSearchParams();
@@ -43,6 +41,12 @@ export function LessonsPage() {
       )
     })).filter(cat => cat.courses.length > 0);
   }, [searchQuery]);
+  const activeTabResults = useMemo(() => {
+    if (activeTab === 'all') {
+      return filteredCategories;
+    }
+    return filteredCategories.filter(cat => cat.id === activeTab);
+  }, [activeTab, filteredCategories]);
   const handleClear = useCallback(() => {
     setSearchQuery('');
     setActiveTab('all');
@@ -93,33 +97,38 @@ export function LessonsPage() {
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
               >
-                {activeTab === 'all' ? (
-                  <div className="space-y-20">
-                    {filteredCategories.map(cat => (
-                      <div key={cat.id} className="space-y-8">
-                        <div className="flex items-center gap-6">
-                          <h2 className="text-2xl md:text-3xl font-display font-bold text-slate-900 whitespace-nowrap">{cat.title}</h2>
-                          <div className="h-px flex-1 bg-slate-200" />
-                          <Badge variant="outline" className="rounded-lg border-slate-200 font-bold hidden sm:inline-flex">{cat.courses.length} Ders</Badge>
+                {activeTabResults.length > 0 ? (
+                  activeTab === 'all' ? (
+                    <div className="space-y-20">
+                      {activeTabResults.map(cat => (
+                        <div key={cat.id} className="space-y-8">
+                          <div className="flex items-center gap-6">
+                            <h2 className="text-2xl md:text-3xl font-display font-bold text-slate-900 whitespace-nowrap">{cat.title}</h2>
+                            <div className="h-px flex-1 bg-slate-200" />
+                            <Badge variant="outline" className="rounded-lg border-slate-200 font-bold hidden sm:inline-flex">{cat.courses.length} Ders</Badge>
+                          </div>
+                          <CourseGrid categoryId={cat.id} courses={cat.courses} />
                         </div>
-                        <CourseGrid categoryId={cat.id} courses={cat.courses} />
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="space-y-8">
+                      {activeTabResults.map(cat => (
+                        <CourseGrid key={cat.id} categoryId={cat.id} courses={cat.courses} />
+                      ))}
+                    </div>
+                  )
                 ) : (
-                  <div className="space-y-8">
-                    {filteredCategories.filter(c => c.id === activeTab).map(cat => (
-                      <CourseGrid key={cat.id} categoryId={cat.id} courses={cat.courses} />
-                    ))}
-                  </div>
-                )}
-                {filteredCategories.length === 0 && (
                   <div className="py-24 text-center bg-slate-50/50 rounded-[3rem] border-2 border-dashed border-slate-200 max-w-2xl mx-auto">
                     <div className="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
                       <FileWarning className="w-12 h-12 text-slate-300" />
                     </div>
-                    <p className="text-slate-900 font-bold text-2xl mb-2">Eşleşen Ders Bulunamadı</p>
-                    <p className="text-slate-500 mb-8">"{searchQuery}" araması için herhangi bir sonuç çıkmadı.</p>
+                    <p className="text-slate-900 font-bold text-2xl mb-2">
+                      {activeTab === 'all' ? 'Eşleşen Ders Bulunamadı' : 'Bu Kategoride Sonuç Yok'}
+                    </p>
+                    <p className="text-slate-500 mb-8">
+                      "{searchQuery}" araması için {activeTab === 'all' ? 'herhangi bir' : 'bu kategoride'} sonuç çıkmadı.
+                    </p>
                     <Button
                       onClick={handleClear}
                       className="bg-slate-950 text-white rounded-xl px-8 border-none"

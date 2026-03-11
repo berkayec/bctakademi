@@ -89,7 +89,6 @@ export function UnitContentView() {
     setUnitCompleted(false);
     setScrollProgress(0);
     setHasCompletedCurrentQuiz(false);
-    // Explicit window reset for focus mode chrome handling
     window.scrollTo(0, 0);
   }, [unitId]);
   useEffect(() => {
@@ -97,6 +96,7 @@ export function UnitContentView() {
       scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
       setScrollProgress(0);
       setHasCompletedCurrentQuiz(false);
+      // Extra ensure for mobile view chrome
       window.scrollTo(0, 0);
     }
   }, [activeTopicIndex]);
@@ -111,7 +111,7 @@ export function UnitContentView() {
   const handleComplete = () => {
     if (currentTopic?.quiz && currentTopic.quiz.length > 0 && !hasCompletedCurrentQuiz) {
       toast("Bilgi Kontrolü", {
-        description: "Devam etmeden önce konuyu pekiştirmek için aşağıdaki quizi çözmenizi öneririz.",
+        description: "Devam etmeden önce quizi çözmenizi öneririz.",
         icon: <AlertCircle className="text-orange-500 w-4 h-4" />,
         action: {
           label: "Şimdi Çöz",
@@ -132,13 +132,13 @@ export function UnitContentView() {
           const updatedPoints = useUserStore.getState().user?.points ?? 0;
           const newTitle = getUserTitle(updatedPoints);
           if (oldTitle !== newTitle) {
-            toast.success("MÜKEMMEL İLERLEME!", {
-              description: `Yeni akademik seviyeye ulaştın: ${newTitle}`,
-              duration: 6000,
+            toast.success("SEVİYE ATLADIN!", {
+              description: `Yeni unvan: ${newTitle}`,
+              duration: 5000,
             });
           } else {
-            toast.success("Tebrikler!", {
-              description: "Üniteyi başarıyla tamamladın. XP puanların eklendi.",
+            toast.success("Ünite Tamamlandı!", {
+              description: "+100 XP kazandınız.",
             });
           }
         }, 300);
@@ -165,7 +165,7 @@ export function UnitContentView() {
                 </div>
                 <div className="space-y-3">
                   <h2 className="text-3xl font-display font-bold text-white">Ünite Tamamlandı!</h2>
-                  <p className="text-slate-400 text-lg">"{unit.title}" ünitesini başarıyla bitirdiniz. {isAuthenticated && "Akademik hanenize +100 XP eklendi."}</p>
+                  <p className="text-slate-400 text-lg">"{unit.title}" ünitesini başarıyla bitirdiniz.</p>
                 </div>
                 <div className="flex gap-4 justify-center">
                   <Button asChild variant="outline" className="border-slate-700 text-white hover:bg-slate-800 rounded-xl h-12 px-8">
@@ -239,9 +239,8 @@ export function UnitContentView() {
           >
             <div className="max-w-4xl mx-auto px-6 sm:px-8 pt-8 pb-24 space-y-12">
               <div className="flex flex-wrap items-center gap-6 text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-6">
-                 <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> Okuma: ~{unit.estimatedReadingTime}</span>
-                 <span className="flex items-center gap-1.5"><BookOpen className="w-3.5 h-3.5" /> Bölüm: {activeTopicIndex + 1}/{unit.topics.length}</span>
-                 {currentTopic?.videoYoutubeId && <span className="text-teal-500 px-2 py-0.5 bg-teal-50 rounded">Video İçerik</span>}
+                 <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> ~{unit.estimatedReadingTime}</span>
+                 <span className="flex items-center gap-1.5"><BookOpen className="w-3.5 h-3.5" /> {activeTopicIndex + 1}/{unit.topics.length}</span>
               </div>
               {currentTopic?.videoYoutubeId && (
                 <div className="aspect-video bg-slate-900 rounded-[2.5rem] overflow-hidden shadow-2xl relative group">
@@ -322,9 +321,9 @@ function QuizSection({ quiz, isAuthenticated, onSuccess }: { quiz: QuizQuestion[
             <div className="w-16 h-16 bg-emerald-500 rounded-full flex items-center justify-center text-white mb-2">
               <Trophy className="w-8 h-8" />
             </div>
-            <h4 className="text-2xl font-bold text-slate-900">Tebrikler! Quiz Tamamlandı</h4>
-            <p className="text-slate-500">Bu konuyu başarıyla pekiştirdiniz. Başarı oranınız: %{Math.round((score / quiz.length) * 100)}</p>
-            <Button onClick={() => setIsQuizFinished(false)} variant="outline" className="rounded-xl px-8 h-12">Sonucu Görüntüle</Button>
+            <h4 className="text-2xl font-bold text-slate-900">Quiz Tamamlandı!</h4>
+            <p className="text-slate-500">Doğru sayısı: {score} / {quiz.length}</p>
+            <Button onClick={() => setIsQuizFinished(false)} variant="outline" className="rounded-xl px-8 h-12">Sonucu Gör</Button>
           </motion.div>
         )}
       </AnimatePresence>
@@ -375,16 +374,16 @@ function QuizSection({ quiz, isAuthenticated, onSuccess }: { quiz: QuizQuestion[
                 isCorrect ? "bg-emerald-50 border-emerald-100 text-emerald-800" : "bg-rose-50 border-rose-100 text-rose-800"
               )}
             >
-              <p className="font-bold mb-1">{isCorrect ? "Harika, Doğru Cevap!" : "Hatalı Cevap"}</p>
+              <p className="font-bold mb-1">{isCorrect ? "Doğru!" : "Yanlış"}</p>
               {currentQ.explanation}
             </motion.div>
           )}
         </AnimatePresence>
         {!isSubmitted ? (
-          <Button disabled={selectedOption === null} onClick={handleSubmit} className="w-full h-14 bg-teal-500 hover:bg-teal-600 text-white rounded-2xl font-bold border-none shadow-xl active:scale-[0.98] transition-all">Cevabı Kontrol Et</Button>
+          <Button disabled={selectedOption === null} onClick={handleSubmit} className="w-full h-14 bg-teal-500 hover:bg-teal-600 text-white rounded-2xl font-bold border-none shadow-xl active:scale-[0.98] transition-all">Kontrol Et</Button>
         ) : (
           <Button onClick={handleNext} className="w-full h-14 bg-slate-950 text-white rounded-2xl font-bold border-none shadow-xl active:scale-[0.98] transition-all">
-            {currentQIndex < quiz.length - 1 ? 'Sonraki Soru' : 'Quiz Tamamlandı'}
+            {currentQIndex < quiz.length - 1 ? 'Sıradaki Soru' : 'Bitir'}
           </Button>
         )}
       </div>

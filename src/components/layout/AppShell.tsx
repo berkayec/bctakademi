@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
+import { Toaster } from '@/components/ui/sonner';
 import { ScrollToTop } from './ScrollToTop';
 /**
  * Global application shell that wraps all routes.
- * Handles cross-cutting concerns like scrolling to top on navigation
- * and setting page metadata.
+ * Handles cross-cutting concerns like scrolling to top on navigation,
+ * setting page metadata, and hosting the global notification system.
  */
 export function AppShell() {
   const { pathname } = useLocation();
@@ -15,6 +16,13 @@ export function AppShell() {
   return (
     <>
       <ScrollToTop />
+      <Toaster 
+        position="top-right" 
+        richColors 
+        expand={false}
+        theme="light"
+        className="font-sans"
+      />
       <Outlet />
     </>
   );
