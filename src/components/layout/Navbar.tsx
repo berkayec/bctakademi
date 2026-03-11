@@ -100,7 +100,7 @@ export function Navbar() {
               onClick={handlePortalClick}
               className="bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl px-6 h-11 transition-all active:scale-95 shadow-lg shadow-orange-500/20 border-none"
             >
-              {isAuthenticated ? <><LayoutDashboard className="w-4 h-4 mr-2" /> Portal</> : 'Giriş Yap'}
+              {isAuthenticated ? <><LayoutDashboard className="w-4 h-4 mr-2" /> Portal</> : 'Portal Giriş'}
             </Button>
             <div className="md:hidden flex items-center gap-2">
               <button onClick={() => setIsSearchOpen(!isSearchOpen)} className="p-2 text-slate-300 hover:text-white">

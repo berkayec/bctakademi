@@ -4,7 +4,6 @@ import { ArrowRight, ShieldCheck, Microscope, Cpu, Search, Newspaper } from 'luc
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { motion, useScroll, useSpring } from 'framer-motion';
-import { Logo } from '@/components/Logo';
 export function HomePage() {
   const navigate = useNavigate();
   const [searchValue, setSearchValue] = useState('');
@@ -24,44 +23,43 @@ export function HomePage() {
     <div className="flex flex-col">
       <motion.div className="fixed top-0 left-0 right-0 h-1 bg-orange-500 origin-left z-[60]" style={{ scaleX }} />
       {/* Hero Section */}
-      <section className="relative bg-slate-950 pt-24 pb-36 overflow-hidden min-h-[90vh] flex items-center">
+      <section className="relative bg-slate-950 pt-32 pb-40 md:pt-40 md:pb-48 overflow-hidden min-h-[95vh] flex items-center">
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1579154235602-3c37ca99a3ae?auto=format&fit=crop&q=80&w=1920"
-            alt="Biomedical Laboratory"
-            className="w-full h-full object-cover opacity-20"
+            src="https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?auto=format&fit=crop&q=80&w=1920"
+            alt="Biomedical Technology Background"
+            className="w-full h-full object-cover opacity-30"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/95 via-slate-950/70 to-slate-950" />
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/95 via-slate-950/60 to-slate-950" />
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
           <div className="text-center space-y-12">
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }} 
-              animate={{ opacity: 1, y: 0 }} 
-              transition={{ duration: 0.6 }}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
               className="flex flex-col items-center"
             >
-              <Logo size={84} className="mb-10 animate-float" />
-              <h1 className="text-display text-white mb-6 tracking-tighter">
+              <h1 className="text-display text-white mb-8 tracking-tighter drop-shadow-sm">
                 Geleceğin Sağlık <br className="hidden sm:block" />
                 <span className="text-orange-500">Teknolojisini Keşfet</span>
               </h1>
-              <p className="max-w-2xl mx-auto text-sm md:text-base text-slate-300 font-bold tracking-[0.3em] uppercase mb-8">
-                Biyomedikal Cihaz Teknolojileri
+              <p className="max-w-2xl mx-auto text-sm md:text-base text-teal-400 font-bold tracking-[0.4em] uppercase mb-10">
+                Biyomedikal Cihaz Teknolojileri Akademisi
               </p>
-              <p className="max-w-3xl mx-auto text-lg md:text-xl text-slate-400 leading-relaxed font-medium">
-                Türkiye'nin en kapsamlı biyomedikal eğitim platformu. Profesyonel teknik içerikler, 
+              <p className="max-w-3xl mx-auto text-lg md:text-2xl text-slate-300 leading-relaxed font-medium">
+                Türkiye'nin en kapsamlı biyomedikal eğitim platformu. Profesyonel teknik içerikler,
                 cihaz dökümantasyonları ve klinik mühendislik temelleri.
               </p>
             </motion.div>
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }} 
-              animate={{ opacity: 1, scale: 1 }} 
-              transition={{ delay: 0.2, duration: 0.6 }} 
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
               className="max-w-2xl mx-auto"
             >
               <form onSubmit={handleSearch} className="relative group">
-                <div className="absolute -inset-1 bg-gradient-to-r from-teal-500 to-orange-500 rounded-2xl blur opacity-20 group-focus-within:opacity-40 transition-opacity" />
+                <div className="absolute -inset-1 bg-gradient-to-r from-teal-500 to-orange-500 rounded-2xl blur opacity-25 group-focus-within:opacity-50 transition-opacity" />
                 <div className="relative flex p-1.5 bg-white rounded-2xl shadow-2xl">
                   <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                   <Input
@@ -76,7 +74,12 @@ export function HomePage() {
                 </div>
               </form>
             </motion.div>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="flex flex-col sm:flex-row justify-center gap-6 pt-4">
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }} 
+              transition={{ delay: 0.5 }} 
+              className="flex flex-col sm:flex-row justify-center gap-6 pt-4"
+            >
               <Link to="/dersler">
                 <Button className="w-full sm:w-auto h-16 px-10 bg-teal-600 hover:bg-teal-700 text-white font-bold text-lg rounded-2xl group shadow-xl transition-all hover:scale-105 border-none">
                   Kataloğu İncele <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
