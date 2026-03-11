@@ -28,8 +28,8 @@ export function UnitContentView() {
   const unit = course?.units.find(u => u.id === unitId);
   const completeUnit = useUserStore(s => s.completeUnit);
   const trackVideo = useUserStore(s => s.trackVideo);
-  const user = useUserStore(s => s.user);
-  const points = useUserStore(s => s.user?.points ?? 0);
+  const isAuthenticated = useUserStore(s => s.isAuthenticated);
+  const userPoints = useUserStore(s => s.user?.points ?? 0);
   const handleScroll = () => {
     if (scrollContainerRef.current) {
       const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
@@ -48,30 +48,32 @@ export function UnitContentView() {
       setScrollProgress(0);
     }
   }, [activeTopicIndex]);
-  if (!unit || !course) return <div className="p-20 text-center text-slate-500">İçerik bulunamadı.</div>;
+  if (!unit || !course) return <div className="p-20 text-center text-slate-500 font-bold">İçerik bulunamadı.</div>;
   const currentTopic = unit.topics[activeTopicIndex];
   const handleComplete = () => {
     if (activeTopicIndex === unit.topics.length - 1) {
-      const oldTitle = getUserTitle(points);
+      const oldTitle = getUserTitle(userPoints);
       completeUnit(unit.id);
       setUnitCompleted(true);
-      // Delay check for title change until store updates
-      setTimeout(() => {
-        const newPoints = useUserStore.getState().user?.points ?? 0;
-        const newTitle = getUserTitle(newPoints);
-        if (oldTitle !== newTitle) {
-          toast.success("SEVİYE ATLADIN!", {
-            description: `Yeni unvanın: ${newTitle}`,
-            duration: 5000,
-          });
-        }
-      }, 100);
+      if (isAuthenticated) {
+        setTimeout(() => {
+          const currentStoreState = useUserStore.getState();
+          const newPoints = currentStoreState.user?.points ?? 0;
+          const newTitle = getUserTitle(newPoints);
+          if (oldTitle !== newTitle) {
+            toast.success("SEVİYE ATLADIN!", {
+              description: `Yeni unvanın: ${newTitle}`,
+              duration: 5000,
+            });
+          }
+        }, 150);
+      }
     } else {
       setActiveTopicIndex(prev => prev + 1);
     }
   };
   const handleVideoPlay = () => {
-    if (currentTopic.videoYoutubeId) {
+    if (currentTopic.videoYoutubeId && isAuthenticated) {
       trackVideo(currentTopic.videoYoutubeId);
     }
   };
@@ -100,7 +102,7 @@ export function UnitContentView() {
             </div>
             <div className="flex-1 min-w-0">
               <p className={cn(
-                "text-sm font-semibold truncate",
+                "text-sm font-bold truncate",
                 activeTopicIndex === idx ? "text-teal-900" : "text-slate-700"
               )}>{topic.title}</p>
             </div>
@@ -121,18 +123,20 @@ export function UnitContentView() {
               exit={{ opacity: 0 }}
               className="absolute inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-6 text-center"
             >
-              <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} className="max-w-md space-y-6">
+              <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} className="max-w-md space-y-8">
                 <div className="w-24 h-24 bg-teal-500 rounded-full flex items-center justify-center mx-auto shadow-teal-500/50 shadow-2xl">
                   <CheckCircle className="w-12 h-12 text-white" />
                 </div>
-                <h2 className="text-3xl font-display font-bold text-white">Tebrikler!</h2>
-                <p className="text-slate-400 text-lg">"{unit.title}" ünitesini başarıyla tamamladınız ve 100 XP kazandınız.</p>
+                <div className="space-y-3">
+                  <h2 className="text-3xl font-display font-bold text-white">Ünite Tamamlandı!</h2>
+                  <p className="text-slate-400 text-lg">"{unit.title}" ünitesini başarıyla tamamladınız. {isAuthenticated && "Akademik hanenize 100 XP eklendi."}</p>
+                </div>
                 <div className="flex gap-4 justify-center">
-                  <Button asChild variant="outline" className="border-slate-700 text-white hover:bg-slate-800 rounded-xl">
+                  <Button asChild variant="outline" className="border-slate-700 text-white hover:bg-slate-800 rounded-xl h-12 px-8">
                     <Link to={`/dersler/${categoryId}/${courseId}`}>Derse Dön</Link>
                   </Button>
-                  <Button asChild className="bg-teal-500 hover:bg-teal-600 rounded-xl border-none">
-                    <Link to="/dersler">Müfredata Göz At</Link>
+                  <Button asChild className="bg-teal-500 hover:bg-teal-600 rounded-xl border-none h-12 px-8 font-bold">
+                    <Link to="/dersler">Sıradaki Kurs</Link>
                   </Button>
                 </div>
               </motion.div>
@@ -142,8 +146,8 @@ export function UnitContentView() {
         {/* Desktop Sidebar */}
         <div className="hidden md:flex w-80 flex-col border-r bg-white/40 backdrop-blur-xl border-slate-200">
           <div className="p-6 border-b bg-white/60">
-            <Link to={`/dersler/${categoryId}/${courseId}`} className="flex items-center text-xs font-bold text-teal-600 hover:underline transition-all uppercase mb-4">
-              <ChevronLeft className="w-4 h-4 mr-1" /> {course.title}
+            <Link to={`/dersler/${categoryId}/${courseId}`} className="flex items-center text-[10px] font-bold text-teal-600 hover:underline transition-all uppercase mb-3 tracking-widest">
+              <ChevronLeft className="w-3.5 h-3.5 mr-1" /> {course.title}
             </Link>
             <h3 className="font-bold text-slate-900 line-clamp-2 leading-tight">{unit.title}</h3>
           </div>
@@ -157,14 +161,14 @@ export function UnitContentView() {
             <div className="flex items-center gap-3">
               <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
                 <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="md:hidden">
-                    <MenuIcon className="w-6 h-6 text-slate-600" />
+                  <Button variant="ghost" size="icon" className="md:hidden text-slate-600 hover:bg-slate-50">
+                    <MenuIcon className="w-6 h-6" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="w-[300px] p-0">
-                  <SheetHeader className="p-6 border-b text-left">
-                    <Link to={`/dersler/${categoryId}/${courseId}`} className="flex items-center text-xs font-bold text-teal-600 hover:underline transition-all uppercase mb-2">
-                      <ChevronLeft className="w-4 h-4 mr-1" /> {course.title}
+                <SheetContent side="left" className="w-[300px] p-0 bg-white/95 backdrop-blur-xl border-r">
+                  <SheetHeader className="p-6 border-b text-left bg-white/50">
+                    <Link to={`/dersler/${categoryId}/${courseId}`} className="flex items-center text-[10px] font-bold text-teal-600 hover:underline transition-all uppercase mb-2 tracking-widest">
+                      <ChevronLeft className="w-3.5 h-3.5 mr-1" /> {course.title}
                     </Link>
                     <SheetTitle className="text-lg font-bold text-slate-900">{unit.title}</SheetTitle>
                   </SheetHeader>
@@ -173,13 +177,13 @@ export function UnitContentView() {
                   </ScrollArea>
                 </SheetContent>
               </Sheet>
-              <h2 className="text-base md:text-lg font-bold text-slate-900 truncate max-w-[180px] sm:max-w-md">
+              <h2 className="text-sm md:text-base font-bold text-slate-900 truncate max-w-[150px] sm:max-w-md">
                 {currentTopic.title}
               </h2>
             </div>
             <div className="flex items-center gap-2">
-              <Button size="sm" onClick={handleComplete} className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-4 md:px-6 rounded-xl h-10 shadow-lg shadow-emerald-500/20 border-none">
-                {activeTopicIndex === unit.topics.length - 1 ? 'Bitir' : 'Sonraki'}
+              <Button size="sm" onClick={handleComplete} className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-5 md:px-8 rounded-xl h-10 shadow-lg shadow-emerald-500/20 border-none transition-all active:scale-95">
+                {activeTopicIndex === unit.topics.length - 1 ? 'Üniteyi Bitir' : 'Sonraki'}
               </Button>
             </div>
             <div className="absolute bottom-0 left-0 h-1 bg-teal-500 transition-all duration-300" style={{ width: `${scrollProgress}%` }} />
@@ -203,16 +207,16 @@ export function UnitContentView() {
                 </div>
               )}
               <article className="prose prose-slate max-w-none">
-                <h1 className="text-3xl md:text-4xl font-display font-bold text-slate-900 leading-tight mb-8">
+                <h1 className="text-3xl md:text-5xl font-display font-bold text-slate-900 leading-tight mb-8">
                   {currentTopic.title}
                 </h1>
-                <div className="text-slate-600 text-lg md:text-xl leading-relaxed md:leading-loose font-sans whitespace-pre-wrap">
+                <div className="text-slate-600 text-lg md:text-xl leading-relaxed md:leading-[2.2] font-sans whitespace-pre-wrap">
                   {currentTopic.content}
                 </div>
               </article>
               {currentTopic.quiz && (
-                <div className="py-12 border-t">
-                  <QuizSection key={currentTopic.id} quiz={currentTopic.quiz} />
+                <div className="py-12 border-t border-slate-100">
+                  <QuizSection key={currentTopic.id} quiz={currentTopic.quiz} isAuthenticated={isAuthenticated} />
                 </div>
               )}
             </div>
@@ -222,7 +226,7 @@ export function UnitContentView() {
     </div>
   );
 }
-function QuizSection({ quiz }: { quiz: QuizQuestion[] }) {
+function QuizSection({ quiz, isAuthenticated }: { quiz: QuizQuestion[], isAuthenticated: boolean }) {
   const [currentQIndex, setCurrentQIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -234,8 +238,12 @@ function QuizSection({ quiz }: { quiz: QuizQuestion[] }) {
     setIsSubmitted(true);
     if (isCorrect) {
       setScore(prev => prev + 1);
-      addPoints(15);
-      toast.success("+15 XP Kazandın!");
+      if (isAuthenticated) {
+        addPoints(15);
+        toast.success("+15 XP Kazandın!", {
+          icon: <Award className="text-orange-500 w-4 h-4" />
+        });
+      }
     }
   };
   const handleNext = () => {
@@ -244,14 +252,16 @@ function QuizSection({ quiz }: { quiz: QuizQuestion[] }) {
     setCurrentQIndex(prev => prev + 1);
   };
   return (
-    <div className="bg-slate-50 rounded-[2rem] p-6 md:p-12 border border-slate-200">
+    <div className="bg-slate-50 rounded-[2.5rem] p-6 md:p-12 border border-slate-200 shadow-sm">
       <div className="flex items-center gap-2 text-teal-600 mb-8">
-        <HelpCircle className="w-6 h-6" />
-        <span className="font-bold uppercase tracking-widest text-sm">Kendini Test Et</span>
+        <div className="p-2 bg-teal-50 rounded-lg">
+          <HelpCircle className="w-5 h-5" />
+        </div>
+        <span className="font-bold uppercase tracking-widest text-xs">Akademik Değerlendirme</span>
       </div>
       <div className="space-y-8">
-        <div className="space-y-2">
-          <p className="text-sm font-bold text-slate-400">Soru {currentQIndex + 1} / {quiz.length}</p>
+        <div className="space-y-3">
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Soru {currentQIndex + 1} / {quiz.length}</p>
           <h4 className="text-xl md:text-2xl font-bold text-slate-900 leading-tight">{currentQ.question}</h4>
         </div>
         <div className="grid grid-cols-1 gap-4">
@@ -261,25 +271,49 @@ function QuizSection({ quiz }: { quiz: QuizQuestion[] }) {
               disabled={isSubmitted}
               onClick={() => setSelectedOption(i)}
               className={cn(
-                "p-4 md:p-5 rounded-2xl text-left font-medium transition-all border outline-none text-base md:text-lg",
-                selectedOption === i ? "bg-teal-50 border-teal-500 text-teal-900" : "bg-white border-slate-200",
+                "p-5 rounded-2xl text-left font-bold transition-all border outline-none text-base md:text-lg shadow-sm",
+                selectedOption === i ? "bg-teal-50 border-teal-500 text-teal-900" : "bg-white border-slate-200 hover:border-teal-200",
                 isSubmitted && i === currentQ.correctAnswer && "bg-emerald-50 border-emerald-500 text-emerald-900",
-                isSubmitted && selectedOption === i && i !== currentQ.correctAnswer && "bg-rose-50 border-rose-500 text-rose-900"
+                isSubmitted && selectedOption === i && i !== currentQ.correctAnswer && "bg-rose-50 border-rose-500 text-rose-900",
+                isSubmitted && "cursor-default"
               )}
             >
-              {opt}
+              <div className="flex items-center gap-4">
+                <span className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-xs text-slate-500 group-hover:bg-teal-100 transition-colors">
+                  {String.fromCharCode(65 + i)}
+                </span>
+                {opt}
+              </div>
             </button>
           ))}
         </div>
+        <AnimatePresence mode="wait">
+          {isSubmitted && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              className={cn(
+                "p-6 rounded-2xl text-sm font-medium leading-relaxed",
+                isCorrect ? "bg-emerald-50 text-emerald-800" : "bg-rose-50 text-rose-800"
+              )}
+            >
+              <p className="font-bold mb-1">{isCorrect ? "Doğru!" : "Yanlış Cevap"}</p>
+              {currentQ.explanation}
+            </motion.div>
+          )}
+        </AnimatePresence>
         {!isSubmitted ? (
-          <Button disabled={selectedOption === null} onClick={handleSubmit} className="w-full h-14 bg-slate-900 text-white rounded-2xl font-bold border-none">Cevabı Kontrol Et</Button>
+          <Button disabled={selectedOption === null} onClick={handleSubmit} className="w-full h-14 bg-slate-950 text-white rounded-2xl font-bold border-none shadow-xl active:scale-[0.98] transition-all">Cevabı Kontrol Et</Button>
         ) : (
           currentQIndex < quiz.length - 1 ? (
-            <Button onClick={handleNext} className="w-full h-14 bg-teal-500 text-white rounded-2xl font-bold border-none">Sonraki Soru</Button>
+            <Button onClick={handleNext} className="w-full h-14 bg-teal-500 text-white rounded-2xl font-bold border-none shadow-xl active:scale-[0.98] transition-all">Sonraki Soru</Button>
           ) : (
-            <div className="text-center p-8 bg-white rounded-3xl border border-dashed border-slate-200">
-              <Award className="w-12 h-12 text-teal-600 mx-auto mb-2" />
-              <p className="text-2xl font-display font-bold text-teal-600">Skor: {score} / {quiz.length}</p>
+            <div className="text-center p-10 bg-white rounded-[2rem] border border-dashed border-slate-200">
+              <div className="w-16 h-16 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Award className="w-8 h-8 text-teal-600" />
+              </div>
+              <p className="text-3xl font-display font-bold text-teal-600">Skor: {score} / {quiz.length}</p>
+              <p className="text-slate-500 mt-2 font-medium">Bu konuyu başarıyla tamamladınız!</p>
             </div>
           )
         )}
