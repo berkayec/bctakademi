@@ -29,6 +29,7 @@ export function HeroInteractiveCanvas() {
       const rect = canvas.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
+      // Mouse interaction kept for nodes, but separated from wave logic
       mouseRef.current.targetX = (x / width - 0.5) * 2;
       mouseRef.current.targetY = (y / height - 0.5) * 2;
     };
@@ -46,7 +47,6 @@ export function HeroInteractiveCanvas() {
           y,
           originalX: x,
           originalY: y,
-          // Reduced node velocity from 0.3 to 0.1 for a more stable atmosphere
           vx: (Math.random() - 0.5) * 0.1,
           vy: (Math.random() - 0.5) * 0.1,
           opacity: Math.random() * 0.5 + 0.2
@@ -59,14 +59,13 @@ export function HeroInteractiveCanvas() {
     let currentParallaxY = 0;
     const draw = () => {
       ctx.clearRect(0, 0, width, height);
-      // Smoother global fade-in on mount (increment reduced from 0.01 to 0.005)
       if (opacityRef.current < 1) opacityRef.current += 0.005;
-      // Smooth parallax transition
+      // Smoothed parallax for nodes
       currentParallaxX += (mouseRef.current.targetX - currentParallaxX) * 0.05;
       currentParallaxY += (mouseRef.current.targetY - currentParallaxY) * 0.05;
+      // Background Nodes: Keep parallax for depth
       const parallaxShiftX = currentParallaxX * 45;
       const parallaxShiftY = currentParallaxY * 45;
-      // Node Interaction & Rendering
       ctx.lineWidth = 0.5;
       for (let i = 0; i < nodes.length; i++) {
         const node = nodes[i];
@@ -82,7 +81,6 @@ export function HeroInteractiveCanvas() {
         ctx.beginPath();
         ctx.arc(node.x, node.y, 1.2, 0, Math.PI * 2);
         ctx.fill();
-        // Optimized Mesh Logic
         for (let j = i + 1; j < nodes.length; j++) {
           const other = nodes[j];
           const dx = node.x - other.x;
@@ -100,46 +98,47 @@ export function HeroInteractiveCanvas() {
           }
         }
       }
-      // ECG Wave System
+      // ECG Wave System: Strictly Horizontal & Linear
+      // centerY is fixed to ensure no vertical jitter
       const centerY = height / 2;
       const numWavePoints = 140;
       const step = width / numWavePoints;
       ctx.beginPath();
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 2.5; // Slightly refined line width for clinical look
       const waveGradient = ctx.createLinearGradient(0, 0, width, 0);
       waveGradient.addColorStop(0, 'rgba(20, 184, 166, 0)');
-      waveGradient.addColorStop(0.3, 'rgba(20, 184, 166, 0.4)');
-      waveGradient.addColorStop(0.5, 'rgba(243, 128, 32, 0.8)'); 
-      waveGradient.addColorStop(0.7, 'rgba(20, 184, 166, 0.4)');
+      waveGradient.addColorStop(0.2, 'rgba(20, 184, 166, 0.3)');
+      waveGradient.addColorStop(0.5, 'rgba(243, 128, 32, 0.7)'); // Orange peak highlight
+      waveGradient.addColorStop(0.8, 'rgba(20, 184, 166, 0.3)');
       waveGradient.addColorStop(1, 'rgba(20, 184, 166, 0)');
       ctx.strokeStyle = waveGradient;
-      ctx.shadowBlur = 15;
-      ctx.shadowColor = 'rgba(20, 184, 166, 0.4)';
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = 'rgba(20, 184, 166, 0.2)';
+      // We calculate the wave from right-to-left
+      // offset controls the horizontal propagation
       for (let i = 0; i <= numWavePoints; i++) {
         const x = i * step;
-        let y = Math.sin(i * 0.12 + offset) * 6;
-        // Complex PQRST simulation
-        const waveCycle = (i + Math.floor(offset * 5)) % 40;
-        if (waveCycle === 2) y -= 12; // P
-        if (waveCycle === 5) y -= 80; // R
-        if (waveCycle === 6) y += 35; // S
-        if (waveCycle === 12) y -= 15; // T
-        // Mouse Depth Interaction
-        const mouseDx = x - (width / 2 + currentParallaxX * width * 0.4);
-        const mouseDist = Math.abs(mouseDx);
-        if (mouseDist < 300) {
-          const power = (300 - mouseDist) / 300;
-          y += Math.sin(offset * 6) * 12 * power;
-        }
-        const renderX = x + parallaxShiftX * -0.6;
-        const renderY = centerY + y + parallaxShiftY * -0.4;
+        // Base sine for idle pulse
+        let y = Math.sin(i * 0.15 + offset) * 3;
+        // PQRST Peak Logic
+        // The cycle is based on horizontal position + global time offset
+        // This creates the "moving through" effect from right to left
+        const waveCycle = (i + Math.floor(offset * 6)) % 45;
+        if (waveCycle === 2) y -= 10;   // P wave
+        if (waveCycle === 5) y -= 70;   // R peak
+        if (waveCycle === 6) y += 30;   // S wave
+        if (waveCycle === 12) y -= 12;  // T wave
+        // NO Mouse proximity vertical jitter or Parallax Y shift applied to wave
+        const renderX = x; 
+        const renderY = centerY + y;
         if (i === 0) ctx.moveTo(renderX, renderY);
         else ctx.lineTo(renderX, renderY);
       }
       ctx.stroke();
       ctx.shadowBlur = 0;
-      // Significantly slowed down ECG propagation from 0.035 to 0.012
-      offset += 0.012;
+      // offset increment controls speed of right-to-left flow
+      // 0.01 is calm and professional
+      offset += 0.01;
       animationFrameId = requestAnimationFrame(draw);
     };
     draw();
@@ -152,7 +151,7 @@ export function HeroInteractiveCanvas() {
   return (
     <canvas
       ref={canvasRef}
-      className="w-full h-full pointer-events-none opacity-60"
+      className="w-full h-full pointer-events-none opacity-50"
     />
   );
 }
