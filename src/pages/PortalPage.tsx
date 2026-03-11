@@ -1,10 +1,11 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FileText, CheckCircle2, ArrowRight, TrendingUp, Award, Lock } from 'lucide-react';
 import { curriculum } from '@/lib/curriculum';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { useUserStore, getUserTitle } from '@/store/use-user-store';
@@ -12,11 +13,17 @@ export function PortalPage() {
   const navigate = useNavigate();
   const user = useUserStore((s) => s.user);
   const isAuthenticated = useUserStore((s) => s.isAuthenticated);
-  React.useEffect(() => {
-    if (!isAuthenticated) {
+  const [isHydrated, setIsHydrated] = useState(false);
+  useEffect(() => {
+    // Check for hydration to prevent flicker
+    const timer = setTimeout(() => setIsHydrated(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
+  useEffect(() => {
+    if (isHydrated && !isAuthenticated) {
       navigate('/');
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, isHydrated]);
   const stats = useMemo(() => {
     if (!user) return [];
     return [
@@ -32,11 +39,29 @@ export function PortalPage() {
       .filter(c => !user.completedUnits.some(unitId => c.units.some(u => u.id === unitId)))
       .slice(0, 2);
   }, [user]);
-  if (!user) return null;
-  const currentTitle = getUserTitle(user.points);
+  if (!isHydrated || !user) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
+        <div className="space-y-4">
+          <Skeleton className="h-12 w-64 rounded-xl" />
+          <Skeleton className="h-6 w-96 rounded-xl" />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <Skeleton className="h-[400px] lg:col-span-2 rounded-[2.5rem]" />
+          <div className="space-y-6">
+            <Skeleton className="h-24 rounded-3xl" />
+            <Skeleton className="h-24 rounded-3xl" />
+            <Skeleton className="h-24 rounded-3xl" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+  const points = user.points;
+  const currentTitle = getUserTitle(points);
   const nextTitleThresholds = [500, 1500, 3000, 10000];
-  const nextThreshold = nextTitleThresholds.find(t => t > user.points) || 10000;
-  const levelProgress = Math.min(Math.max((user.points / nextThreshold) * 100, 0), 100);
+  const nextThreshold = nextTitleThresholds.find(t => t > points) || 10000;
+  const levelProgress = Math.min(Math.max((points / nextThreshold) * 100, 0), 100);
   const activityData = [
     { day: 'Pzt', hours: 2.5 },
     { day: 'Sal', hours: 1.8 },
@@ -55,7 +80,7 @@ export function PortalPage() {
               <Award className="w-6 h-6" />
               <span className="font-bold uppercase tracking-[0.2em] text-xs">{currentTitle}</span>
             </div>
-            <h1 className="text-4xl md:text-5xl font-display font-bold text-slate-900 tracking-tighter">BCTAkademi Portalı 👋</h1>
+            <h1 className="text-3xl md:text-5xl font-display font-bold text-slate-900 tracking-tighter">BCTAkademi Portalı 👋</h1>
             <p className="text-slate-500 text-lg font-medium">Hoş geldin {user.username}. Akademik gelişimin burada yönetiliyor.</p>
           </div>
           <div className="flex gap-3">
@@ -74,7 +99,7 @@ export function PortalPage() {
                  <Badge className="bg-teal-500 hover:bg-teal-500 px-5 py-1.5 border-none text-sm font-bold">Unvan İlerlemesi</Badge>
                  <span className="text-xs text-slate-400 font-bold uppercase tracking-widest">Sonraki Kademe: {nextThreshold} XP</span>
               </div>
-              <CardTitle className="text-4xl md:text-5xl font-display leading-tight">{currentTitle}</CardTitle>
+              <CardTitle className="text-3xl md:text-5xl font-display leading-tight">{currentTitle}</CardTitle>
               <CardDescription className="text-slate-400 text-lg max-w-md mt-4">
                 Yeni yetkinlikler kazanmak için teknik modülleri tamamlamaya devam et.
               </CardDescription>
@@ -110,7 +135,7 @@ export function PortalPage() {
                   </div>
                   <div>
                     <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mb-1">{stat.label}</p>
-                    <p className="text-3xl font-bold text-slate-900 leading-none">{stat.value}</p>
+                    <p className="text-2xl md:text-3xl font-bold text-slate-900 leading-none">{stat.value}</p>
                   </div>
                 </CardContent>
               </Card>
@@ -119,7 +144,7 @@ export function PortalPage() {
         </section>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           <Card className="lg:col-span-2 rounded-[2.5rem] border-slate-100 relative shadow-sm overflow-hidden bg-white">
-            {user.points < 300 && (
+            {points < 300 && (
               <div className="absolute inset-0 bg-white/80 backdrop-blur-[4px] z-20 flex flex-col items-center justify-center rounded-3xl p-10 text-center">
                 <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-6">
                   <Lock className="w-8 h-8 text-slate-400" />
@@ -137,7 +162,10 @@ export function PortalPage() {
                 <BarChart data={activityData}>
                   <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 700, fill: '#94a3b8' }} dy={10} />
                   <YAxis hide />
-                  <Tooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)' }} />
+                  <Tooltip 
+                    cursor={{ fill: '#f8fafc' }} 
+                    contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)', zIndex: 10 }} 
+                  />
                   <Bar dataKey="hours" radius={[8, 8, 0, 0]} barSize={45}>
                     {activityData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.hours > 3 ? '#14b8a6' : '#cbd5e1'} />
@@ -150,19 +178,25 @@ export function PortalPage() {
           <div className="space-y-8">
             <h3 className="text-2xl font-bold text-slate-900 tracking-tight">Senin İçin Önerilenler</h3>
             <div className="space-y-4">
-              {recommendations.length > 0 ? recommendations.map(rec => (
-                <Link key={rec.id} to={`/dersler/${curriculum.find(cat => cat.courses.some(c => c.id === rec.id))?.id}/${rec.id}`} className="block group">
-                  <div className="flex gap-5 p-5 rounded-[1.5rem] border border-slate-100 bg-white hover:border-teal-200 hover:bg-teal-50/20 transition-all shadow-sm">
-                    <img src={rec.image} className="w-24 h-24 rounded-2xl object-cover shrink-0 shadow-sm" alt="" />
-                    <div className="flex flex-col justify-center">
-                      <p className="text-[10px] font-bold text-teal-600 mb-1 uppercase tracking-widest">Önerilen Ders</p>
-                      <h4 className="font-bold text-slate-900 group-hover:text-teal-700 transition-colors line-clamp-1 text-lg">{rec.title}</h4>
+              {recommendations.length > 0 ? recommendations.map(rec => {
+                const cat = curriculum.find(cat => cat.courses.some(c => c.id === rec.id));
+                return (
+                  <Link key={rec.id} to={`/dersler/${cat?.id}/${rec.id}`} className="block group">
+                    <div className="flex gap-5 p-5 rounded-[1.5rem] border border-slate-100 bg-white hover:border-teal-200 hover:bg-teal-50/20 transition-all shadow-sm">
+                      <img src={rec.image} className="w-20 h-20 md:w-24 md:h-24 rounded-2xl object-cover shrink-0 shadow-sm" alt="" />
+                      <div className="flex flex-col justify-center">
+                        <p className="text-[10px] font-bold text-teal-600 mb-1 uppercase tracking-widest">Önerilen Ders</p>
+                        <h4 className="font-bold text-slate-900 group-hover:text-teal-700 transition-colors line-clamp-1 text-base md:text-lg">{rec.title}</h4>
+                      </div>
                     </div>
+                  </Link>
+                );
+              }) : (
+                <div className="p-12 text-center bg-slate-50 rounded-[2rem] border border-dashed border-slate-200">
+                  <div className="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle2 className="w-6 h-6 text-teal-600" />
                   </div>
-                </Link>
-              )) : (
-                <div className="p-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
-                  <p className="text-sm text-slate-500 font-medium">Harika! Tüm dersleri tamamladın.</p>
+                  <p className="text-sm text-slate-600 font-bold leading-relaxed">Tebrikler! Mevcut tüm uzmanlık modüllerini tamamladın.</p>
                 </div>
               )}
               <Button variant="ghost" className="w-full rounded-2xl h-14 text-slate-500 font-bold group hover:bg-slate-50" asChild>

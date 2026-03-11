@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { Menu, X, LayoutDashboard, Search, LogOut } from 'lucide-react';
 import { navLinks } from '@/lib/data';
 import { Button } from '@/components/ui/button';
@@ -13,15 +13,22 @@ export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchParams] = useSearchParams();
+  const urlQuery = searchParams.get('q') || '';
+  const [searchQuery, setSearchQuery] = useState(urlQuery);
   const location = useLocation();
   const navigate = useNavigate();
   const isAuthenticated = useUserStore((s) => s.isAuthenticated);
   const user = useUserStore((s) => s.user);
   const logout = useUserStore((s) => s.logout);
+  const points = useUserStore((s) => s.user?.points ?? 0);
   useEffect(() => {
     document.title = 'BCTAkademi - Biyomedikal Cihaz Teknolojileri';
   }, []);
+  // Update navbar search if URL changes
+  useEffect(() => {
+    setSearchQuery(urlQuery);
+  }, [urlQuery]);
   const handlePortalClick = () => {
     if (isAuthenticated) {
       navigate('/portal');
@@ -34,7 +41,6 @@ export function Navbar() {
     if (searchQuery.trim()) {
       navigate(`/dersler?q=${encodeURIComponent(searchQuery)}`);
       setIsSearchOpen(false);
-      setSearchQuery('');
     }
   };
   useEffect(() => {
@@ -89,8 +95,8 @@ export function Navbar() {
                   {user.username.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-bold text-teal-400 uppercase leading-none">{getUserTitle(user.points)}</span>
-                  <span className="text-[10px] text-slate-400 font-bold">{user.points} XP</span>
+                  <span className="text-[10px] font-bold text-teal-400 uppercase leading-none">{getUserTitle(points)}</span>
+                  <span className="text-[10px] text-slate-400 font-bold">{points} XP</span>
                 </div>
               </div>
             )}
@@ -113,17 +119,27 @@ export function Navbar() {
       </div>
       <AnimatePresence>
         {isSearchOpen && (
-          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="bg-slate-900 border-b border-slate-800 md:hidden overflow-hidden">
+          <motion.div 
+            initial={{ height: 0, opacity: 0 }} 
+            animate={{ height: 'auto', opacity: 1 }} 
+            exit={{ height: 0, opacity: 0 }} 
+            className="bg-slate-900/95 backdrop-blur-md border-b border-slate-800 md:hidden overflow-hidden transition-all duration-300"
+          >
             <div className="p-4">
               <form onSubmit={handleSearch} className="relative">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                <Input className="bg-slate-950 border-slate-800 h-14 pl-12 rounded-xl text-white focus:ring-teal-500" placeholder="Arama yap..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+                <Input 
+                  className="bg-slate-950 border-slate-800 h-14 pl-12 rounded-xl text-white focus:ring-teal-500" 
+                  placeholder="Arama yap..." 
+                  value={searchQuery} 
+                  onChange={(e) => setSearchQuery(e.target.value)} 
+                />
               </form>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-      <div className={cn("md:hidden absolute w-full bg-slate-950 border-b border-slate-800 transition-all duration-300 z-40 overflow-hidden", isOpen ? "max-h-[600px] opacity-100 py-10" : "max-h-0 opacity-0")}>
+      <div className={cn("md:hidden absolute w-full bg-slate-950/98 backdrop-blur-lg border-b border-slate-800 transition-all duration-300 z-40 overflow-hidden", isOpen ? "max-h-[600px] opacity-100 py-10" : "max-h-0 opacity-0")}>
         <div className="px-6 space-y-6">
           {navLinks.map((link) => (
             <Link key={link.name} to={link.href} className="block text-xl font-bold text-slate-400 hover:text-white" onClick={() => setIsOpen(false)}>

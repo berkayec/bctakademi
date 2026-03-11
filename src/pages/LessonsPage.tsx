@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { RootLayout } from '@/components/layout/RootLayout';
 import { curriculum, Course } from '@/lib/curriculum';
@@ -7,13 +7,29 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Search, ArrowRight, FileWarning } from 'lucide-react';
+import { Search, ArrowRight, FileWarning, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 export function LessonsPage() {
-  const [searchParams] = useSearchParams();
-  const initialTab = searchParams.get('cat') || 'all';
-  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
-  const [activeTab, setActiveTab] = useState(initialTab);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const queryFromUrl = searchParams.get('q') || '';
+  const categoryFromUrl = searchParams.get('cat') || 'all';
+  const [searchQuery, setSearchQuery] = useState(queryFromUrl);
+  const [activeTab, setActiveTab] = useState(categoryFromUrl);
+  // Update local state when URL changes (e.g., back navigation)
+  useEffect(() => {
+    setSearchQuery(queryFromUrl);
+    setActiveTab(categoryFromUrl);
+  }, [queryFromUrl, categoryFromUrl]);
+  // Sync state to URL with a slight debounce behavior (using effect)
+  useEffect(() => {
+    const params: Record<string, string> = {};
+    if (searchQuery) params.q = searchQuery;
+    if (activeTab !== 'all') params.cat = activeTab;
+    // Only update if actually different to prevent infinite loops
+    if (searchParams.get('q') !== (params.q || null) || searchParams.get('cat') !== (params.cat || 'all')) {
+      setSearchParams(params, { replace: true });
+    }
+  }, [searchQuery, activeTab, setSearchParams]);
   const filteredCategories = useMemo(() => {
     return curriculum.map(cat => ({
       ...cat,
@@ -23,12 +39,17 @@ export function LessonsPage() {
       )
     })).filter(cat => cat.courses.length > 0);
   }, [searchQuery]);
+  const handleClear = () => {
+    setSearchQuery('');
+    setActiveTab('all');
+    setSearchParams({});
+  };
   return (
     <RootLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
         <div className="space-y-12">
           <header className="text-center max-w-3xl mx-auto space-y-4">
-            <h1 className="text-5xl font-display font-bold text-slate-900 tracking-tight">Akademik Bilgi Havuzu</h1>
+            <h1 className="text-4xl md:text-5xl font-display font-bold text-slate-900 tracking-tight">Akademik Bilgi Havuzu</h1>
             <p className="text-slate-600 text-lg leading-relaxed">
               Temel teknik eğitimden ileri düzey klinik mühendisliğe kadar tüm modüllerimizle biyomedikal uzmanı olma yolculuğunuzu planlayın.
             </p>
@@ -38,16 +59,24 @@ export function LessonsPage() {
                 placeholder="Ders veya konu ara..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 h-14 rounded-2xl border-slate-200 shadow-sm focus:ring-teal-500 text-base bg-white"
+                className="pl-12 pr-12 h-14 rounded-2xl border-slate-200 shadow-sm focus:ring-teal-500 text-base bg-white"
               />
+              {searchQuery && (
+                <button 
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-4 top-[calc(50%+12px)] -translate-y-1/2 p-1 hover:bg-slate-100 rounded-full transition-colors"
+                >
+                  <X className="w-4 h-4 text-slate-400" />
+                </button>
+              )}
             </div>
           </header>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="flex justify-center mb-12">
               <TabsList className="bg-slate-100/50 backdrop-blur-sm p-1.5 rounded-[2rem] h-auto border border-slate-200/50 flex-wrap justify-center">
-                <TabsTrigger value="all" className="rounded-full px-8 py-3 text-sm font-bold data-[state=active]:bg-white data-[state=active]:shadow-xl transition-all">Tümü</TabsTrigger>
+                <TabsTrigger value="all" className="rounded-full px-6 md:px-8 py-2 md:py-3 text-sm font-bold data-[state=active]:bg-white data-[state=active]:shadow-xl transition-all">Tümü</TabsTrigger>
                 {curriculum.map(cat => (
-                  <TabsTrigger key={cat.id} value={cat.id} className="rounded-full px-8 py-3 text-sm font-bold data-[state=active]:bg-white data-[state=active]:shadow-xl transition-all">
+                  <TabsTrigger key={cat.id} value={cat.id} className="rounded-full px-6 md:px-8 py-2 md:py-3 text-sm font-bold data-[state=active]:bg-white data-[state=active]:shadow-xl transition-all">
                     {cat.title}
                   </TabsTrigger>
                 ))}
@@ -66,9 +95,9 @@ export function LessonsPage() {
                     {filteredCategories.map(cat => (
                       <div key={cat.id} className="space-y-8">
                         <div className="flex items-center gap-6">
-                          <h2 className="text-3xl font-display font-bold text-slate-900 whitespace-nowrap">{cat.title}</h2>
+                          <h2 className="text-2xl md:text-3xl font-display font-bold text-slate-900 whitespace-nowrap">{cat.title}</h2>
                           <div className="h-px flex-1 bg-slate-200" />
-                          <Badge variant="outline" className="rounded-lg border-slate-200 font-bold">{cat.courses.length} Ders</Badge>
+                          <Badge variant="outline" className="rounded-lg border-slate-200 font-bold hidden sm:inline-flex">{cat.courses.length} Ders</Badge>
                         </div>
                         <CourseGrid categoryId={cat.id} courses={cat.courses} />
                       </div>
@@ -89,7 +118,7 @@ export function LessonsPage() {
                     <p className="text-slate-900 font-bold text-2xl mb-2">Eşleşen Ders Bulunamadı</p>
                     <p className="text-slate-500 mb-8">"{searchQuery}" araması için herhangi bir sonuç çıkmadı.</p>
                     <Button
-                      onClick={() => { setSearchQuery(''); setActiveTab('all'); }}
+                      onClick={handleClear}
                       className="bg-slate-950 text-white rounded-xl px-8"
                     >
                       Aramayı Temizle
@@ -117,7 +146,7 @@ function CourseGrid({ courses, categoryId }: CourseGridProps) {
             <img src={course.image} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" />
           </div>
           <CardHeader className="p-8">
-            <CardTitle className="text-2xl font-display font-bold group-hover:text-teal-600 transition-colors mb-2">{course.title}</CardTitle>
+            <CardTitle className="text-xl md:text-2xl font-display font-bold group-hover:text-teal-600 transition-colors mb-2">{course.title}</CardTitle>
             <CardDescription className="text-slate-500 text-sm leading-relaxed line-clamp-2">{course.description}</CardDescription>
           </CardHeader>
           <CardFooter className="mt-auto p-8 pt-0">
