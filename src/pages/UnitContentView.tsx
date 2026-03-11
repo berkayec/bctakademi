@@ -11,7 +11,9 @@ import {
   HelpCircle,
   Award,
   Menu as MenuIcon,
-  AlertCircle
+  AlertCircle,
+  Clock,
+  BookOpen
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -25,7 +27,7 @@ interface TopicListProps {
   setIsMobileMenuOpen?: (open: boolean) => void;
 }
 const TopicList = memo(({ unit, activeTopicIndex, setActiveTopicIndex, isMobile = false, setIsMobileMenuOpen }: TopicListProps) => (
-  <div className={cn("space-y-2", isMobile ? "px-1" : "p-4")}>
+  <div className={cn("space-y-1", isMobile ? "px-1" : "p-4")}>
     {unit.topics.map((topic, idx) => (
       <button
         key={topic.id}
@@ -34,23 +36,23 @@ const TopicList = memo(({ unit, activeTopicIndex, setActiveTopicIndex, isMobile 
           if (isMobile && setIsMobileMenuOpen) setIsMobileMenuOpen(false);
         }}
         className={cn(
-          "w-full text-left p-4 rounded-xl transition-all border group",
+          "w-full text-left p-4 rounded-2xl transition-all border group",
           activeTopicIndex === idx
-            ? "bg-teal-50/50 border-teal-200 shadow-sm"
-            : "bg-transparent border-transparent hover:bg-white/50"
+            ? "bg-teal-50/80 border-teal-200 shadow-sm ring-1 ring-teal-200/50"
+            : "bg-transparent border-transparent hover:bg-slate-100/50"
         )}
       >
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           <div className={cn(
-            "w-8 h-8 rounded-full flex items-center justify-center transition-colors text-xs font-bold shrink-0",
-            activeTopicIndex === idx ? "bg-teal-500 text-white" : "bg-slate-200 text-slate-500"
+            "w-9 h-9 rounded-xl flex items-center justify-center transition-all text-xs font-black shrink-0",
+            activeTopicIndex === idx ? "bg-teal-500 text-white shadow-lg shadow-teal-500/20" : "bg-slate-100 text-slate-400 group-hover:bg-slate-200"
           )}>
             {idx + 1}
           </div>
           <div className="flex-1 min-w-0">
             <p className={cn(
-              "text-sm font-bold truncate",
-              activeTopicIndex === idx ? "text-teal-900" : "text-slate-700"
+              "text-[13px] font-bold leading-tight",
+              activeTopicIndex === idx ? "text-teal-900" : "text-slate-600 group-hover:text-slate-900"
             )}>{topic.title}</p>
           </div>
         </div>
@@ -74,7 +76,6 @@ export function UnitContentView() {
   const completeUnit = useUserStore(s => s.completeUnit);
   const trackVideo = useUserStore(s => s.trackVideo);
   const isAuthenticated = useUserStore(s => s.isAuthenticated);
-  const user = useUserStore(s => s.user);
   const handleScroll = useCallback(() => {
     if (scrollContainerRef.current) {
       const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
@@ -90,7 +91,7 @@ export function UnitContentView() {
   }, [unitId]);
   useEffect(() => {
     if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTo({ top: 0, behavior: 'auto' });
+      scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
       setScrollProgress(0);
       setHasCompletedCurrentQuiz(false);
     }
@@ -185,10 +186,10 @@ export function UnitContentView() {
             <h3 className="font-bold text-slate-900 line-clamp-2 leading-tight">{unit.title}</h3>
           </div>
           <ScrollArea className="flex-1">
-            <TopicList 
-              unit={unit} 
-              activeTopicIndex={activeTopicIndex} 
-              setActiveTopicIndex={setActiveTopicIndex} 
+            <TopicList
+              unit={unit}
+              activeTopicIndex={activeTopicIndex}
+              setActiveTopicIndex={setActiveTopicIndex}
             />
           </ScrollArea>
         </div>
@@ -209,12 +210,12 @@ export function UnitContentView() {
                     <SheetTitle className="text-lg font-bold text-slate-900">{unit.title}</SheetTitle>
                   </SheetHeader>
                   <ScrollArea className="h-[calc(100vh-140px)]">
-                    <TopicList 
-                      unit={unit} 
-                      activeTopicIndex={activeTopicIndex} 
-                      setActiveTopicIndex={setActiveTopicIndex} 
-                      isMobile 
-                      setIsMobileMenuOpen={setIsMobileMenuOpen} 
+                    <TopicList
+                      unit={unit}
+                      activeTopicIndex={activeTopicIndex}
+                      setActiveTopicIndex={setActiveTopicIndex}
+                      isMobile
+                      setIsMobileMenuOpen={setIsMobileMenuOpen}
                     />
                   </ScrollArea>
                 </SheetContent>
@@ -235,9 +236,14 @@ export function UnitContentView() {
             onScroll={handleScroll}
             ref={scrollContainerRef}
           >
-            <div className="max-w-4xl mx-auto px-6 sm:px-8 pt-10 pb-20 space-y-12">
+            <div className="max-w-4xl mx-auto px-6 sm:px-8 pt-8 pb-24 space-y-12">
+              <div className="flex flex-wrap items-center gap-6 text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-6">
+                 <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> Okuma: ~{unit.estimatedReadingTime}</span>
+                 <span className="flex items-center gap-1.5"><BookOpen className="w-3.5 h-3.5" /> Bölüm: {activeTopicIndex + 1}/{unit.topics.length}</span>
+                 {currentTopic?.videoYoutubeId && <span className="text-teal-500 px-2 py-0.5 bg-teal-50 rounded">Video İçerik</span>}
+              </div>
               {currentTopic?.videoYoutubeId && (
-                <div className="aspect-video bg-slate-900 rounded-3xl overflow-hidden shadow-2xl relative group">
+                <div className="aspect-video bg-slate-900 rounded-[2.5rem] overflow-hidden shadow-2xl relative group">
                   <iframe
                     className="w-full h-full border-none"
                     src={`https://www.youtube.com/embed/${currentTopic.videoYoutubeId}`}
@@ -251,7 +257,7 @@ export function UnitContentView() {
                 <h1 className="text-3xl md:text-5xl font-display font-bold text-slate-900 leading-tight mb-8">
                   {currentTopic?.title}
                 </h1>
-                <div className="text-slate-600 text-lg md:text-xl leading-relaxed md:leading-[2.2] font-sans whitespace-pre-wrap">
+                <div className="text-slate-700 text-lg md:text-xl leading-relaxed md:leading-[2.2] font-sans whitespace-pre-wrap">
                   {currentTopic?.content}
                 </div>
               </article>
@@ -303,7 +309,7 @@ function QuizSection({ quiz, isAuthenticated, onSuccess }: { quiz: QuizQuestion[
     }
   }, [isSubmitted, currentQIndex, quiz.length, onSuccess]);
   return (
-    <div className="bg-slate-50 rounded-[2.5rem] p-6 md:p-12 border border-slate-200 shadow-sm">
+    <div className="bg-white rounded-[2.5rem] p-6 md:p-12 border border-slate-200 shadow-xl shadow-slate-200/20">
       <div className="flex items-center gap-2 text-teal-600 mb-8">
         <div className="p-2 bg-teal-50 rounded-lg">
           <HelpCircle className="w-5 h-5" />
@@ -323,14 +329,17 @@ function QuizSection({ quiz, isAuthenticated, onSuccess }: { quiz: QuizQuestion[
               onClick={() => setSelectedOption(i)}
               className={cn(
                 "p-5 rounded-2xl text-left font-bold transition-all border outline-none text-base md:text-lg shadow-sm",
-                selectedOption === i ? "bg-teal-50 border-teal-500 text-teal-900" : "bg-white border-slate-200 hover:border-teal-200",
-                isSubmitted && i === currentQ.correctAnswer && "bg-emerald-50 border-emerald-500 text-emerald-900",
-                isSubmitted && selectedOption === i && i !== currentQ.correctAnswer && "bg-rose-50 border-rose-500 text-rose-900",
+                selectedOption === i ? "bg-slate-900 border-slate-900 text-white" : "bg-white border-slate-200 hover:border-teal-200 text-slate-700",
+                isSubmitted && i === currentQ.correctAnswer && "bg-emerald-500 border-emerald-500 text-white",
+                isSubmitted && selectedOption === i && i !== currentQ.correctAnswer && "bg-rose-500 border-rose-500 text-white",
                 isSubmitted && "cursor-default"
               )}
             >
               <div className="flex items-center gap-4">
-                <span className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-xs text-slate-500 group-hover:bg-teal-100 transition-colors">
+                <span className={cn(
+                  "w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black transition-colors",
+                  selectedOption === i || (isSubmitted && (i === currentQ.correctAnswer || selectedOption === i)) ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"
+                )}>
                   {String.fromCharCode(65 + i)}
                 </span>
                 {opt}
@@ -344,20 +353,20 @@ function QuizSection({ quiz, isAuthenticated, onSuccess }: { quiz: QuizQuestion[
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               className={cn(
-                "p-6 rounded-2xl text-sm font-medium leading-relaxed",
-                isCorrect ? "bg-emerald-50 text-emerald-800" : "bg-rose-50 text-rose-800"
+                "p-6 rounded-2xl text-sm font-medium leading-relaxed border shadow-sm",
+                isCorrect ? "bg-emerald-50 border-emerald-100 text-emerald-800" : "bg-rose-50 border-rose-100 text-rose-800"
               )}
             >
-              <p className="font-bold mb-1">{isCorrect ? "Doğru!" : "Hatalı Cevap"}</p>
+              <p className="font-bold mb-1">{isCorrect ? "Harika, Doğru Cevap!" : "Hatalı Cevap"}</p>
               {currentQ.explanation}
             </motion.div>
           )}
         </AnimatePresence>
         {!isSubmitted ? (
-          <Button disabled={selectedOption === null} onClick={handleSubmit} className="w-full h-14 bg-slate-950 text-white rounded-2xl font-bold border-none shadow-xl active:scale-[0.98] transition-all">Cevabı Kontrol Et</Button>
+          <Button disabled={selectedOption === null} onClick={handleSubmit} className="w-full h-14 bg-teal-500 hover:bg-teal-600 text-white rounded-2xl font-bold border-none shadow-xl active:scale-[0.98] transition-all">Cevabı Kontrol Et</Button>
         ) : (
           currentQIndex < quiz.length - 1 ? (
-            <Button onClick={handleNext} className="w-full h-14 bg-teal-500 text-white rounded-2xl font-bold border-none shadow-xl active:scale-[0.98] transition-all">Sonraki Soru</Button>
+            <Button onClick={handleNext} className="w-full h-14 bg-slate-950 text-white rounded-2xl font-bold border-none shadow-xl active:scale-[0.98] transition-all">Sonraki Soru</Button>
           ) : (
             <Button onClick={onSuccess} className="w-full h-14 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-bold border-none shadow-xl active:scale-[0.98] transition-all">Quiz Tamamlandı ({score}/{quiz.length})</Button>
           )

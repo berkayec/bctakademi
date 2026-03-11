@@ -6,10 +6,12 @@ interface Node {
   vy: number;
   originalX: number;
   originalY: number;
+  opacity: number;
 }
 export function HeroInteractiveCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mouseRef = useRef({ x: 0, y: 0, targetX: 0, targetY: 0 });
+  const opacityRef = useRef(0);
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -27,15 +29,13 @@ export function HeroInteractiveCanvas() {
       const rect = canvas.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-      // Normalized coordinates from -1 to 1 for parallax
       mouseRef.current.targetX = (x / width - 0.5) * 2;
       mouseRef.current.targetY = (y / height - 0.5) * 2;
     };
     window.addEventListener('resize', handleResize);
     window.addEventListener('mousemove', handleMouseMove);
-    // Node System
     const nodes: Node[] = [];
-    const nodeCount = Math.floor((width * height) / 15000); // Responsive density
+    const nodeCount = Math.floor((width * height) / 12000); 
     const initNodes = () => {
       nodes.length = 0;
       for (let i = 0; i < nodeCount; i++) {
@@ -46,8 +46,9 @@ export function HeroInteractiveCanvas() {
           y,
           originalX: x,
           originalY: y,
-          vx: (Math.random() - 0.5) * 0.5,
-          vy: (Math.random() - 0.5) * 0.5,
+          vx: (Math.random() - 0.5) * 0.3,
+          vy: (Math.random() - 0.5) * 0.3,
+          opacity: Math.random() * 0.5 + 0.2
         });
       }
     };
@@ -57,40 +58,40 @@ export function HeroInteractiveCanvas() {
     let currentParallaxY = 0;
     const draw = () => {
       ctx.clearRect(0, 0, width, height);
+      // Global fade-in on mount
+      if (opacityRef.current < 1) opacityRef.current += 0.01;
       // Smooth parallax transition
       currentParallaxX += (mouseRef.current.targetX - currentParallaxX) * 0.05;
       currentParallaxY += (mouseRef.current.targetY - currentParallaxY) * 0.05;
-      const parallaxShiftX = currentParallaxX * 30;
-      const parallaxShiftY = currentParallaxY * 30;
-      // Draw Tech Grid Lines (Connected Nodes)
+      const parallaxShiftX = currentParallaxX * 45;
+      const parallaxShiftY = currentParallaxY * 45;
+      // Node Interaction & Rendering
       ctx.lineWidth = 0.5;
       for (let i = 0; i < nodes.length; i++) {
         const node = nodes[i];
-        // Update position with subtle drift
         node.originalX += node.vx;
         node.originalY += node.vy;
-        // Wrap around
         if (node.originalX < 0) node.originalX = width;
         if (node.originalX > width) node.originalX = 0;
         if (node.originalY < 0) node.originalY = height;
         if (node.originalY > height) node.originalY = 0;
-        // Apply Parallax to current rendering position
         node.x = node.originalX + parallaxShiftX;
         node.y = node.originalY + parallaxShiftY;
-        // Draw node
-        ctx.fillStyle = 'rgba(20, 184, 166, 0.4)';
+        ctx.fillStyle = `rgba(20, 184, 166, ${node.opacity * opacityRef.current})`;
         ctx.beginPath();
-        ctx.arc(node.x, node.y, 1.5, 0, Math.PI * 2);
+        ctx.arc(node.x, node.y, 1.2, 0, Math.PI * 2);
         ctx.fill();
-        // Check distance to other nodes
+        // Optimized Mesh Logic
         for (let j = i + 1; j < nodes.length; j++) {
           const other = nodes[j];
           const dx = node.x - other.x;
           const dy = node.y - other.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 180) {
-            const opacity = (1 - dist / 180) * 0.2;
-            ctx.strokeStyle = `rgba(34, 211, 238, ${opacity})`;
+          const distSq = dx * dx + dy * dy;
+          const maxDist = 160;
+          if (distSq < maxDist * maxDist) {
+            const dist = Math.sqrt(distSq);
+            const opacity = (1 - dist / maxDist) * 0.15 * opacityRef.current;
+            ctx.strokeStyle = `rgba(20, 184, 166, ${opacity})`;
             ctx.beginPath();
             ctx.moveTo(node.x, node.y);
             ctx.lineTo(other.x, other.y);
@@ -98,44 +99,45 @@ export function HeroInteractiveCanvas() {
           }
         }
       }
-      // ECG Wave Section
+      // ECG Wave System
       const centerY = height / 2;
-      const numWavePoints = 120;
+      const numWavePoints = 140;
       const step = width / numWavePoints;
       ctx.beginPath();
-      ctx.lineWidth = 2.5;
+      ctx.lineWidth = 3;
       const waveGradient = ctx.createLinearGradient(0, 0, width, 0);
       waveGradient.addColorStop(0, 'rgba(20, 184, 166, 0)');
-      waveGradient.addColorStop(0.2, 'rgba(20, 184, 166, 0.3)');
-      waveGradient.addColorStop(0.5, 'rgba(20, 184, 166, 0.8)');
-      waveGradient.addColorStop(0.8, 'rgba(20, 184, 166, 0.3)');
+      waveGradient.addColorStop(0.3, 'rgba(20, 184, 166, 0.4)');
+      waveGradient.addColorStop(0.5, 'rgba(243, 128, 32, 0.8)'); // Pulse highlight
+      waveGradient.addColorStop(0.7, 'rgba(20, 184, 166, 0.4)');
       waveGradient.addColorStop(1, 'rgba(20, 184, 166, 0)');
       ctx.strokeStyle = waveGradient;
-      ctx.shadowBlur = 10;
-      ctx.shadowColor = 'rgba(20, 184, 166, 0.6)';
+      ctx.shadowBlur = 15;
+      ctx.shadowColor = 'rgba(20, 184, 166, 0.4)';
       for (let i = 0; i <= numWavePoints; i++) {
         const x = i * step;
-        let y = Math.sin(i * 0.15 + offset) * 8;
-        // ECG Complex
-        const waveIndex = (i + Math.floor(offset * 6)) % 40;
-        if (waveIndex === 0) y -= 90; // R
-        else if (waveIndex === 1) y += 35; // S
-        else if (waveIndex === 39) y += 20; // Q
-        // Mouse influence on wave (Opposite parallax for depth effect)
+        let y = Math.sin(i * 0.12 + offset) * 6;
+        // Complex PQRST simulation
+        const waveCycle = (i + Math.floor(offset * 5)) % 40;
+        if (waveCycle === 2) y -= 12; // P
+        if (waveCycle === 5) y -= 80; // R
+        if (waveCycle === 6) y += 35; // S
+        if (waveCycle === 12) y -= 15; // T
+        // Mouse Depth Interaction (Opposite parallax)
         const mouseDx = x - (width / 2 + currentParallaxX * width * 0.4);
         const mouseDist = Math.abs(mouseDx);
-        if (mouseDist < 250) {
-          const power = (250 - mouseDist) / 250;
-          y += Math.sin(offset * 8) * 15 * power;
+        if (mouseDist < 300) {
+          const power = (300 - mouseDist) / 300;
+          y += Math.sin(offset * 6) * 12 * power;
         }
-        const renderX = x + parallaxShiftX * -0.5; // Inverse parallax for depth
-        const renderY = centerY + y + parallaxShiftY * -0.5;
+        const renderX = x + parallaxShiftX * -0.6; 
+        const renderY = centerY + y + parallaxShiftY * -0.4;
         if (i === 0) ctx.moveTo(renderX, renderY);
         else ctx.lineTo(renderX, renderY);
       }
       ctx.stroke();
       ctx.shadowBlur = 0;
-      offset += 0.04;
+      offset += 0.035;
       animationFrameId = requestAnimationFrame(draw);
     };
     draw();
@@ -148,7 +150,7 @@ export function HeroInteractiveCanvas() {
   return (
     <canvas
       ref={canvasRef}
-      className="w-full h-full pointer-events-none opacity-50"
+      className="w-full h-full pointer-events-none opacity-60"
     />
   );
 }

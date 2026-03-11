@@ -85,8 +85,15 @@ export const curriculum: Category[] = [
               {
                 id: 'est-t-2-1',
                 title: 'Uluslararası Güvenlik Protokolleri',
-                content: 'IEC 62353, hastane ortamında kullanılan cihazların güvenliğini sağlamak için geliştirilmiş pratik bir standarttır.',
-                quiz: []
+                content: 'IEC 62353 standardı, IEC 60601-1 standardının hastane ortamındaki periyodik testler için optimize edilmiş halidir. Bu ünite kapsamında cihaz sınıfları (Class I, II) ve uygulama parçası tipleri (Type B, BF, CF) arasındaki farkları inceleyeceğiz.\n\nÖzellikle CF tipi uygulama parçalarının (kalp ile doğrudan temas edenler) kaçak akım limitlerinin ne kadar düşük olduğunu ve nedenini öğrenmek klinik mühendislik açısından kritiktir.',
+                quiz: [
+                  {
+                    question: "Aşağıdaki uygulama parçası tiplerinden hangisi en sıkı kaçak akım limitlerine sahiptir?",
+                    options: ["Tip B", "Tip BF", "Tip CF", "Tip DEF"],
+                    correctAnswer: 2,
+                    explanation: "Tip CF (Cardiac Floating), kalp ile doğrudan temas eden cihazlar içindir ve mikro-şok riskine karşı en düşük kaçak akım limitlerine (10µA normal durumda) sahiptir."
+                  }
+                ]
               }
             ]
           },
@@ -99,35 +106,7 @@ export const curriculum: Category[] = [
               {
                 id: 'est-t-3-1',
                 title: 'Diferansiyel ve Doğrudan Ölçüm',
-                content: 'Kaçak akımlar, cihazın yalıtım kalitesini gösteren en kritik parametrelerdir.',
-                quiz: []
-              }
-            ]
-          },
-          {
-            id: 'est-u-4',
-            title: 'Ünite 4: Klinik Kalibrasyon Prosedürleri',
-            description: 'Biyo-parametre ölçen cihazların (NIBP, SPO2, ECG) simülatörlerle kalibrasyonu.',
-            estimatedReadingTime: '140 dk',
-            topics: [
-              {
-                id: 'est-t-4-1',
-                title: 'Hata Payı ve Belirsizlik Analizi',
-                content: 'Kalibrasyon, cihazın ölçüm doğruluğunu ulusal standartlara göre doğrulama sürecidir.',
-                quiz: []
-              }
-            ]
-          },
-          {
-            id: 'est-u-5',
-            title: 'Ünite 5: Hata Analizi ve Raporlama',
-            description: 'Teknik servis raporu hazırlama, arıza kodlarının yorumlanması ve envanter yönetimi.',
-            estimatedReadingTime: '100 dk',
-            topics: [
-              {
-                id: 'est-t-5-1',
-                title: 'Etik ve Profesyonel Raporlama',
-                content: 'Doğru raporlama, cihazın geçmişini takip etmek ve gelecekteki arızaları önlemek için şarttır.',
+                content: 'Kaçak akım ölçümünde üç temel yöntem kullanılır: Doğrudan yöntem, Diferansiyel yöntem ve Alternatif yöntem. Doğrudan ölçümde, kaçak akım bir ölçüm direnci üzerinden direkt toprağa akar. Diferansiyel yöntemde ise faz ve nötr arasındaki akım farkı hesaplanır.\n\nHer yöntemin kendine has avantajları ve kullanım alanları vardır. Örneğin, diferansiyel yöntem cihazın normal çalışma modunda (yük altındayken) test edilmesine olanak sağlar.',
                 quiz: []
               }
             ]
@@ -142,36 +121,35 @@ export const curriculum: Category[] = [
         units: [
           {
             id: 'be-u-1',
-            title: 'Ünite 1: Biyopotansiyel Sensörler',
-            description: 'Elektrot yapıları ve vücut-yüzey etkileşimi.',
+            title: 'Ünite 1: Operasyonel Yükselteçler (Op-Amp)',
+            description: 'Biyopotansiyel sinyallerin yükseltilmesinde kullanılan temel devre elemanları.',
             estimatedReadingTime: '150 dk',
             topics: [
               {
                 id: 'be-t-1-1',
-                title: 'Sensör Teknolojileri',
-                content: 'Biyomedikal verinin başlangıç noktası sensörlerdir.',
-                quiz: []
+                title: 'Enstrümantasyon Yükselteçleri (In-Amp)',
+                content: 'Biyomedikal sinyaller genellikle mikrovolt seviyesindedir ve yüksek gürültü içerir. Standart bir Op-Amp yerine In-Amp (Instrumentation Amplifier) kullanılması, yüksek ortak mod reddetme oranı (CMRR) sağlayarak 50Hz şebeke gürültüsünü filtrelemek için elzemdir.',
+                quiz: [
+                  {
+                    question: "Biyomedikal sinyal işlemede neden yüksek CMRR (Common Mode Rejection Ratio) istenir?",
+                    options: ["Sinyali daha hızlı iletmek için", "Şebeke gürültüsü gibi ortak mod sinyallerini yok edip fark sinyalini yükseltmek için", "Güç tüketimini azaltmak için", "Elektrot empedansını düşürmek için"],
+                    correctAnswer: 1,
+                    explanation: "CMRR ne kadar yüksekse, her iki elektrot girişine de aynı anda gelen (ortak) gürültüler o kadar iyi bastırılır."
+                  }
+                ]
               }
             ]
-          }
-        ]
-      },
-      {
-        id: 'mesleki-fizyoloji',
-        title: 'Mesleki Fizyoloji ve Terminoloji',
-        description: 'İnsan anatomisinin ve fizyolojik sistemlerin biyomedikal mühendislik perspektifiyle analizi.',
-        image: 'https://images.unsplash.com/photo-1530026405186-ed1f139313f8?auto=format&fit=crop&q=80&w=1200',
-        units: [
+          },
           {
-            id: 'mf-u-1',
-            title: 'Ünite 1: Hücre Elektrofizyolojisi',
-            description: 'Membran potansiyeli ve sinyal iletimi.',
-            estimatedReadingTime: '100 dk',
+            id: 'be-u-2',
+            title: 'Ünite 2: Aktif Filtreleme ve ADC',
+            description: 'Analog sinyallerin temizlenmesi ve dijitale aktarılması.',
+            estimatedReadingTime: '120 dk',
             topics: [
               {
-                id: 'mf-t-1-1',
-                title: 'Hücresel Sinyaller',
-                content: 'Tüm biyomedikal sinyallerin kaynağı hücre bazındaki elektriksel değişimlerdir.',
+                id: 'be-t-2-1',
+                title: 'Band-Pass ve Notch Filtreler',
+                content: 'Örneğin bir EKG sinyali 0.05 Hz ile 150 Hz arasındaki frekans bileşenlerine sahiptir. Bu aralık dışındaki sinyaller (DC kayması, kas gürültüsü vb.) filtreler aracılığıyla ayıklanmalıdır.',
                 quiz: []
               }
             ]
@@ -193,13 +171,76 @@ export const curriculum: Category[] = [
           {
             id: 'yd-u-1',
             title: 'Ünite 1: Ventilatör Teknolojisi',
-            description: 'Mekanik ventilasyon modları ve pnömatik sistemler.',
+            description: 'Mekanik ventilasyon modları, pnömatik devreler ve sensör kalibrasyonları.',
             estimatedReadingTime: '180 dk',
             topics: [
               {
                 id: 'yd-t-1-1',
-                title: 'Ventilasyon Prensipleri',
-                content: 'Modern ventilatörler hassas basınç ve akış kontrolü sağlar.',
+                title: 'Ventilasyon Kontrol Modları',
+                content: 'Modern ventilatörler Basınç Kontrollü (PCV) ve Volüm Kontrollü (VCV) olmak üzere iki temel modda çalışır. Teknik servis uzmanı olarak bu modlardaki akış sensörlerinin ve ekspirasyon valflerinin nasıl çalıştığını bilmeniz gerekir.',
+                quiz: [
+                  {
+                    question: "Bir ventilatörde PEEP (Positive End-Expiratory Pressure) ne işe yarar?",
+                    options: ["Nefes vermeyi kolaylaştırır", "Alveollerin sönmesini önlemek için ekspirasyon sonunda pozitif basınç sağlar", "Oksijen konsantrasyonunu artırır", "Cihazın ısınmasını engeller"],
+                    correctAnswer: 1,
+                    explanation: "PEEP, akciğerlerin tamamen kapanmasını önleyerek gaz değişim alanını korur."
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            id: 'yd-u-2',
+            title: 'Ünite 2: Defibrilasyon ve Kardiyoversiyon',
+            description: 'Elektro-şok cihazlarının çalışma prensibi ve enerji boşalma devreleri.',
+            estimatedReadingTime: '140 dk',
+            topics: [
+              {
+                id: 'yd-t-2-1',
+                title: 'Bifazik vs Monofazik Dalga Formları',
+                content: 'Modern defibrilatörler bifazik dalga formu kullanır. Bu sayede daha düşük enerji seviyelerinde (Joule) daha etkili bir şok verilebilir ve miyokardiyal doku hasarı minimize edilir.',
+                quiz: []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'fizyoloji-dersleri',
+    title: 'Mesleki Fizyoloji',
+    courses: [
+      {
+        id: 'mesleki-fizyoloji',
+        title: 'Mesleki Fizyoloji ve Terminoloji',
+        description: 'İnsan anatomisinin ve fizyolojik sistemlerin biyomedikal mühendislik perspektifiyle analizi.',
+        image: 'https://images.unsplash.com/photo-1530026405186-ed1f139313f8?auto=format&fit=crop&q=80&w=1200',
+        units: [
+          {
+            id: 'mf-u-1',
+            title: 'Ünite 1: Kardiyovasküler Sistem Dinamiği',
+            description: 'Kalbin elektriksel iletim sistemi ve hemodinamik parametreler.',
+            estimatedReadingTime: '100 dk',
+            topics: [
+              {
+                id: 'mf-t-1-1',
+                title: 'EKG Dalga Formu ve Fizyolojik Kaynağı',
+                content: 'P dalgası atriyal depolarizasyonu, QRS kompleksi ventriküler depolarizasyonu ve T dalgası ventriküler repolarizasyonu temsil eder. Bu ünite boyunca her dalganın genlik ve süre değerlerinin klinik önemini tartışacağız.',
+                quiz: []
+              }
+            ]
+          },
+          {
+            id: 'mf-u-2',
+            title: 'Ünite 2: Sinir Sistemi ve Biyo-elektrik',
+            description: 'Nöronal iletim, aksiyon potansiyeli ve EEG temelleri.',
+            estimatedReadingTime: '120 dk',
+            topics: [
+              {
+                id: 'mf-t-2-1',
+                title: 'Aksiyon Potansiyeli ve İyon Kanalları',
+                content: 'Hücre membranındaki sodyum-potasyum pompası ve voltaj kapılı iyon kanalları biyoelektrik sinyallerin oluşumunu sağlar.',
                 quiz: []
               }
             ]
