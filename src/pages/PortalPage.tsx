@@ -1,6 +1,6 @@
 import React, { useMemo, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FileText, CheckCircle2, ArrowRight, TrendingUp, Award, Lock, Activity, Star } from 'lucide-react';
+import { FileText, CheckCircle2, ArrowRight, TrendingUp, Award, Star, Activity } from 'lucide-react';
 import { curriculum } from '@/lib/curriculum';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -14,8 +14,13 @@ export function PortalPage() {
   const user = useUserStore((s) => s.user);
   const isAuthenticated = useUserStore((s) => s.isAuthenticated);
   const [isReady, setIsReady] = useState(false);
+  const [showProgress, setShowProgress] = useState(false);
   useEffect(() => {
-    const timer = setTimeout(() => setIsReady(true), 50);
+    const timer = setTimeout(() => {
+      setIsReady(true);
+      // Small delay for smooth progress bar entry
+      setTimeout(() => setShowProgress(true), 300);
+    }, 50);
     return () => clearTimeout(timer);
   }, []);
   useEffect(() => {
@@ -35,7 +40,6 @@ export function PortalPage() {
     if (!user) return [];
     const allCourses = curriculum.flatMap(c => c.courses);
     const completedUnits = user.completedUnits;
-    // Logic: Find courses that have some progress but are not finished, or belong to categories user is interested in
     return allCourses
       .map(course => ({
         ...course,
@@ -45,14 +49,13 @@ export function PortalPage() {
       .sort((a, b) => b.completedCount - a.completedCount)
       .slice(0, 3);
   }, [user]);
-  // Derived activity data based on user progress to make mock feel alive
   const activityData = useMemo(() => {
     if (!user) return [];
     const days = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
-    const baseProgress = user.completedUnits.length;
+    const baseProgress = user.completedUnits.length || 1;
     return days.map((day, idx) => ({
       day,
-      hours: (idx === 5 || idx === 6) ? baseProgress * 0.8 : (baseProgress % (idx + 1)) * 1.2
+      hours: Math.max(0.5, (idx === 5 || idx === 6) ? baseProgress * 0.8 : (baseProgress % (idx + 1)) * 1.2 + 0.5)
     }));
   }, [user]);
   const hasNewCert = useMemo(() => {
@@ -138,7 +141,7 @@ export function PortalPage() {
                    <motion.div
                     key={user.points}
                     initial={{ width: 0 }}
-                    animate={{ width: `${levelProgress}%` }}
+                    animate={{ width: showProgress ? `${levelProgress}%` : 0 }}
                     transition={{ duration: 1.5, ease: "circOut" }}
                     className="h-full bg-gradient-to-r from-teal-500 via-teal-400 to-teal-300 relative shadow-[0_0_20px_rgba(20,184,166,0.3)]"
                    />

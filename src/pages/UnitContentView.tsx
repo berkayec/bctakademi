@@ -13,7 +13,8 @@ import {
   Menu as MenuIcon,
   AlertCircle,
   Clock,
-  BookOpen
+  BookOpen,
+  Trophy
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -88,12 +89,15 @@ export function UnitContentView() {
     setUnitCompleted(false);
     setScrollProgress(0);
     setHasCompletedCurrentQuiz(false);
+    // Explicit window reset for focus mode chrome handling
+    window.scrollTo(0, 0);
   }, [unitId]);
   useEffect(() => {
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
       setScrollProgress(0);
       setHasCompletedCurrentQuiz(false);
+      window.scrollTo(0, 0);
     }
   }, [activeTopicIndex]);
   const currentTopic = unit?.topics[activeTopicIndex];
@@ -142,9 +146,6 @@ export function UnitContentView() {
     } else {
       setActiveTopicIndex(prev => prev + 1);
     }
-  };
-  const handleQuizSuccess = () => {
-    setHasCompletedCurrentQuiz(true);
   };
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -267,7 +268,7 @@ export function UnitContentView() {
                     key={currentTopic.id}
                     quiz={currentTopic.quiz}
                     isAuthenticated={isAuthenticated}
-                    onSuccess={handleQuizSuccess}
+                    onSuccess={() => setHasCompletedCurrentQuiz(true)}
                   />
                 </div>
               )}
@@ -283,6 +284,7 @@ function QuizSection({ quiz, isAuthenticated, onSuccess }: { quiz: QuizQuestion[
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [score, setScore] = useState(0);
+  const [isQuizFinished, setIsQuizFinished] = useState(false);
   const addPoints = useUserStore(s => s.addPoints);
   const currentQ = quiz[currentQIndex];
   const isCorrect = selectedOption === currentQ.correctAnswer;
@@ -299,17 +301,33 @@ function QuizSection({ quiz, isAuthenticated, onSuccess }: { quiz: QuizQuestion[
     }
   };
   const handleNext = () => {
-    setSelectedOption(null);
-    setIsSubmitted(false);
-    setCurrentQIndex(prev => prev + 1);
-  };
-  useEffect(() => {
-    if (isSubmitted && currentQIndex === quiz.length - 1) {
+    if (currentQIndex < quiz.length - 1) {
+      setSelectedOption(null);
+      setIsSubmitted(false);
+      setCurrentQIndex(prev => prev + 1);
+    } else {
+      setIsQuizFinished(true);
       onSuccess();
     }
-  }, [isSubmitted, currentQIndex, quiz.length, onSuccess]);
+  };
   return (
-    <div className="bg-white rounded-[2.5rem] p-6 md:p-12 border border-slate-200 shadow-xl shadow-slate-200/20">
+    <div className="bg-white rounded-[2.5rem] p-6 md:p-12 border border-slate-200 shadow-xl shadow-slate-200/20 overflow-hidden relative">
+      <AnimatePresence>
+        {isQuizFinished && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="absolute inset-0 bg-white z-10 flex flex-col items-center justify-center p-8 text-center space-y-4"
+          >
+            <div className="w-16 h-16 bg-emerald-500 rounded-full flex items-center justify-center text-white mb-2">
+              <Trophy className="w-8 h-8" />
+            </div>
+            <h4 className="text-2xl font-bold text-slate-900">Tebrikler! Quiz Tamamlandı</h4>
+            <p className="text-slate-500">Bu konuyu başarıyla pekiştirdiniz. Başarı oranınız: %{Math.round((score / quiz.length) * 100)}</p>
+            <Button onClick={() => setIsQuizFinished(false)} variant="outline" className="rounded-xl px-8 h-12">Sonucu Görüntüle</Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <div className="flex items-center gap-2 text-teal-600 mb-8">
         <div className="p-2 bg-teal-50 rounded-lg">
           <HelpCircle className="w-5 h-5" />
@@ -365,11 +383,9 @@ function QuizSection({ quiz, isAuthenticated, onSuccess }: { quiz: QuizQuestion[
         {!isSubmitted ? (
           <Button disabled={selectedOption === null} onClick={handleSubmit} className="w-full h-14 bg-teal-500 hover:bg-teal-600 text-white rounded-2xl font-bold border-none shadow-xl active:scale-[0.98] transition-all">Cevabı Kontrol Et</Button>
         ) : (
-          currentQIndex < quiz.length - 1 ? (
-            <Button onClick={handleNext} className="w-full h-14 bg-slate-950 text-white rounded-2xl font-bold border-none shadow-xl active:scale-[0.98] transition-all">Sonraki Soru</Button>
-          ) : (
-            <Button onClick={onSuccess} className="w-full h-14 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-bold border-none shadow-xl active:scale-[0.98] transition-all">Quiz Tamamlandı ({score}/{quiz.length})</Button>
-          )
+          <Button onClick={handleNext} className="w-full h-14 bg-slate-950 text-white rounded-2xl font-bold border-none shadow-xl active:scale-[0.98] transition-all">
+            {currentQIndex < quiz.length - 1 ? 'Sonraki Soru' : 'Quiz Tamamlandı'}
+          </Button>
         )}
       </div>
     </div>

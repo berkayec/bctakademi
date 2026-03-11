@@ -15,7 +15,7 @@ export function Logo({ className, size = 32, hideText = false }: LogoProps) {
           viewBox="0 0 100 100"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="w-full h-full drop-shadow-md"
+          className="w-full h-full drop-shadow-[0_0_8px_rgba(20,184,166,0.3)]"
         >
           {/* Academic Shield Shape */}
           <path
@@ -38,7 +38,7 @@ export function Logo({ className, size = 32, hideText = false }: LogoProps) {
       {!hideText && (
         <span
           style={{ fontSize }}
-          className="font-display font-black tracking-tighter bg-gradient-to-r from-teal-400 to-slate-400 bg-clip-text text-transparent select-none whitespace-nowrap"
+          className="font-display font-black tracking-tighter bg-gradient-to-r from-teal-300 via-teal-100 to-white bg-clip-text text-transparent select-none whitespace-nowrap"
         >
           BCTAkademi
         </span>

@@ -4,7 +4,7 @@ import { resources } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Search, Download, ExternalLink, Sparkles } from 'lucide-react';
+import { Search, Download, ExternalLink, Sparkles, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useUserStore } from '@/store/use-user-store';
@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 export function ResourcesPage() {
   const [filter, setFilter] = useState('Tümü');
   const [search, setSearch] = useState('');
+  const [processingId, setProcessingId] = useState<string | null>(null);
   const trackResource = useUserStore(s => s.trackResource);
   const isAuthenticated = useUserStore(s => s.isAuthenticated);
   const categories = ['Tümü', 'PDF', 'Video', 'Sunum'];
@@ -23,11 +24,24 @@ export function ResourcesPage() {
       res.description.toLowerCase().includes(search.toLowerCase());
     return matchesFilter && matchesSearch;
   });
-  const handleResourceClick = (resId: string) => {
+  const handleResourceClick = async (resId: string, type: string) => {
+    if (processingId) return;
+    setProcessingId(resId);
+    const loadingToast = toast.loading(type === 'Video' ? "Oynatıcı hazırlanıyor..." : "Dosya hazırlanıyor...");
+    // Simulate preparation delay
+    await new Promise(r => setTimeout(r, 1200));
     if (isAuthenticated) {
       trackResource(resId);
-      toast.success("+10 XP Kazandın!", { icon: <Sparkles className="text-orange-500 w-4 h-4" /> });
+      toast.success("+10 XP Kazandın!", { 
+        id: loadingToast,
+        icon: <Sparkles className="text-orange-500 w-4 h-4" /> 
+      });
+    } else {
+      toast.dismiss(loadingToast);
     }
+    // Functional simulation: Open a placeholder or the actual resource
+    window.open('https://google.com', '_blank');
+    setProcessingId(null);
   };
   return (
     <RootLayout>
@@ -67,6 +81,7 @@ export function ResourcesPage() {
           <AnimatePresence mode="popLayout">
             {filteredResources.map((res) => {
               const Icon = res.icon;
+              const isProcessing = processingId === res.id;
               return (
                 <motion.div
                   key={res.id}
@@ -90,12 +105,20 @@ export function ResourcesPage() {
                     <span>{res.type}</span>
                     <span>{res.fileSize || res.duration}</span>
                   </div>
-                  <Button 
-                    variant="outline" 
-                    className="w-full border-slate-200 text-slate-900 hover:bg-slate-50 rounded-xl font-bold"
-                    onClick={() => handleResourceClick(res.id)}
+                  <Button
+                    variant={res.type === 'Video' ? "default" : "outline"}
+                    className={cn(
+                      "w-full rounded-xl font-bold h-12 transition-all",
+                      res.type === 'Video' && !isProcessing ? "bg-teal-600 hover:bg-teal-700 text-white border-none" : "border-slate-200 text-slate-900 hover:bg-slate-50"
+                    )}
+                    disabled={isProcessing}
+                    onClick={() => handleResourceClick(res.id, res.type)}
                   >
-                    {res.type === 'Video' ? <><ExternalLink className="w-4 h-4 mr-2" /> İzle</> : <><Download className="w-4 h-4 mr-2" /> İndir</>}
+                    {isProcessing ? (
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    ) : (
+                      res.type === 'Video' ? <><ExternalLink className="w-4 h-4 mr-2" /> İzle</> : <><Download className="w-4 h-4 mr-2" /> İndir</>
+                    )}
                   </Button>
                 </motion.div>
               );
