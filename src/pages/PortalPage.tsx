@@ -38,7 +38,9 @@ export function PortalPage() {
             <p className="text-slate-500 text-lg">Biyomedikal yolculuğunda %45 yol kat ettin. Harika gidiyorsun!</p>
           </div>
           <div className="flex gap-3">
-             <Button variant="outline" className="rounded-xl">Sertifikalarım</Button>
+             <Button variant="outline" className="rounded-xl" asChild>
+               <Link to="/sertifikalar">Sertifikalarım</Link>
+             </Button>
              <Button className="bg-slate-900 text-white rounded-xl">Profilini Düzenle</Button>
           </div>
         </header>
@@ -67,8 +69,14 @@ export function PortalPage() {
                    <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: '45%' }}
-                    transition={{ duration: 1 }}
-                    className="h-full bg-gradient-to-r from-teal-500 to-teal-300"
+                    transition={{ duration: 1.5, ease: "easeOut" }}
+                    className="h-full bg-gradient-to-r from-teal-500 to-teal-300 relative"
+                   >
+                     <motion.div 
+                      animate={{ opacity: [0.3, 0.6, 0.3] }}
+                      transition={{ repeat: Infinity, duration: 2 }}
+                      className="absolute inset-0 bg-white" />
+                   </motion.div>
                    />
                 </div>
               </div>
@@ -81,7 +89,7 @@ export function PortalPage() {
           </Card>
           <div className="space-y-4 flex flex-col justify-between">
             {stats.map((stat) => (
-              <Card key={stat.label} className="border-slate-100 shadow-sm hover:shadow-md transition-shadow flex-1">
+              <Card key={stat.label} className="border-slate-100 shadow-sm hover:shadow-md hover:scale-[1.02] transition-all cursor-pointer flex-1">
                 <CardContent className="p-6 flex items-center gap-5">
                   <div className={`p-4 rounded-2xl ${stat.bg} ${stat.color}`}>
                     <stat.icon className="w-7 h-7" />

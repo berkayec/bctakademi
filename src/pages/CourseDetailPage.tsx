@@ -41,6 +41,14 @@ export function CourseDetailPage() {
           <div className="lg:col-span-2 space-y-16">
             <section className="space-y-6">
               <h1 className="text-5xl font-display font-bold text-slate-900 leading-tight">{course.title}</h1>
+              <div className="aspect-video relative rounded-[2.5rem] overflow-hidden group mb-8 shadow-2xl">
+                <img src={course.image} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" alt="" />
+                <div className="absolute inset-0 bg-slate-950/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center text-teal-600 shadow-2xl scale-90 group-hover:scale-100 transition-transform">
+                    <PlayCircle className="w-10 h-10 fill-current" />
+                  </div>
+                </div>
+              </div>
               <p className="text-xl text-slate-600 leading-relaxed max-w-3xl">{course.description}</p>
               <div className="flex flex-wrap gap-4 pt-4">
                 <Badge variant="secondary" className="px-5 py-2 rounded-full bg-slate-100 text-slate-700 font-bold border-none">
@@ -74,6 +82,7 @@ export function CourseDetailPage() {
                         </div>
                         <h3 className="text-2xl font-bold text-slate-900 group-hover:text-teal-600 transition-colors">{unit.title}</h3>
                       </div>
+                      <ChevronRight className="w-6 h-6 text-slate-300 group-data-[state=open]:rotate-90 transition-transform" />
                     </AccordionTrigger>
                     <AccordionContent className="px-8 pb-8 pt-0">
                       <div className="h-px bg-slate-100 mb-8" />

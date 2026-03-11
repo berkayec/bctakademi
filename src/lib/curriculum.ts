@@ -1,4 +1,3 @@
-import { Category } from './curriculum.types';
 export interface QuizQuestion {
   question: string;
   options: string[];
@@ -59,39 +58,8 @@ export const curriculum: Category[] = [
                 id: 'isg-mevzuat',
                 title: 'Biyomedikalde Yasal Mevzuat',
                 content: `Biyomedikal cihaz teknolojileri alanında iş sağlığı ve güvenliği, 6331 sayılı kanun çerçevesinde şekillenir. Bu kanun, teknik personelin laboratuvar ve hastane ortamındaki güvenliğini en üst düzeye çıkarmayı hedefler. Teknisyenlerin çalışma alanlarında karşılaşabileceği biyolojik, kimyasal ve elektriksel riskler için önceden risk analizi yapılması şarttır.
-                Özellikle hastanelerde klinik mühendislik birimlerinde çalışanlar, sadece kendi güvenliklerinden değil, aynı zamanda cihazların güvenli çalışmasından da sorumludur. Hatalı bir onarım veya yetersiz kalibrasyon, hastanın hayatını doğrudan tehlikeye atabilir. Bu nedenle teknik dokümantasyon takibi ve standartlara uyum yasal bir zorunluluktur.
-                Laboratuvar ortamında Kişisel Koruyucu Donanım (KKD) kullanımı asla ihmal edilmemelidir. Antistatik önlükler, koruyucu gözlükler ve yüksek gerilimle çalışırken izole eldivenler temel ekipmanlar arasındadır. Ayrıca, cihazlara müdahale edilmeden önce mutlaka "LOTO" (Lock Out - Tag Out / Kilitle ve Etiketle) prosedürü uygulanarak enerjinin kesildiği teyit edilmelidir.`,
+                Özellikle hastanelerde klinik mühendislik birimlerinde çalışanlar, sadece kendi güvenliklerinden değil, aynı zamanda cihazların güvenli çalışmasından da sorumludur. Hatalı bir onarım veya yetersiz kalibrasyon, hastanın hayatını doğrudan tehlikeye atabilir. Bu nedenle teknik dokümantasyon takibi ve standartlara uyum yasal bir zorunluluktur.`,
                 videoYoutubeId: 'dQw4w9WgXcQ'
-              }
-            ]
-          },
-          {
-            id: 'unit-2-elektriksel-guvenlik',
-            title: 'Ünite 2: Elektriksel Güvenlik Testleri',
-            description: 'Kaçak akım ölçümleri ve izolasyon testleri.',
-            estimatedReadingTime: '90 dk',
-            topics: [
-              {
-                id: 'kacak-akm',
-                title: 'Kaçak Akım Ölçüm Prensipleri',
-                content: `Tıbbi cihazlarda elektriksel güvenlik, IEC 62353 ve IEC 60601-1 standartları ile belirlenir. Bu standartlar, cihazın şasi veya uygulamalı parçalarından hastaya veya operatöre akabilecek akım sınırlarını tanımlar. Mikro-şok riski, kalbe yakın bölgelerde kullanılan cihazlar için milimetre başına mikroamper seviyelerindedir.
-                Kaçak akım testleri genellikle cihazın normal çalışma koşullarında, tek arıza koşullarında ve ters polarite durumlarında yapılır. Toprak süreklilik testi, cihazın koruma iletkeninin direncini ölçerek, oluşabilecek bir kısa devre durumunda akımın güvenle toprağa akıp akmayacağını belirler. Bu değer genellikle 0.2 ohm altında olmalıdır.
-                İzolasyon direnci testleri ise, cihazın enerjili kısımları ile erişilebilir metal kısımları arasındaki yalıtımın kalitesini ölçer. Zamanla eskiyen kablolar, nem ve toz birikimi izolasyon kalitesini düşürerek yangın ve çarpılma riskini artırır. Bu testler periyodik bakımın en kritik aşamasıdır.`
-              }
-            ]
-          },
-          {
-            id: 'unit-3-olcu-birimleri',
-            title: 'Ünite 3: Ölçü Birimleri ve Hata Analizi',
-            description: 'Uluslararası birim sistemleri ve hassas ölçüm.',
-            estimatedReadingTime: '45 dk',
-            topics: [
-              {
-                id: 'si-birimleri',
-                title: 'Biyomedikalde SI Birimleri',
-                content: `Hassas ölçüm, biyomedikal mühendisliğin temel taşıdır. Uluslararası Birimler Sistemi (SI), tüm dünyada ölçüm birliği sağlar. Uzunluk (metre), kütle (kilogram), zaman (saniye) ve elektrik akımı (amper) temel birimlerimizdir. Tıbbi cihazlarda ise bu birimlerin türevleri olan Volt, Ohm, Pascal ve Hertz sıkça kullanılır.
-                Ölçümlerde karşılaşılan hatalar sistematik ve rastgele olmak üzere ikiye ayrılır. Sistematik hatalar genellikle cihazın yanlış kalibre edilmesinden veya çevre koşullarından kaynaklanır ve düzeltilebilir. Rastgele hatalar ise öngörülemez varyasyonlardır. Bir teknisyenin görevi, ölçüm belirsizliğini minimuma indirerek en doğru veriyi elde etmektir.
-                Kalibrasyon, bir ölçü aletinin doğruluğunu, daha yüksek hassasiyete sahip bir referans (standard) ile karşılaştırma işlemidir. Kalibrasyonu yapılmamış bir cihazla yapılan teşhis, yanlış tedaviye yol açabilir. Bu nedenle biyomedikalde izlenebilirlik (traceability) zinciri asla kopmamalıdır.`
               }
             ]
           }
@@ -104,7 +72,34 @@ export const curriculum: Category[] = [
         image: 'https://images.unsplash.com/photo-1544383335-917366bcc07e?auto=format&fit=crop&q=80&w=800',
         difficulty: 'Temel',
         estimatedTime: '15 Saat',
-        units: []
+        units: [
+          {
+            id: 'tr-1',
+            title: 'Teknik Resim Esasları',
+            description: 'Çizim araçları, standart çizgiler ve yazı tipleri.',
+            estimatedReadingTime: '45 dk',
+            topics: [
+              {
+                id: 'tr-cizgi',
+                title: 'Standart Çizgi Tipleri',
+                content: 'Teknik resimde kullanılan her çizginin bir dili vardır. Sürekli kalın çizgiler görünen çevreleri, kesik çizgiler ise görünmeyen kenarları temsil eder. Çizgi kalınlıkları TS EN ISO 128 standartlarına göre belirlenir.'
+              }
+            ]
+          },
+          {
+            id: 'tr-2',
+            title: 'İzdüşüm ve Görünüş Çıkarma',
+            description: 'Dik izdüşüm yöntemleri ve parça görünüşleri.',
+            estimatedReadingTime: '60 dk',
+            topics: [
+              {
+                id: 'tr-gorunus',
+                title: 'Temel Görünüşler',
+                content: 'Bir parçayı tam olarak tanımlayabilmek için genellikle ön, üst ve yan görünüş olmak üzere üç temel görünüş kullanılır. Bu görünüşler arasında hizalama kuralları esastır.'
+              }
+            ]
+          }
+        ]
       }
     ]
   },
@@ -129,7 +124,21 @@ export const curriculum: Category[] = [
         image: 'https://images.unsplash.com/photo-1530026405186-ed1f139313f8?auto=format&fit=crop&q=80&w=800',
         difficulty: 'İleri',
         estimatedTime: '20 Saat',
-        units: []
+        units: [
+          {
+            id: 'bm-1',
+            title: 'Biyouyumluluk ve Malzeme Bilimi',
+            description: 'Vücut içi implantlarda malzeme seçimi.',
+            estimatedReadingTime: '50 dk',
+            topics: [
+              {
+                id: 'bm-polimer',
+                title: 'Biyomedikal Polimerler',
+                content: 'Polimerler, esneklikleri ve işlenebilirlikleri nedeniyle protezlerden ilaç salınım sistemlerine kadar geniş bir yelpazede kullanılırlar. Polietilen ve silikon en yaygın örnekleridir.'
+              }
+            ]
+          }
+        ]
       }
     ]
   }

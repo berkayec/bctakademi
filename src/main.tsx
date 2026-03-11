@@ -21,6 +21,7 @@ import { UnitContentView } from '@/pages/UnitContentView'
 import { ResourcesPage } from '@/pages/ResourcesPage'
 import { BlogPage } from '@/pages/BlogPage'
 import { ContactPage } from '@/pages/ContactPage'
+import { CertificatePage } from '@/pages/CertificatePage'
 import { RootLayout } from '@/components/layout/RootLayout'
 import { ScrollToTop } from '@/components/layout/ScrollToTop'
 const queryClient = new QueryClient();
@@ -85,6 +86,15 @@ const router = createBrowserRouter([
         element: (
           <RootLayout>
             <ContactPage />
+          </RootLayout>
+        ),
+        errorElement: <RouteErrorBoundary />,
+      },
+      {
+        path: "/sertifikalar",
+        element: (
+          <RootLayout>
+            <CertificatePage />
           </RootLayout>
         ),
         errorElement: <RouteErrorBoundary />,

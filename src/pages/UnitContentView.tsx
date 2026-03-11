@@ -23,9 +23,16 @@ export function UnitContentView() {
   const { categoryId, courseId, unitId } = useParams();
   const [activeTopicIndex, setActiveTopicIndex] = useState(0);
   const [unitCompleted, setUnitCompleted] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
   const category = curriculum.find(c => c.id === categoryId);
   const course = category?.courses.find(c => c.id === courseId);
   const unit = course?.units.find(u => u.id === unitId);
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.currentTarget;
+    const progress = (target.scrollTop / (target.scrollHeight - target.clientHeight)) * 100;
+    setScrollProgress(progress);
+  };
+
   useEffect(() => {
     setActiveTopicIndex(0);
     setUnitCompleted(false);
@@ -109,22 +116,23 @@ export function UnitContentView() {
           </ScrollArea>
         </div>
         {/* Content Area */}
-        <div className="flex-1 flex flex-col bg-white overflow-hidden">
+        <div className="flex-1 flex flex-col bg-white overflow-hidden relative">
           <header className="px-8 py-4 border-b flex items-center justify-between bg-white/80 backdrop-blur-md z-10">
             <div className="flex items-center gap-4">
                <h2 className="text-lg font-bold text-slate-900 truncate max-w-[200px] sm:max-w-md">{currentTopic.title}</h2>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" className="text-slate-400 hover:text-slate-600">
+              <Button variant="ghost" size="icon" className="text-slate-400 hover:text-slate-600 hidden sm:flex">
                 <Share2 className="w-5 h-5" />
               </Button>
               <Button size="sm" onClick={handleComplete} className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-6 rounded-xl h-10 shadow-lg shadow-emerald-500/20">
                 {activeTopicIndex === unit.topics.length - 1 ? 'Üniteyi Bitir' : 'Sonraki Konu'}
               </Button>
             </div>
+            <div className="absolute bottom-0 left-0 h-0.5 bg-teal-500 transition-all duration-150" style={{ width: `${scrollProgress}%` }} />
           </header>
-          <ScrollArea className="flex-1">
-            <div className="max-w-4xl mx-auto px-8 py-12 space-y-12">
+          <ScrollArea className="flex-1" onScrollCapture={handleScroll}>
+            <div className="max-w-4xl mx-auto px-6 sm:px-8 py-12 space-y-12 mt-4">
               {currentTopic.videoYoutubeId && (
                 <div className="aspect-video bg-slate-900 rounded-3xl overflow-hidden shadow-2xl relative group">
                   <iframe
@@ -140,7 +148,7 @@ export function UnitContentView() {
                 <h1 className="text-4xl font-display font-bold text-slate-900 leading-tight mb-8">
                   {currentTopic.title}
                 </h1>
-                <div className="text-slate-600 text-lg leading-[1.8] font-sans whitespace-pre-wrap">
+                <div className="text-slate-600 text-lg md:text-xl leading-[1.8] font-sans whitespace-pre-wrap">
                   {currentTopic.content}
                 </div>
               </article>
@@ -163,7 +171,7 @@ export function UnitContentView() {
                 </section>
               )}
               {currentTopic.quiz && (
-                <div className="pt-12 border-t">
+                <div className="py-12 border-t">
                   <QuizSection key={currentTopic.id} quiz={currentTopic.quiz} />
                 </div>
               )}
