@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -16,7 +16,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const login = useUserStore((s) => s.login);
   const signup = useUserStore((s) => s.signup);
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({ username: '', email: '', password: '' });
+  const [formData, setFormData] = useState({ username: '', email: '' });
   const handleAuth = async (type: 'login' | 'signup') => {
     if (!formData.email || !formData.username) {
       toast.error("Lütfen tüm alanları doldurun.");
@@ -37,6 +37,8 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[800px] p-0 overflow-hidden border-none rounded-[2.5rem] bg-white shadow-2xl">
+        <DialogTitle className="sr-only">BCTAkademi - Giriş / Kayıt</DialogTitle>
+        <DialogDescription className="sr-only">Hesabınıza giriş yapın veya yeni üye olun.</DialogDescription>
         <div className="flex flex-col md:flex-row min-h-[550px]">
           <div className="hidden md:flex md:w-1/2 bg-slate-950 p-12 flex-col justify-between relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-teal-500/30 to-transparent" />
