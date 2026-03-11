@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { useUserStore, getUserTitle } from '@/store/use-user-store';
 export function PortalPage() {
@@ -15,16 +15,17 @@ export function PortalPage() {
   const isAuthenticated = useUserStore((s) => s.isAuthenticated);
   const [isHydrated, setIsHydrated] = useState(false);
   useEffect(() => {
-    const unsubscribe = useUserStore.subscribe((state) => {
-      if (state.user) {
+    // Robust hydration check for persistent store
+    const checkHydration = () => {
+      if (useUserStore.persist.hasHydrated()) {
         setIsHydrated(true);
+      } else {
+        const unsub = useUserStore.persist.onHydrate(() => setIsHydrated(true));
+        return unsub;
       }
-    });
-    // Check initial state
-    if (useUserStore.getState().user) {
-      setIsHydrated(true);
-    }
-    return () => unsubscribe();
+    };
+    const unsub = checkHydration();
+    return () => { if (unsub) unsub(); };
   }, []);
   useEffect(() => {
     if (isHydrated && !isAuthenticated) {
@@ -161,24 +162,34 @@ export function PortalPage() {
           </div>
         </section>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-          <Card className="lg:col-span-2 rounded-[2.5rem] border-slate-100 relative shadow-sm overflow-hidden bg-white">
+          <Card className="lg:col-span-2 rounded-[2.5rem] border-slate-100 relative shadow-sm overflow-hidden bg-white min-h-[400px]">
+            <AnimatePresence>
             {points < 300 ? (
-              <div className="absolute inset-0 bg-white/80 backdrop-blur-[4px] z-20 flex flex-col items-center justify-center rounded-3xl p-10 text-center">
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="absolute inset-0 bg-white/80 backdrop-blur-[4px] z-20 flex flex-col items-center justify-center rounded-3xl p-10 text-center"
+              >
                 <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-6">
                   <Lock className="w-8 h-8 text-slate-400" />
                 </div>
                 <h4 className="text-2xl font-bold text-slate-900 mb-2">Performans Analizi</h4>
                 <p className="text-slate-500 text-lg max-w-xs leading-relaxed">Haftalık çalışma grafiğini açmak için en az 300 XP puanına ulaşmalısın.</p>
-              </div>
-            ) : !hasActivity && (
-              <div className="absolute inset-0 bg-white z-20 flex flex-col items-center justify-center rounded-3xl p-10 text-center">
+              </motion.div>
+            ) : !hasActivity ? (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="absolute inset-0 bg-white z-20 flex flex-col items-center justify-center rounded-3xl p-10 text-center"
+              >
                  <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-6">
                    <Activity className="w-8 h-8 text-slate-400" />
                  </div>
                  <h4 className="text-2xl font-bold text-slate-900 mb-2">Aktivite Yok</h4>
                  <p className="text-slate-500 text-lg max-w-xs leading-relaxed">Bu hafta hiç çalışma yapmadın. Derslere dönerek ilerlemeye devam et!</p>
-              </div>
-            )}
+              </motion.div>
+            ) : null}
+            </AnimatePresence>
             <CardHeader className="p-8 pb-0">
               <CardTitle className="text-xl font-bold">Haftalık Aktivite (Saat/Gün)</CardTitle>
               <CardDescription>BCTAkademi üzerindeki çalışma yoğunluğun.</CardDescription>

@@ -17,12 +17,24 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const signup = useUserStore((s) => s.signup);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({ username: '', email: '' });
+  const validateEmail = (email: string) => {
+    return String(email)
+      .toLowerCase()
+      .match(
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      );
+  };
   const handleAuth = async (type: 'login' | 'signup') => {
-    if (!formData.email || !formData.username) {
-      toast.error("Lütfen tüm alanları doldurun.");
+    if (!formData.username.trim()) {
+      toast.error("Lütfen adınızı veya kullanıcı adınızı girin.");
+      return;
+    }
+    if (!formData.email.trim() || !validateEmail(formData.email)) {
+      toast.error("Lütfen geçerli bir e-posta adresi girin.");
       return;
     }
     setLoading(true);
+    // Simulate network latency for professional feel
     await new Promise(r => setTimeout(r, 800));
     if (type === 'login') {
       login(formData.username, formData.email);
@@ -36,7 +48,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   };
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[800px] p-0 overflow-hidden border-none rounded-[2.5rem] bg-white shadow-2xl">
+      <DialogContent className="sm:max-w-[800px] p-0 overflow-hidden border-none rounded-[2.5rem] bg-white shadow-2xl focus:outline-none">
         <DialogTitle className="sr-only">BCTAkademi - Giriş / Kayıt</DialogTitle>
         <DialogDescription className="sr-only">Hesabınıza giriş yapın veya yeni üye olun.</DialogDescription>
         <div className="flex flex-col md:flex-row min-h-[550px]">
@@ -71,33 +83,33 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 <TabsTrigger value="login" className="rounded-xl font-bold text-base data-[state=active]:bg-white data-[state=active]:shadow-md">Giriş</TabsTrigger>
                 <TabsTrigger value="signup" className="rounded-xl font-bold text-base data-[state=active]:bg-white data-[state=active]:shadow-md">Kayıt Ol</TabsTrigger>
               </TabsList>
-              <TabsContent value="login" className="space-y-6">
+              <TabsContent value="login" className="space-y-6 outline-none">
                 <div className="space-y-5">
                   <div className="space-y-2">
                     <Label htmlFor="l-user" className="ml-1 font-bold text-slate-700">Kullanıcı Adı</Label>
-                    <Input id="l-user" placeholder="kullanici_adi" className="rounded-xl h-12 border-slate-200" onChange={e => setFormData({...formData, username: e.target.value})} />
+                    <Input id="l-user" placeholder="kullanici_adi" className="rounded-xl h-12 border-slate-200" value={formData.username} onChange={e => setFormData({...formData, username: e.target.value})} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="l-email" className="ml-1 font-bold text-slate-700">E-posta</Label>
-                    <Input id="l-email" type="email" placeholder="ornek@bct.com" className="rounded-xl h-12 border-slate-200" onChange={e => setFormData({...formData, email: e.target.value})} />
+                    <Input id="l-email" type="email" placeholder="ornek@bct.com" className="rounded-xl h-12 border-slate-200" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
                   </div>
                 </div>
-                <Button disabled={loading} className="w-full bg-slate-950 hover:bg-slate-900 h-14 rounded-xl font-bold text-lg text-white mt-4 border-none shadow-xl" onClick={() => handleAuth('login')}>
+                <Button disabled={loading} className="w-full bg-slate-950 hover:bg-slate-900 h-14 rounded-xl font-bold text-lg text-white mt-4 border-none shadow-xl transition-all active:scale-95" onClick={() => handleAuth('login')}>
                   {loading ? "Giriş Yapılıyor..." : "Hemen Giriş Yap"}
                 </Button>
               </TabsContent>
-              <TabsContent value="signup" className="space-y-6">
+              <TabsContent value="signup" className="space-y-6 outline-none">
                 <div className="space-y-5">
                   <div className="space-y-2">
                     <Label htmlFor="s-user" className="ml-1 font-bold text-slate-700">Adınız Soyadınız</Label>
-                    <Input id="s-user" placeholder="Ad Soyad" className="rounded-xl h-12 border-slate-200" onChange={e => setFormData({...formData, username: e.target.value})} />
+                    <Input id="s-user" placeholder="Ad Soyad" className="rounded-xl h-12 border-slate-200" value={formData.username} onChange={e => setFormData({...formData, username: e.target.value})} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="s-email" className="ml-1 font-bold text-slate-700">E-posta Adresiniz</Label>
-                    <Input id="s-email" type="email" placeholder="ogrenci@bct.com" className="rounded-xl h-12 border-slate-200" onChange={e => setFormData({...formData, email: e.target.value})} />
+                    <Input id="s-email" type="email" placeholder="ogrenci@bct.com" className="rounded-xl h-12 border-slate-200" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
                   </div>
                 </div>
-                <Button disabled={loading} className="w-full bg-teal-500 hover:bg-teal-600 h-14 rounded-xl font-bold text-lg text-white mt-4 border-none shadow-xl shadow-teal-500/20" onClick={() => handleAuth('signup')}>
+                <Button disabled={loading} className="w-full bg-teal-500 hover:bg-teal-600 h-14 rounded-xl font-bold text-lg text-white mt-4 border-none shadow-xl shadow-teal-500/20 transition-all active:scale-95" onClick={() => handleAuth('signup')}>
                   {loading ? "Kaydolunuyor..." : "Akademiye Katıl (+150 XP)"}
                 </Button>
               </TabsContent>

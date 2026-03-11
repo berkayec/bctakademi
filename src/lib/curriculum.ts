@@ -40,27 +40,64 @@ export const curriculum: Category[] = [
         title: 'Biyoölçme',
         description: 'Tıbbi cihazlarda elektriksel güvenlik testleri (EST), kaçak akım analizi ve kalibrasyon protokolleri üzerine uzmanlık eğitimi.',
         image: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&q=80&w=1200',
-        units: Array.from({ length: 5 }).map((_, i) => ({
-          id: `est-u-${i + 1}`,
-          title: `Ünite ${i + 1}: ${['İSG ve Laboratuvar Disiplini', 'IEC 62353 Standartları', 'Kaçak Akım Ölçüm Teknikleri', 'Kalibrasyon ve İzlenebilirlik', 'Hata Analizi ve Raporlama'][i]}`,
-          description: 'Profesyonel biyomedikal teknik servis standartlarında derinlemesine teknik inceleme.',
-          estimatedReadingTime: '120 dk',
-          topics: [
-            {
-              id: `est-t-${i}-1`,
-              title: 'Teknik Uygulama Rehberi',
-              content: `Bu bölümde, biyomedikal cihazların güvenli çalışmasını sağlayan kritik teknik parametreler ele alınmaktadır. \n\nDevre Şeması Analizi:\nCihazın güç katı girişi (L, N, PE) ile gövde arasındaki izolasyon direnci ölçülürken test cihazı 500V DC gerilim uygular. Bu süreçte cihazın tüm sigortalarının (F1, F2) sağlam olduğu doğrulanmalıdır. \n\nKlinik Prosedürler:\n1. Toprak Hattı Sürekliliği: Test cihazı 200mA akım basarak toprak direncini ölçer. Kabul edilebilir limit 200mΩ altıdır.\n2. Kaçak Akım Ölçümü: Cihaz çalışma geriliminde iken gövde kaçak akımı (Chassis Leakage) diferansiyel metodla ölçülür.`,
-              quiz: [
-                {
-                  question: "Toprak sürekliliği testi için kabul edilebilir direnç sınırı nedir?",
-                  options: ["0.2 Ohm", "1 Ohm", "5 Ohm", "0.5 Ohm"],
-                  correctAnswer: 0,
-                  explanation: "IEC 62353 standartlarına göre toprak sürekliliği direnci 0.2 Ohm (200mOhm) altında olmalıdır."
-                }
-              ]
-            }
-          ]
-        }))
+        units: [
+          {
+            id: 'est-u-1',
+            title: 'Ünite 1: İSG ve Laboratuvar Disiplini',
+            description: 'Biyomedikal teknik servislerde iş sağlığı, güvenliği ve profesyonel laboratuvar standartları.',
+            estimatedReadingTime: '120 dk',
+            topics: [
+              {
+                id: 'est-t-1-1',
+                title: 'Biyomedikalde Güvenlik Temelleri',
+                videoYoutubeId: 'qR6H_Y_pD6M', // Introduction to Biomedical Engineering
+                content: `Biyomedikal cihazlarla çalışırken güvenlik, hem teknisyen hem de hasta için hayati önem taşır.\n\nElektriksel güvenlik testlerinin temel amacı, cihazın normal çalışma ve tek hata durumlarında (Single Fault Conditions) sızdırdığı akımın belirlenen limitler dahilinde kalmasını sağlamaktır.\n\nLaboratuvar Disiplini:\n1. ESD (Elektrostatik Deşarj) bilekliği kullanımı.\n2. İzolasyon trafolu çalışma masaları.\n3. Antistatik zemin kaplaması.`,
+                quiz: [
+                  {
+                    question: "Biyomedikal laboratuvarında çalışırken 'Tek Hata Durumu' (Single Fault) neyi ifade eder?",
+                    options: ["Cihazın tamamen yanması", "Toprak hattının kopması gibi tek bir güvenlik önleminin devre dışı kalması", "Tüm sigortaların atması", "Cihazın yanlış prize takılması"],
+                    correctAnswer: 1,
+                    explanation: "IEC 60601 standartlarına göre güvenlik testleri, bir koruma önleminin (örneğin toprak hattı) bozulduğu 'tek hata' senaryosu altında cihazın hala güvenli olup olmadığını doğrular."
+                  }
+                ]
+              },
+              {
+                id: 'est-t-1-2',
+                title: 'Kişisel Koruyucu Donanım (KKD)',
+                content: `Teknik servis süreçlerinde kullanılan KKD'ler, yüksek gerilim ve biyolojik risklere karşı koruma sağlar.\n\nTıbbi cihazların kalibrasyonu sırasında radyasyon veya kimyasal maruziyeti riski varsa, kurşun önlük veya özel maske kullanımı zorunludur.`,
+                quiz: [
+                  {
+                    question: "Elektriksel ölçümler sırasında neden yalıtkan tabanlı ayakkabı tercih edilmelidir?",
+                    options: ["Daha rahat olduğu için", "Statik elektriği artırmak için", "Vücut üzerinden toprağa akacak akım yolunu kesmek için", "Cihazı korumak için"],
+                    correctAnswer: 2,
+                    explanation: "Yalıtkan taban, olası bir kaçak durumunda elektrik akımının vücudunuz üzerinden toprağa tamamlanmasını engelleyerek çarpılma riskini minimize eder."
+                  }
+                ]
+              }
+            ]
+          },
+          ...Array.from({ length: 4 }).map((_, i) => ({
+            id: `est-u-${i + 2}`,
+            title: `Ünite ${i + 2}: ${['IEC 62353 Standartları', 'Kaçak Akım Ölçüm Teknikleri', 'Kalibrasyon ve İzlenebilirlik', 'Hata Analizi ve Raporlama'][i]}`,
+            description: 'Profesyonel biyomedikal teknik servis standartlarında derinlemesine teknik inceleme.',
+            estimatedReadingTime: '120 dk',
+            topics: [
+              {
+                id: `est-t-${i+2}-1`,
+                title: 'Teknik Uygulama Rehberi',
+                content: `Bu bölümde, biyomedikal cihazların güvenli çalışmasını sağlayan kritik teknik parametreler ele alınmaktadır. \n\nDevre Şeması Analizi:\nCihazın güç katı girişi (L, N, PE) ile gövde arasındaki izolasyon direnci ölçülürken test cihazı 500V DC gerilim uygular. Bu süreçte cihazın tüm sigortalarının (F1, F2) sağlam olduğu doğrulanmalıdır. \n\nKlinik Prosedürler:\n1. Toprak Hattı Sürekliliği: Test cihazı 200mA akım basarak toprak direncini ölçer. Kabul edilebilir limit 200mΩ altıdır.\n2. Kaçak Akım Ölçümü: Cihaz çalışma geriliminde iken gövde kaçak akımı (Chassis Leakage) diferansiyel metodla ölçülür.`,
+                quiz: [
+                  {
+                    question: "Toprak sürekliliği testi için kabul edilebilir direnç sınırı nedir?",
+                    options: ["0.2 Ohm", "1 Ohm", "5 Ohm", "0.5 Ohm"],
+                    correctAnswer: 0,
+                    explanation: "IEC 62353 standartlarına göre toprak sürekliliği direnci 0.2 Ohm (200mOhm) altında olmalıdır. Bu değerin üzerindeki direnç, toprak hattının zayıf olduğunu ve güvenlik riski taşıdığını gösterir."
+                  }
+                ]
+              }
+            ]
+          }))
+        ]
       },
       {
         id: 'biyoenstrumantasyon',
@@ -82,7 +119,7 @@ export const curriculum: Category[] = [
                   question: "Biyomedikal sinyal yükseltmede neden CMRR önemlidir?",
                   options: ["Hızı artırır", "Şebeke gürültüsünü yok eder", "Güç tüketimini azaltır", "Maliyet düşürür"],
                   correctAnswer: 1,
-                  explanation: "Common Mode Rejection Ratio (CMRR), her iki girişe ortak gelen gürültüleri (50Hz) yok etme yeteneğidir."
+                  explanation: "Common Mode Rejection Ratio (CMRR), her iki girişe ortak gelen şebeke gürültülerini (50Hz/60Hz) bastırma yeteneğidir. Biyomedikal sinyaller çok küçük olduğu için bu gürültülerin elenmesi hayati önem taşır."
                 }
               ]
             }
@@ -106,37 +143,10 @@ export const curriculum: Category[] = [
               content: `İnsan vücudu karmaşık bir elektro-mekanik sistemdir. \n\nAksiyon Potansiyeli:\nHücre zarı Na+/K+ pompası ile -70mV dinlenim potansiyelini korur. Uyarı anında iyon kanallarının açılmasıyla gerçekleşen depolarizasyon, ECG ve EEG cihazlarının temel veri kaynağıdır.`,
               quiz: [
                 {
-                  question: "Normal bir hücrenin dinlenim potansiyeli yaklaşık kaçtır?",
+                  question: "Normal bir uyarılabilir hücrenin dinlenim potansiyeli yaklaşık kaçtır?",
                   options: ["+40 mV", "0 mV", "-70 mV", "-10 mV"],
                   correctAnswer: 2,
-                  explanation: "Çoğu uyarılabilir hücrede dinlenim zar potansiyeli -70 mV civarındadır."
-                }
-              ]
-            }
-          ]
-        }))
-      },
-      {
-        id: 'teknik-resim',
-        title: 'Teknik Resim',
-        description: 'Biyomedikal cihaz parçalarının 2D/3D teknik çizimleri, devre şemaları ve montaj dökümanları.',
-        image: 'https://images.unsplash.com/photo-1503387762-592dea58ef21?auto=format&fit=crop&q=80&w=1200',
-        units: Array.from({ length: 5 }).map((_, i) => ({
-          id: `tr-u-${i + 1}`,
-          title: `Ünite ${i + 1}: ${['Geometrik Çizimler', 'Görünüş Çıkartma', 'Kesit Alma Teknikleri', 'Elektronik Semboller', 'CAD ile Cihaz Tasarımı'][i]}`,
-          description: 'Teknik dokümantasyon ve endüstriyel standartlarda çizim eğitimi.',
-          estimatedReadingTime: '90 dk',
-          topics: [
-            {
-              id: `tr-t-${i}-1`,
-              title: 'Teknik Çizim Standartları',
-              content: `Biyomedikal cihazların bakım kılavuzlarında yer alan şemalar ISO ve ANSI standartlarına dayanır. \n\nProjekisyon Metodları:\nTürkiye'de genellikle 1. Açı (E) projeksiyonu kullanılır. Parçanın ön, üst ve sol yan görünüşleri temel alınır.`,
-              quiz: [
-                {
-                  question: "Teknik resimde gizli kenarlar hangi çizgi tipiyle gösterilir?",
-                  options: ["Sürekli kalın", "Sürekli ince", "Kesik çizgi", "Noktalı kesik"],
-                  correctAnswer: 2,
-                  explanation: "Görünmeyen veya gizli kalan kenarlar kesik (kesikli) çizgilerle ifade edilir."
+                  explanation: "Çoğu uyarılabilir hücrede (sinir ve kas hücreleri gibi) dinlenim zar potansiyeli iç tarafın dışa göre negatif olduğu -70 mV civarındadır."
                 }
               ]
             }
@@ -169,34 +179,7 @@ export const curriculum: Category[] = [
                   question: "Bifaizik defibrilatörlerin monofaziklere göre en büyük avantajı nedir?",
                   options: ["Daha ucuzdur", "Daha hafiftir", "Daha düşük enerjiyle daha etkili şok sağlar", "Daha hızlı şarj olur"],
                   correctAnswer: 2,
-                  explanation: "Bifaizik dalga formu, akımı iki yönde ileterek kalp kasına daha az zarar verir ve daha başarılı defibrilasyon sağlar."
-                }
-              ]
-            }
-          ]
-        }))
-      },
-      {
-        id: 'biyomalzeme',
-        title: 'Biyomalzeme ve Biyomekanik',
-        description: 'Vücut içi implantlar, protez sistemleri ve doku ile etkileşime giren malzemelerin mekanik ve kimyasal analizi.',
-        image: 'https://images.unsplash.com/photo-1576091160550-2173bdb999ef?auto=format&fit=crop&q=80&w=800',
-        units: Array.from({ length: 5 }).map((_, i) => ({
-          id: `bm-u-${i + 1}`,
-          title: `Ünite ${i + 1}: ${['Biyouyumluluk Standartları', 'Metalik İmplantlar', 'Biyoseramikler ve Polimerler', 'Kırılma ve Yorulma Analizi', 'Yapay Organ Mekaniği'][i]}`,
-          description: 'Malzeme bilimi ve biyolojik sistem etkileşimi.',
-          estimatedReadingTime: '130 dk',
-          topics: [
-            {
-              id: `bm-t-${i}-1`,
-              title: 'Malzeme Mühendisliği',
-              content: `Biyomalzemeler, vücudun korozif ortamında fonksiyonunu yitirmeden çalışmalıdır. \n\nMetalik Malzemeler:\nTitanyum alaşımları (Ti-6Al-4V) yüksek biyouyumluluk ve elastisite modülü sayesinde ortopedik implantlarda standarttır. Paslanmaz çelik (316L) ise korozyon direnci nedeniyle geçici tespit elemanlarında kullanılır.`,
-              quiz: [
-                {
-                  question: "Biyouyumluluk açısından en ideal metal grubu hangisidir?",
-                  options: ["Bakır alaşımları", "Alüminyum", "Titanyum alaşımları", "Demir"],
-                  correctAnswer: 2,
-                  explanation: "Titanyum, vücut sıvılarına karşı yüksek korozyon direnci ve kemikle kaynaşma (osseointegrasyon) yeteneği nedeniyle en ideal malzemedir."
+                  explanation: "Bifaizik dalga formu, akımı iki yönde ileterek kalp kasına (miyokard) daha az zarar verir ve daha düşük enerji seviyelerinde bile daha başarılı defibrilasyon (ritim düzeltme) sağlar."
                 }
               ]
             }

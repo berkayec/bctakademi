@@ -25,6 +25,7 @@ export function UnitContentView() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [hasCompletedCurrentQuiz, setHasCompletedCurrentQuiz] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const trackedSessionVideos = useRef<Set<string>>(new Set());
   const category = curriculum.find(c => c.id === categoryId);
   const course = category?.courses.find(c => c.id === courseId);
   const unit = course?.units.find(u => u.id === unitId);
@@ -48,16 +49,23 @@ export function UnitContentView() {
   }, [unitId]);
   useEffect(() => {
     if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+      // Instant scroll for better power-user feel during topic switching
+      scrollContainerRef.current.scrollTo({ top: 0, behavior: 'auto' });
       setScrollProgress(0);
       setHasCompletedCurrentQuiz(false);
     }
   }, [activeTopicIndex]);
+  const currentTopic = unit?.topics[activeTopicIndex];
+  // Robust Video Tracking Effect
+  useEffect(() => {
+    if (currentTopic?.videoYoutubeId && isAuthenticated && !trackedSessionVideos.current.has(currentTopic.videoYoutubeId)) {
+      trackVideo(currentTopic.videoYoutubeId);
+      trackedSessionVideos.current.add(currentTopic.videoYoutubeId);
+    }
+  }, [currentTopic?.id, currentTopic?.videoYoutubeId, isAuthenticated, trackVideo]);
   if (!unit || !course) return <div className="p-20 text-center text-slate-500 font-bold">İçerik bulunamadı.</div>;
-  const currentTopic = unit.topics[activeTopicIndex];
   const handleComplete = () => {
-    // Check if there's an uncompleted quiz for the current topic
-    if (currentTopic.quiz && currentTopic.quiz.length > 0 && !hasCompletedCurrentQuiz) {
+    if (currentTopic?.quiz && currentTopic.quiz.length > 0 && !hasCompletedCurrentQuiz) {
       toast("Bilgi Kontrolü", {
         description: "Devam etmeden önce konuyu pekiştirmek için aşağıdaki quizi çözmenizi öneririz.",
         icon: <AlertCircle className="text-orange-500 w-4 h-4" />,
@@ -75,25 +83,23 @@ export function UnitContentView() {
       completeUnit(unit.id);
       setUnitCompleted(true);
       if (isAuthenticated) {
-        // Delay to allow state update to propagate for title check
         setTimeout(() => {
           const updatedPoints = useUserStore.getState().user?.points ?? 0;
           const newTitle = getUserTitle(updatedPoints);
           if (oldTitle !== newTitle) {
-            toast.success("SEVİYE ATLADIN!", {
-              description: `Yeni unvanın: ${newTitle}`,
-              duration: 5000,
+            toast.success("MÜKEMMEL İLERLEME!", {
+              description: `Yeni akademik seviyeye ulaştın: ${newTitle}`,
+              duration: 6000,
+            });
+          } else {
+            toast.success("Tebrikler!", {
+              description: "Üniteyi başarıyla tamamladın. XP puanların eklendi.",
             });
           }
-        }, 200);
+        }, 300);
       }
     } else {
       setActiveTopicIndex(prev => prev + 1);
-    }
-  };
-  const handleVideoPlay = () => {
-    if (currentTopic.videoYoutubeId && isAuthenticated) {
-      trackVideo(currentTopic.videoYoutubeId);
     }
   };
   const handleQuizSuccess = () => {
@@ -151,14 +157,14 @@ export function UnitContentView() {
                 </div>
                 <div className="space-y-3">
                   <h2 className="text-3xl font-display font-bold text-white">Ünite Tamamlandı!</h2>
-                  <p className="text-slate-400 text-lg">"{unit.title}" ünitesini başarıyla tamamladınız. {isAuthenticated && "Akademik hanenize 100 XP eklendi."}</p>
+                  <p className="text-slate-400 text-lg">"{unit.title}" ünitesini başarıyla bitirdiniz. {isAuthenticated && "Akademik hanenize +100 XP eklendi."}</p>
                 </div>
                 <div className="flex gap-4 justify-center">
                   <Button asChild variant="outline" className="border-slate-700 text-white hover:bg-slate-800 rounded-xl h-12 px-8">
-                    <Link to={`/dersler/${categoryId}/${courseId}`}>Derse Dön</Link>
+                    <Link to={`/dersler/${categoryId}/${courseId}`}>Kurs Sayfasına Dön</Link>
                   </Button>
                   <Button asChild className="bg-teal-500 hover:bg-teal-600 rounded-xl border-none h-12 px-8 font-bold">
-                    <Link to="/dersler">Diğer Kurslar</Link>
+                    <Link to="/dersler">Diğer Modüller</Link>
                   </Button>
                 </div>
               </motion.div>
@@ -198,7 +204,7 @@ export function UnitContentView() {
                 </SheetContent>
               </Sheet>
               <h2 className="text-sm md:text-base font-bold text-slate-900 truncate max-w-[150px] sm:max-w-md">
-                {currentTopic.title}
+                {currentTopic?.title}
               </h2>
             </div>
             <div className="flex items-center gap-2">
@@ -214,10 +220,9 @@ export function UnitContentView() {
             ref={scrollContainerRef}
           >
             <div className="max-w-4xl mx-auto px-6 sm:px-8 pt-10 pb-20 space-y-12">
-              {currentTopic.videoYoutubeId && (
+              {currentTopic?.videoYoutubeId && (
                 <div className="aspect-video bg-slate-900 rounded-3xl overflow-hidden shadow-2xl relative group">
                   <iframe
-                    onLoad={handleVideoPlay}
                     className="w-full h-full border-none"
                     src={`https://www.youtube.com/embed/${currentTopic.videoYoutubeId}`}
                     title={currentTopic.title}
@@ -228,13 +233,13 @@ export function UnitContentView() {
               )}
               <article className="prose prose-slate max-w-none">
                 <h1 className="text-3xl md:text-5xl font-display font-bold text-slate-900 leading-tight mb-8">
-                  {currentTopic.title}
+                  {currentTopic?.title}
                 </h1>
                 <div className="text-slate-600 text-lg md:text-xl leading-relaxed md:leading-[2.2] font-sans whitespace-pre-wrap">
-                  {currentTopic.content}
+                  {currentTopic?.content}
                 </div>
               </article>
-              {currentTopic.quiz && currentTopic.quiz.length > 0 && (
+              {currentTopic?.quiz && currentTopic.quiz.length > 0 && (
                 <div id="quiz-section" className="py-12 border-t border-slate-100">
                   <QuizSection
                     key={currentTopic.id}
