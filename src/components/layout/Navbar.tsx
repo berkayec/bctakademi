@@ -1,25 +1,41 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Activity, LayoutDashboard } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Menu, X, Activity, LayoutDashboard, Search } from 'lucide-react';
 import { navLinks } from '@/lib/data';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const location = useLocation();
+  const navigate = useNavigate();
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/dersler?q=${encodeURIComponent(searchQuery)}`);
+      setIsSearchOpen(false);
+      setSearchQuery('');
+    }
+  };
+  useEffect(() => {
+    setIsOpen(false);
+    setIsSearchOpen(false);
+  }, [location.pathname]);
   return (
     <nav className="bg-slate-950 text-slate-100 sticky top-0 z-50 border-b border-slate-800 shadow-xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-20 items-center">
           <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="bg-teal-500 p-2 rounded-xl group-hover:bg-teal-400 group-hover:rotate-12 transition-all duration-300">
+            <div className="bg-teal-500 p-2 rounded-xl group-hover:bg-teal-400 group-hover:rotate-12 transition-all duration-300 shadow-lg shadow-teal-500/20">
               <Activity className="w-6 h-6 text-white" />
             </div>
-            <span className="font-display font-bold text-2xl tracking-tight">
-              BCT<span className="text-teal-400">Öğretmeni</span>
+            <span className="font-display font-bold text-2xl tracking-tight hidden sm:inline-block">
+              BCT<span className="text-teal-400">Hub</span>
             </span>
           </Link>
-          <div className="hidden md:flex items-center gap-10">
+          <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => {
               const isActive = location.pathname === link.href;
               return (
@@ -27,7 +43,7 @@ export function Navbar() {
                   key={link.name}
                   to={link.href}
                   className={cn(
-                    "text-sm font-bold tracking-wider uppercase transition-all relative py-1",
+                    "text-xs font-bold tracking-widest uppercase transition-all relative py-1",
                     isActive ? "text-teal-400" : "text-slate-400 hover:text-white"
                   )}
                 >
@@ -38,23 +54,67 @@ export function Navbar() {
                 </Link>
               );
             })}
-            <Link to="/portal">
-              <Button className="bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl px-8 h-12 transition-all active:scale-95 shadow-lg shadow-orange-500/20">
-                <LayoutDashboard className="w-4 h-4 mr-2" /> Portala Gir
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="relative hidden lg:flex items-center">
+              <form onSubmit={handleSearch} className="flex items-center relative">
+                <Search className="absolute left-3 w-4 h-4 text-slate-400" />
+                <Input
+                  className="bg-slate-900 border-slate-800 w-48 focus:w-64 transition-all rounded-xl h-10 pl-10 text-xs font-bold text-white placeholder:text-slate-500 focus-visible:ring-teal-500"
+                  placeholder="Hızlı Arama..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </form>
+            </div>
+            <Link to="/portal" className="hidden sm:block">
+              <Button className="bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl px-6 h-11 transition-all active:scale-95 shadow-lg shadow-orange-500/20">
+                <LayoutDashboard className="w-4 h-4 mr-2" /> Portal
               </Button>
             </Link>
-          </div>
-          <div className="md:hidden">
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="p-2 text-slate-300 hover:text-white transition-colors"
-              aria-label="Menü"
-            >
-              {isOpen ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7" />}
-            </button>
+            <div className="md:hidden flex items-center gap-2">
+              <button
+                onClick={() => setIsSearchOpen(!isSearchOpen)}
+                className="p-2 text-slate-300 hover:text-white transition-colors"
+              >
+                <Search className="w-6 h-6" />
+              </button>
+              <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="p-2 text-slate-300 hover:text-white transition-colors"
+                aria-label="Menü"
+              >
+                {isOpen ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7" />}
+              </button>
+            </div>
           </div>
         </div>
       </div>
+      {/* Mobile Search Overlay */}
+      <AnimatePresence>
+        {isSearchOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="bg-slate-900 border-b border-slate-800 md:hidden overflow-hidden"
+          >
+            <div className="p-4">
+              <form onSubmit={handleSearch} className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                <Input
+                  className="bg-slate-950 border-slate-800 h-14 pl-12 rounded-xl text-white focus:ring-teal-500"
+                  placeholder="Ders veya konu ara..."
+                  autoFocus
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </form>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      {/* Mobile Menu */}
       <div
         className={cn(
           "md:hidden absolute w-full bg-slate-950 border-b border-slate-800 transition-all duration-300 ease-in-out z-40 shadow-2xl overflow-hidden",
