@@ -13,25 +13,17 @@ export function PortalPage() {
   const navigate = useNavigate();
   const user = useUserStore((s) => s.user);
   const isAuthenticated = useUserStore((s) => s.isAuthenticated);
-  const [isHydrated, setIsHydrated] = useState(false);
+  const [isReady, setIsReady] = useState(false);
   useEffect(() => {
-    // Robust hydration check for persistent store
-    const checkHydration = () => {
-      if (useUserStore.persist.hasHydrated()) {
-        setIsHydrated(true);
-      } else {
-        const unsub = useUserStore.persist.onHydrate(() => setIsHydrated(true));
-        return unsub;
-      }
-    };
-    const unsub = checkHydration();
-    return () => { if (unsub) unsub(); };
+    // Simple sync check to prevent flash during hydration
+    const timer = setTimeout(() => setIsReady(true), 50);
+    return () => clearTimeout(timer);
   }, []);
   useEffect(() => {
-    if (isHydrated && !isAuthenticated) {
+    if (isReady && !isAuthenticated) {
       navigate('/');
     }
-  }, [isAuthenticated, navigate, isHydrated]);
+  }, [isAuthenticated, navigate, isReady]);
   const stats = useMemo(() => {
     if (!user) return [];
     return [
@@ -50,10 +42,10 @@ export function PortalPage() {
         completedCount: course.units.filter(u => completedUnits.includes(u.id)).length
       }))
       .filter(c => c.completedCount < c.units.length)
-      .sort((a, b) => a.completedCount - b.completedCount)
+      .sort((a, b) => b.completedCount - a.completedCount) // Recommend partially done first
       .slice(0, 2);
   }, [user]);
-  if (!isHydrated || !user) {
+  if (!isReady || !user) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
         <div className="space-y-4">
@@ -133,7 +125,7 @@ export function PortalPage() {
                     key={user.points}
                     initial={{ width: 0 }}
                     animate={{ width: `${levelProgress}%` }}
-                    transition={{ duration: 1.5, ease: "easeOut" }}
+                    transition={{ duration: 1.5, ease: "circOut" }}
                     className="h-full bg-gradient-to-r from-teal-500 via-teal-400 to-teal-300 relative shadow-[0_0_20px_rgba(20,184,166,0.3)]"
                    />
                 </div>
@@ -165,7 +157,7 @@ export function PortalPage() {
           <Card className="lg:col-span-2 rounded-[2.5rem] border-slate-100 relative shadow-sm overflow-hidden bg-white min-h-[400px]">
             <AnimatePresence>
             {points < 300 ? (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 className="absolute inset-0 bg-white/80 backdrop-blur-[4px] z-20 flex flex-col items-center justify-center rounded-3xl p-10 text-center"
@@ -177,7 +169,7 @@ export function PortalPage() {
                 <p className="text-slate-500 text-lg max-w-xs leading-relaxed">Haftalık çalışma grafiğini açmak için en az 300 XP puanına ulaşmalısın.</p>
               </motion.div>
             ) : !hasActivity ? (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 className="absolute inset-0 bg-white z-20 flex flex-col items-center justify-center rounded-3xl p-10 text-center"
@@ -219,7 +211,10 @@ export function PortalPage() {
                 const cat = curriculum.find(cat => cat.courses.some(c => c.id === rec.id));
                 return (
                   <Link key={rec.id} to={`/dersler/${cat?.id}/${rec.id}`} className="block group">
-                    <div className="flex gap-5 p-5 rounded-[1.5rem] border border-slate-100 bg-white hover:border-teal-200 hover:bg-teal-50/20 transition-all shadow-sm">
+                    <motion.div 
+                      whileHover={{ scale: 1.02 }}
+                      className="flex gap-5 p-5 rounded-[1.5rem] border border-slate-100 bg-white hover:border-teal-200 hover:bg-teal-50/20 transition-all shadow-sm"
+                    >
                       <img src={rec.image} className="w-20 h-20 md:w-24 md:h-24 rounded-2xl object-cover shrink-0 shadow-sm" alt="" />
                       <div className="flex flex-col justify-center">
                         <p className="text-[10px] font-bold text-teal-600 mb-1 uppercase tracking-widest">
@@ -227,7 +222,7 @@ export function PortalPage() {
                         </p>
                         <h4 className="font-bold text-slate-900 group-hover:text-teal-700 transition-colors line-clamp-1 text-base md:text-lg">{rec.title}</h4>
                       </div>
-                    </div>
+                    </motion.div>
                   </Link>
                 );
               }) : (

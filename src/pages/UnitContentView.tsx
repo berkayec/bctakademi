@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Navbar } from '@/components/layout/Navbar';
-import { curriculum, QuizQuestion } from '@/lib/curriculum';
+import { curriculum, QuizQuestion, Unit } from '@/lib/curriculum';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
@@ -17,6 +17,48 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useUserStore, getUserTitle } from '@/store/use-user-store';
 import { toast } from 'sonner';
+interface TopicListProps {
+  unit: Unit;
+  activeTopicIndex: number;
+  setActiveTopicIndex: (idx: number) => void;
+  isMobile?: boolean;
+  setIsMobileMenuOpen?: (open: boolean) => void;
+}
+const TopicList = memo(({ unit, activeTopicIndex, setActiveTopicIndex, isMobile = false, setIsMobileMenuOpen }: TopicListProps) => (
+  <div className={cn("space-y-2", isMobile ? "px-1" : "p-4")}>
+    {unit.topics.map((topic, idx) => (
+      <button
+        key={topic.id}
+        onClick={() => {
+          setActiveTopicIndex(idx);
+          if (isMobile && setIsMobileMenuOpen) setIsMobileMenuOpen(false);
+        }}
+        className={cn(
+          "w-full text-left p-4 rounded-xl transition-all border group",
+          activeTopicIndex === idx
+            ? "bg-teal-50/50 border-teal-200 shadow-sm"
+            : "bg-transparent border-transparent hover:bg-white/50"
+        )}
+      >
+        <div className="flex items-center gap-3">
+          <div className={cn(
+            "w-8 h-8 rounded-full flex items-center justify-center transition-colors text-xs font-bold shrink-0",
+            activeTopicIndex === idx ? "bg-teal-500 text-white" : "bg-slate-200 text-slate-500"
+          )}>
+            {idx + 1}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className={cn(
+              "text-sm font-bold truncate",
+              activeTopicIndex === idx ? "text-teal-900" : "text-slate-700"
+            )}>{topic.title}</p>
+          </div>
+        </div>
+      </button>
+    ))}
+  </div>
+));
+TopicList.displayName = 'TopicList';
 export function UnitContentView() {
   const { categoryId, courseId, unitId } = useParams();
   const [activeTopicIndex, setActiveTopicIndex] = useState(0);
@@ -33,7 +75,6 @@ export function UnitContentView() {
   const trackVideo = useUserStore(s => s.trackVideo);
   const isAuthenticated = useUserStore(s => s.isAuthenticated);
   const user = useUserStore(s => s.user);
-  const userPoints = user?.points ?? 0;
   const handleScroll = useCallback(() => {
     if (scrollContainerRef.current) {
       const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
@@ -49,14 +90,12 @@ export function UnitContentView() {
   }, [unitId]);
   useEffect(() => {
     if (scrollContainerRef.current) {
-      // Instant scroll for better power-user feel during topic switching
       scrollContainerRef.current.scrollTo({ top: 0, behavior: 'auto' });
       setScrollProgress(0);
       setHasCompletedCurrentQuiz(false);
     }
   }, [activeTopicIndex]);
   const currentTopic = unit?.topics[activeTopicIndex];
-  // Robust Video Tracking Effect
   useEffect(() => {
     if (currentTopic?.videoYoutubeId && isAuthenticated && !trackedSessionVideos.current.has(currentTopic.videoYoutubeId)) {
       trackVideo(currentTopic.videoYoutubeId);
@@ -79,7 +118,8 @@ export function UnitContentView() {
       });
     }
     if (activeTopicIndex === unit.topics.length - 1) {
-      const oldTitle = getUserTitle(userPoints);
+      const currentPoints = useUserStore.getState().user?.points ?? 0;
+      const oldTitle = getUserTitle(currentPoints);
       completeUnit(unit.id);
       setUnitCompleted(true);
       if (isAuthenticated) {
@@ -105,40 +145,6 @@ export function UnitContentView() {
   const handleQuizSuccess = () => {
     setHasCompletedCurrentQuiz(true);
   };
-  const TopicList = ({ isMobile = false }: { isMobile?: boolean }) => (
-    <div className={cn("space-y-2", isMobile ? "px-1" : "p-4")}>
-      {unit.topics.map((topic, idx) => (
-        <button
-          key={topic.id}
-          onClick={() => {
-            setActiveTopicIndex(idx);
-            if (isMobile) setIsMobileMenuOpen(false);
-          }}
-          className={cn(
-            "w-full text-left p-4 rounded-xl transition-all border group",
-            activeTopicIndex === idx
-              ? "bg-teal-50/50 border-teal-200 shadow-sm"
-              : "bg-transparent border-transparent hover:bg-white/50"
-          )}
-        >
-          <div className="flex items-center gap-3">
-            <div className={cn(
-              "w-8 h-8 rounded-full flex items-center justify-center transition-colors text-xs font-bold shrink-0",
-              activeTopicIndex === idx ? "bg-teal-500 text-white" : "bg-slate-200 text-slate-500"
-            )}>
-              {idx + 1}
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className={cn(
-                "text-sm font-bold truncate",
-                activeTopicIndex === idx ? "text-teal-900" : "text-slate-700"
-              )}>{topic.title}</p>
-            </div>
-          </div>
-        </button>
-      ))}
-    </div>
-  );
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
@@ -179,7 +185,11 @@ export function UnitContentView() {
             <h3 className="font-bold text-slate-900 line-clamp-2 leading-tight">{unit.title}</h3>
           </div>
           <ScrollArea className="flex-1">
-            <TopicList />
+            <TopicList 
+              unit={unit} 
+              activeTopicIndex={activeTopicIndex} 
+              setActiveTopicIndex={setActiveTopicIndex} 
+            />
           </ScrollArea>
         </div>
         <div className="flex-1 flex flex-col bg-white overflow-hidden relative">
@@ -199,7 +209,13 @@ export function UnitContentView() {
                     <SheetTitle className="text-lg font-bold text-slate-900">{unit.title}</SheetTitle>
                   </SheetHeader>
                   <ScrollArea className="h-[calc(100vh-140px)]">
-                    <TopicList isMobile />
+                    <TopicList 
+                      unit={unit} 
+                      activeTopicIndex={activeTopicIndex} 
+                      setActiveTopicIndex={setActiveTopicIndex} 
+                      isMobile 
+                      setIsMobileMenuOpen={setIsMobileMenuOpen} 
+                    />
                   </ScrollArea>
                 </SheetContent>
               </Sheet>
