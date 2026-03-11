@@ -37,145 +37,151 @@ export interface Category {
 export const curriculum: Category[] = [
   {
     id: 'temel-dersler',
-    title: 'Temel Dersler',
+    title: 'Temel Eğitim',
     courses: [
       {
         id: 'biyo-olcme',
-        title: 'Biyoölçme',
-        description: 'Biyomedikal cihazlarda temel ölçme teknikleri, elektriksel güvenlik ve laboratuvar disiplini.',
+        title: 'Biyoölçme ve EST',
+        description: 'Biyomedikal cihazlarda temel ölçme teknikleri, elektriksel güvenlik testleri ve kalibrasyon esasları.',
         image: 'https://images.unsplash.com/photo-1576091160550-2173bdb999ef?auto=format&fit=crop&q=80&w=800',
         difficulty: 'Temel',
-        estimatedTime: '40 Saat',
+        estimatedTime: '45 Saat',
         isPopular: true,
         units: [
           {
             id: 'unit-1-isg',
-            title: 'Ünite 1: İş Sağlığı ve Güvenliği',
-            description: 'Biyomedikal teknik servislerde güvenlik standartları.',
+            title: 'Ünite 1: İş Sağlığı ve Laboratuvar Güvenliği',
+            description: 'Biyomedikal teknik servislerde güvenlik standartları ve 6331 sayılı kanun uygulamaları.',
             estimatedReadingTime: '60 dk',
             topics: [
               {
-                id: 'isg-mevzuat',
-                title: 'Biyomedikalde Yasal Mevzuat',
-                content: `Biyomedikal cihaz teknolojileri alanında iş sağlığı ve güvenliği, 6331 sayılı kanun çerçevesinde şekillenir. Bu kanun, teknik personelin laboratuvar ve hastane ortamındaki güvenliğini en üst düzeye çıkarmayı hedefler.\n\nTeknisyenlerin çalışma alanlarında karşılaşabileceği biyolojik, kimyasal ve elektriksel riskler için önceden risk analizi yapılması şarttır. Özellikle hastanelerde klinik mühendislik birimlerinde çalışanlar, sadece kendi güvenliklerinden değil, aynı zamanda cihazların güvenli çalışmasından da sorumludur. Hatalı bir onarım veya yetersiz kalibrasyon, hastanın hayatını doğrudan tehlikeye atabilir.`,
-                videoYoutubeId: 'dQw4w9WgXcQ'
-              }
-            ]
-          },
-          {
-            id: 'unit-2-est',
-            title: 'Ünite 2: Elektriksel Güvenlik Testleri (EST)',
-            description: 'IEC 62353 ve IEC 60601 standartlarına göre kaçak akım ölçümleri.',
-            estimatedReadingTime: '75 dk',
-            topics: [
-              {
-                id: 'est-temelleri',
-                title: 'EST Standartları ve Kaçak Akımlar',
-                content: `Elektriksel güvenlik testleri, tıbbi cihazların hem hasta hem de operatör için güvenli olduğunu doğrulamak amacıyla yapılır. Temel olarak IEC 60601 (üretim aşaması) ve IEC 62353 (servis aşaması) standartları baz alınır.\n\nBu testlerde gövde kaçak akımı, hasta kaçak akımı ve toprak hattı sürekliliği gibi parametreler ölçülür. Mikro-şok riski, özellikle kalp ameliyatı gibi invaziv işlemlerde kullanılan cihazlarda hayati önem taşır. Cihazın izolasyon direncinin belirlenen limitlerin üzerinde olması, elektriksel ark ve kısa devre riskini minimize eder.`,
+                id: 'isg-detay',
+                title: 'Klinik Ortamda Risk Analizi',
+                content: `Biyomedikal teknisyenleri için iş sağlığı ve güvenliği, sadece kişisel koruma değil, hastane ekosisteminin korunmasıdır. Biyomedikal laboratuvarlarında karşılaşılan en büyük riskler; yüksek gerilim, radyasyon ve biyolojik kontaminasyondur.\n\nRisk analizi yapılırken "Önce Güvenlik" prensibi ile her cihazın izolasyon durumu kontrol edilmelidir. Özellikle 9. sınıf öğrencilerinin atölye disiplininde el aletlerinin doğru kullanımı ve ESD (Elektrostatik Deşarj) önlemleri hayati önem taşır. Cihaz onarımı sırasında statik elektriğin hassas CMOS devrelerine verebileceği zarar, sistemin kararsız çalışmasına neden olabilir.`,
                 quiz: [
                   {
-                    question: "IEC 62353 standardı hangi aşamadaki testleri kapsar?",
-                    options: ["Üretim Tasarımı", "Periyodik Bakım ve Servis", "Ambalajlama", "Yazılım Geliştirme"],
+                    question: "Elektrostatik deşarjdan korunmak için teknik serviste ne kullanılır?",
+                    options: ["Gözlük", "ESD Bileklik", "Yün Eldiven", "Plastik Önlük"],
                     correctAnswer: 1,
-                    explanation: "IEC 62353, tıbbi cihazların kullanım süresince yapılan periyodik test ve servis sonrası güvenlik doğrulamaları için standarttır."
+                    explanation: "Hassas devre elemanlarını korumak için teknisyenlerin topraklanmış bir ESD bilekliği kullanması şarttır."
                   }
                 ]
               }
             ]
           },
           {
-            id: 'unit-3-elektrot',
-            title: 'Ünite 3: Biyopotansiyel Elektrotlar',
-            description: 'Vücut yüzeyinden sinyal toplama prensipleri ve elektrot tipleri.',
-            estimatedReadingTime: '55 dk',
-            topics: [
-              {
-                id: 'elektrot-fizik',
-                title: 'Elektrot-Doku Arayüzü',
-                content: `Biyopotansiyel elektrotlar, vücuttaki iyonik akımı elektrik devresindeki elektron akımına dönüştüren transduserlerdir. ECG, EEG ve EMG sinyalleri bu elektrotlar aracılığıyla toplanır.\n\nElektrot ile deri arasındaki temas direnci (empedans), sinyal kalitesini doğrudan etkiler. Ag/AgCl elektrotlar, düşük gürültü ve kararlı yarı-hücre potansiyeli nedeniyle klinik uygulamalarda en çok tercih edilen tiplerdir. Deri hazırlığı yapılmadan takılan elektrotlar, yüksek artefakt ve gürültüye neden olarak hatalı tanılara yol açabilir.`
-              }
-            ]
-          },
-          {
-            id: 'unit-4-analog',
-            title: 'Ünite 4: Analog Sinyal İşleme',
-            description: 'Filtreleme ve amplifikasyon teknikleri.',
+            id: 'unit-est-prosedur',
+            title: 'Ünite 2: İleri EST Prosedürleri',
+            description: 'IEC 62353 standardına göre kaçak akım ölçümleri ve hasta güvenliği.',
             estimatedReadingTime: '90 dk',
             topics: [
               {
-                id: 'opamp-uygulama',
-                title: 'Enstrümantasyon Amplifikatörleri',
-                content: `Biyomedikal sinyaller genellikle mikrovolt veya milivolt seviyesindedir. Bu zayıf sinyalleri yükseltmek için yüksek ortak mod reddetme oranına (CMRR) sahip enstrümantasyon amplifikatörleri kullanılır.\n\n50Hz şebeke gürültüsünü engellemek için çentik (notch) filtreler, düşük frekanslı kaymaları (baseline wander) önlemek için ise yüksek geçiren filtreler tasarlanır. Devre kartı tasarımında analog ve dijital toprak hatlarının ayrılması, gürültü girişimini önleyen kritik bir mühendislik adımıdır.`
+                id: 'est-akımlar',
+                title: 'Kaçak Akım Ölçüm Teknikleri',
+                content: `Elektriksel Güvenlik Testi (EST), tıbbi bir cihazın hastaya mikro-şok vermesini engellemek için yapılan zorunlu bir testtir. IEC 62353 standardı, servis sonrası yapılan periyodik testleri tanımlar.\n\nTest kapsamında: \n1. Toprak Hattı Sürekliliği (Earth Bond): 200mA veya 25A akım ile toprak direnci ölçülür (limit < 0.2 ohm).\n2. İzolasyon Direnci: 500V DC uygulanarak yalıtım kalitesi ölçülür.\n3. Gövde Kaçak Akımı: Cihazın metal aksamından geçen kaçak akım belirlenir.\n\n[Diyagram: EST Test Cihazı Bağlantı Şeması]\nReferans elektrotların hastaya temas eden kısımlara (Applied Parts) doğru bağlanması, testin doğruluğu için kritiktir.`,
+                quiz: [
+                  {
+                    question: "IEC 62353'e göre toprak hattı direnci sınırı nedir?",
+                    options: ["10 Ohm", "0.2 Ohm", "5 Ohm", "0.5 Ohm"],
+                    correctAnswer: 1,
+                    explanation: "Toprak sürekliliği direnci güvenli bir deşarj için 0.2 Ohm değerinin altında olmalıdır."
+                  }
+                ]
               }
             ]
           },
           {
-            id: 'unit-5-kalibrasyon',
-            title: 'Ünite 5: Kalibrasyon ve Metroloji',
-            description: 'Ölçüm doğruluğu ve izlenebilirlik.',
-            estimatedReadingTime: '60 dk',
+            id: 'unit-kalibrasyon-izlenebilirlik',
+            title: 'Ünite 3: Kalibrasyon ve Metroloji',
+            description: 'Ölçüm doğruluğu, hata analizleri ve uluslararası izlenebilirlik zinciri.',
+            estimatedReadingTime: '70 dk',
             topics: [
               {
-                id: 'kalib-hata',
-                title: 'Ölçüm Hataları ve Belirsizlik',
-                content: `Kalibrasyon, bir cihazın gösterdiği değer ile referans bir standart arasındaki ilişkinin belirlenmesidir. Tıbbi cihazlarda kalibrasyon, teşhisin doğruluğu için tartışılmaz bir zorunluluktur.\n\nKalibrasyon periyotları, cihazın kullanım sıklığına ve üretici tavsiyelerine göre belirlenir. Ölçüm belirsizliği hesabı yapılırken çevresel faktörler, cihaz hassasiyeti ve operatör hataları dikkate alınmalıdır. İzlenebilirlik zinciri kopmuş bir ölçüm, hukuki ve tıbbi açıdan geçersiz kabul edilir.`
+                id: 'metroloji-temel',
+                title: 'Ölçüm Belirsizliği ve Hata Payı',
+                content: `Kalibrasyon, bir ölçü aletinin gösterdiği değerin uluslararası referans standartlarla karşılaştırılması işlemidir. Biyomedikalde kalibrasyon, teşhisin doğruluğunu sağlar. Örneğin, bir tansiyon aletinin 5 mmHg hata yapması, hastaya yanlış tedavi uygulanmasına neden olabilir.\n\nİzlenebilirlik (Traceability), yapılan ölçümün kesintisiz bir belgeler zinciri ile SI (Uluslararası Birimler Sistemi) standartlarına bağlanmasıdır. Kalibrasyon sertifikasında ölçüm belirsizliği mutlaka belirtilmelidir. Belirsizlik ne kadar düşükse, ölçüm o kadar güvenilirdir.`,
+                quiz: [
+                  {
+                    question: "Ölçüm doğruluğunun standartlarla karşılaştırılmasına ne denir?",
+                    options: ["Bakım", "Tamir", "Kalibrasyon", "Montaj"],
+                    correctAnswer: 2,
+                    explanation: "Kalibrasyon, referans bir standart ile test edilen cihaz arasındaki farkın belirlenmesidir."
+                  }
+                ]
               }
             ]
           }
         ]
       },
       {
-        id: 'teknik-resim',
-        title: 'Teknik Resim',
-        description: 'Biyomedikal parçaların tasarımı ve teknik çizim prensipleri.',
-        image: 'https://images.unsplash.com/photo-1544383335-917366bcc07e?auto=format&fit=crop&q=80&w=800',
-        difficulty: 'Temel',
-        estimatedTime: '35 Saat',
+        id: 'biyoenstrumantasyon',
+        title: 'Biyoenstrümantasyon',
+        description: 'Tıbbi cihazların elektronik yapısı, sensörler ve sinyal işleme teknikleri.',
+        image: 'https://images.unsplash.com/photo-1555664424-778a1e5e1b48?auto=format&fit=crop&q=80&w=800',
+        difficulty: 'Orta',
+        estimatedTime: '50 Saat',
+        isPopular: true,
         units: [
           {
-            id: 'tr-1',
-            title: 'Teknik Resim Esasları',
-            description: 'Çizim araçları ve standart çizgi tipleri.',
-            estimatedReadingTime: '45 dk',
-            topics: [{ id: 'tr-cizgi', title: 'Standart Çizgi Tipleri', content: 'Teknik resimde her çizginin bir dili vardır. TS EN ISO 128 standartlarına göre sürekli kalın çizgiler görünen çevreleri temsil eder.' }]
-          },
-          {
-            id: 'tr-2',
-            title: 'İzdüşüm ve Görünüşler',
-            description: 'Dik izdüşüm yöntemleri ve parça görünüşleri.',
-            estimatedReadingTime: '60 dk',
-            topics: [{ id: 'tr-gorunus', title: 'Temel Görünüşler', content: 'Bir parçayı tam tanımlayabilmek için ön, üst ve yan olmak üzere üç temel görünüş kullanılır.' }]
-          },
-          {
-            id: 'tr-3',
-            title: 'Ölçülendirme ve Toleranslar',
-            description: 'Boyutlandırma kuralları ve teknik geçme toleransları.',
-            estimatedReadingTime: '75 dk',
-            topics: [{ id: 'tr-olc-kurallari', title: 'Ölçülendirme Kuralları', content: 'Ölçü çizgileri, parça kenarından en az 10 mm uzaklıkta başlamalıdır. Biyomedikal parçaların üretiminde mikron düzeyindeki hassasiyetler hayati önem taşır.' }]
-          },
-          {
-            id: 'tr-4',
-            title: 'Ünite 4: Montaj Resimleri',
-            description: 'Komple ve alt montaj çizimlerinin okunması.',
+            id: 'be-unit-1-sensor',
+            title: 'Ünite 1: Biyomedikal Sensörler',
+            description: 'Fizyolojik verilerin elektriksel sinyallere dönüştürülmesi.',
             estimatedReadingTime: '80 dk',
             topics: [
               {
-                id: 'tr-montaj-kurallari',
-                title: 'Parça Listesi ve Balonlama',
-                content: `Montaj resimleri, birden fazla parçanın nasıl bir araya getirileceğini gösteren teknik belgelerdir. Her parçaya bir numara verilir (balonlama) ve bu numaralar antetteki parça listesiyle eşleştirilir.\n\nKesit alma teknikleri, montajın iç yapısındaki mekanik ilişkileri görmek için kullanılır. Biyomedikal cihazlarda, örneğin bir şırınga pompasının motor-mil bağlantısı montaj resimlerinde tüm detaylarıyla belirtilmelidir. Standart elemanlar (vida, somun, rulman) genellikle kesilmezler.`
+                id: 'sensor-tipler',
+                title: 'Transduserler ve Sensör Teknolojisi',
+                content: `Sensörler, vücuttaki fiziksel veya kimyasal değişimleri algılayan ilk birimdir. \n- Piezoelektrik Sensörler: Ultrason problarında basıncı elektriğe dönüştürür.\n- Termistörler: Vücut sıcaklığını yüksek hassasiyetle ölçer.\n- Fotodedektörler: Pulse oksimetre cihazlarında kandaki oksijen doygunluğunu ışık emilimi ile belirler.\n\nSensörlerin lineerliği ve hassasiyeti (sensitivity), tıbbi cihazın kalitesini belirler. Lineer olmayan bir sensör, sinyal işleme katmanında matematiksel olarak kompanze edilmelidir.`,
+                quiz: [
+                  {
+                    question: "Ultrason problarında kullanılan sensör tipi hangisidir?",
+                    options: ["LDR", "Termokupl", "Piezoelektrik", "Hall Effect"],
+                    correctAnswer: 2,
+                    explanation: "Piezoelektrik kristaller, mekanik basıncı elektrik sinyaline dönüştürerek ses dalgalarını algılar."
+                  }
+                ]
               }
             ]
           },
           {
-            id: 'tr-5',
-            title: 'Ünite 5: Yüzey İşleme İşaretleri',
-            description: 'Yüzey pürüzlülüğü ve kaplama standartları.',
-            estimatedReadingTime: '50 dk',
+            id: 'be-unit-2-opamp',
+            title: 'Ünite 2: İşlemsel Yükselteçler (Op-Amp)',
+            description: 'Biyopotansiyel sinyallerin (ECG, EEG) yükseltilmesi.',
+            estimatedReadingTime: '85 dk',
             topics: [
               {
-                id: 'tr-yuzey-kalite',
-                title: 'Ra ve Rz Değerleri',
-                content: `Tıbbi cihazların yüzey kalitesi, biyouyumluluk ve sterilizasyon kolaylığı açısından kritiktir. Yüzey pürüzlülüğü sembolleri, parçanın üretim yöntemini (taşlama, frezeleme vb.) ve istenen kaliteyi (Ra) belirtir.\n\nÖrneğin, bir kemik implantının yüzeyi doku tutunması için pürüzlü istenirken, bir eklem yüzeyi sürtünmeyi azaltmak için ayna parlaklığında olmalıdır. Teknik resimde bu özellikler ters üçgen sembolleri ve yanındaki nümerik değerlerle ifade edilir.`
+                id: 'opamp-devreler',
+                title: 'Enstrümantasyon Amplifikatörleri',
+                content: `ECG gibi biyopotansiyel sinyaller mikrovolt seviyesindedir. Bu sinyalleri yükseltmek için standart Op-Amp'lar yerine yüksek CMRR (Ortak Mod Reddetme Oranı) değerine sahip enstrümantasyon amplifikatörleri (InAmp) kullanılır.\n\nInAmp tasarımı genellikle üç Op-Amp'tan oluşur. Bu yapı, elektrotlardan gelen 50Hz şebeke gürültüsünü yok ederken sadece vücuttan gelen fark sinyalini yükseltir. Devredeki direnç toleransları CMRR değerini doğrudan etkiler.`,
+                quiz: [
+                  {
+                    question: "Biyopotansiyel sinyalleri yükseltmek için neden InAmp tercih edilir?",
+                    options: ["Daha ucuzdur", "Gürültüyü reddeder (CMRR)", "Daha hızlıdır", "Isınmaz"],
+                    correctAnswer: 1,
+                    explanation: "Enstrümantasyon amplifikatörleri ortak mod gürültüsünü (50Hz şebeke) yok etme yeteneğine sahiptir."
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            id: 'be-unit-3-filtre',
+            title: 'Ünite 3: Aktif Filtre Tasarımı',
+            description: 'Gürültü engelleme ve sinyal temizleme stratejileri.',
+            estimatedReadingTime: '75 dk',
+            topics: [
+              {
+                id: 'filtre-tasarim',
+                title: 'Alçak, Yüksek ve Bant Geçiren Filtreler',
+                content: `Tıbbi sinyaller her zaman gürültü ile karışıktır. Filtreler bu istenmeyen bileşenleri ayıklar.\n- Alçak Geçiren (LPF): Kas gürültülerini (EMG artığı) temizler.\n- Yüksek Geçiren (HPF): Solunuma bağlı temel kaymalarını (baseline wander) önler.\n- Çentik Filtre (Notch): 50Hz veya 60Hz şebeke gürültüsünü spesifik olarak yok eder.\n\nFiltre derecesi arttıkça (order), kesim keskinliği artar ancak faz kayması ve devre karmaşıklığı da yükselir.`,
+                quiz: [
+                  {
+                    question: "Solunuma bağlı kaymaları önlemek için hangi filtre kullanılır?",
+                    options: ["Alçak Geçiren", "Yüksek Geçiren", "Çentik Filtre", "Hepsi"],
+                    correctAnswer: 1,
+                    explanation: "Yüksek geçiren filtreler (HPF), düşük frekanslı solunum artefaktlarını temizlemek için kullanılır."
+                  }
+                ]
               }
             ]
           }
@@ -184,61 +190,56 @@ export const curriculum: Category[] = [
     ]
   },
   {
-    id: 'alan-dersleri',
-    title: 'Alan Dersleri',
+    id: 'fizyoloji-dersleri',
+    title: 'Mesleki Fizyoloji',
     courses: [
       {
-        id: 'biyomalzeme',
-        title: 'Biyomalzeme ve Biyomekanik',
-        description: 'İmplant teknolojileri ve insan vücudunun mekanik analizi.',
+        id: 'mesleki-fizyoloji',
+        title: 'Mesleki Fizyoloji ve Terminoloji',
+        description: 'İnsan vücudunun çalışma prensipleri ve tıbbi terimlerin teknik analizi.',
         image: 'https://images.unsplash.com/photo-1530026405186-ed1f139313f8?auto=format&fit=crop&q=80&w=800',
         difficulty: 'İleri',
-        estimatedTime: '30 Saat',
+        estimatedTime: '40 Saat',
         units: [
           {
-            id: 'bm-1',
-            title: 'Biyouyumluluk Esasları',
-            description: 'Vücut içi implantlarda malzeme-doku etkileşimi.',
-            estimatedReadingTime: '50 dk',
-            topics: [{ id: 'bm-polimer', title: 'Biyomedikal Polimerler', content: 'Polietilen ve silikon gibi polimerler, esneklikleri nedeniyle yumuşak doku protezlerinde tercih edilir.' }]
-          },
-          {
-            id: 'bm-2',
-            title: 'Metalik İmplantlar',
-            description: 'Titanyum ve çelik alaşımlarının klinik kullanımı.',
+            id: 'mf-unit-1-hucre',
+            title: 'Ünite 1: Hücre Elektrofizyolojisi',
+            description: 'Aksiyon potansiyeli ve iyon kanalları dinamiği.',
             estimatedReadingTime: '65 dk',
-            topics: [{ id: 'bm-titanyum', title: 'Titanyum Alaşımları', content: 'Titanyum (Ti-6Al-4V), yüksek korozyon direnci ve kemik ile olan mükemmel biyolojik uyumu sayesinde altın standarttır.' }]
-          },
-          {
-            id: 'bm-3',
-            title: 'Biyomekanik Analiz',
-            description: 'Kemik mekaniği ve yük taşıyan sistemlerin tasarımı.',
-            estimatedReadingTime: '80 dk',
-            topics: [{ id: 'bm-kemik', title: 'Kemik Mekaniği', content: 'Kemik, anizotropik bir malzemedir. Stres-gerinim analizi, implant ömrünü belirleyen en temel kriterdir.' }]
-          },
-          {
-            id: 'bm-4',
-            title: 'Ünite 4: Biyoseramikler ve Camlar',
-            description: 'Sert doku onarımında kullanılan seramik malzemeler.',
-            estimatedReadingTime: '70 dk',
             topics: [
               {
-                id: 'bm-hidroksiapatit',
-                title: 'Biyoaktif Seramikler',
-                content: `Biyoseramikler, vücutta kemik dokusuyla doğrudan kimyasal bağ kurabilen (biyoaktif) veya tamamen inert olan malzemelerdir. Hidroksiapatit (HA), kemiğin doğal mineral yapısına benzediği için kemik dolgu maddesi olarak kullanılır.\n\nAlümina ve zirkonya gibi yüksek mukavemetli seramikler, aşınma dirençleri nedeniyle kalça protezi başlıklarında tercih edilir. Bu malzemelerin en büyük dezavantajı kırılgan yapılarıdır, bu nedenle tasarım aşamasında çekme gerilmelerinden kaçınılmalıdır.`
+                id: 'hucre-elektrik',
+                title: 'Dinlenim ve Aksiyon Potansiyeli',
+                content: `Hücre zarı, iyon konsantrasyon farkları nedeniyle bir kondansatör gibi davranır. Dinlenim halindeki bir hücrenin iç kısmı genellikle -70mV civarındadır. \n\nBir uyarı geldiğinde Na+ kanalları açılır ve hücre içi pozitifleşir (Depolarizasyon). Ardından K+ kanalları açılarak hücre eski haline döner (Repolarizasyon). Bu elektriksel değişim, ECG ve EEG cihazlarının ölçtüğü temel sinyal kaynağıdır. Hücre zarındaki Na+/K+ pompası bu dengeyi aktif olarak korur.`,
+                quiz: [
+                  {
+                    question: "Hücre zarının depolarize olması ne anlama gelir?",
+                    options: ["İçinin negatifleşmesi", "İçinin pozitifleşmesi", "Ölmesi", "Durgunlaşması"],
+                    correctAnswer: 1,
+                    explanation: "Depolarizasyon sırasında sodyum girişi ile hücre içi pozitif bir değer alır."
+                  }
+                ]
               }
             ]
           },
           {
-            id: 'bm-5',
-            title: 'Ünite 5: Yumuşak Doku Mekaniği',
-            description: 'Damarlar, deri ve kasların viskoelastik özellikleri.',
-            estimatedReadingTime: '60 dk',
+            id: 'mf-unit-2-kardiyo',
+            title: 'Ünite 2: Kardiyovasküler Sistem Mekaniği',
+            description: 'Kalbin pompa fonksiyonu ve hemodinamik parametreler.',
+            estimatedReadingTime: '75 dk',
             topics: [
               {
-                id: 'bm-viskoelastisite',
-                title: 'Doku Davranış Modelleri',
-                content: `Yumuşak dokular, hem katı hem de sıvı benzeri davranış gösteren viskoelastik yapılardır. Zamanla değişen yükleme altında gevşeme (relaxation) ve sürünme (creep) yaparlar.\n\nDamar protezi (greft) tasarlanırken, yapay malzemenin esnekliği ile doğal damarın esnekliğinin uyumlu olması (compliance matching) gerekir. Uyumsuzluk durumunda kan akışında türbülans oluşarak pıhtılaşma riski artar. Deri mekaniği ise yanık tedavileri ve plastik cerrahi simülasyonları için temel oluşturur.`
+                id: 'kalp-mekanik',
+                title: 'Debi, Basınç ve Akış Analizi',
+                content: `Kalp, günde yaklaşık 100.000 kez atan mekanik bir pompadır. \n- Sistolik Basınç: Kalbin kasılma anındaki basınç (120 mmHg).\n- Diyastolik Basınç: Gevşeme anındaki basınç (80 mmHg).\n\nKalp debisi (Cardiac Output), bir dakikada pompalanan kan miktarıdır. Bu değer, solunum cihazlarının ve yapay kalp-akciğer makinelerinin tasarımında temel referans noktasıdır. Damar direnci ve kanın viskozitesi, kan basıncını doğrudan etkileyen fiziksel faktörlerdir.`,
+                quiz: [
+                  {
+                    question: "Sağlıklı bir yetişkinde normal sistolik basınç değeri nedir?",
+                    options: ["80 mmHg", "150 mmHg", "120 mmHg", "200 mmHg"],
+                    correctAnswer: 2,
+                    explanation: "Normal yetişkinlerde sistolik (büyük) tansiyonun 120 mmHg civarında olması beklenir."
+                  }
+                ]
               }
             ]
           }

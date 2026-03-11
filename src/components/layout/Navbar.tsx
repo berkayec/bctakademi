@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, Activity, LayoutDashboard, Search, User, LogOut, Award } from 'lucide-react';
+import { Menu, X, LayoutDashboard, Search, LogOut } from 'lucide-react';
 import { navLinks } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUserStore, getUserTitle } from '@/store/use-user-store';
 import { AuthModal } from '@/components/auth/AuthModal';
+import { Logo } from '@/components/Logo';
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -41,12 +42,10 @@ export function Navbar() {
     <nav className="bg-slate-950 text-slate-100 sticky top-0 z-50 border-b border-slate-800 shadow-xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-20 items-center">
-          <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="bg-teal-500 p-2 rounded-xl group-hover:bg-teal-400 group-hover:rotate-12 transition-all duration-300 shadow-lg shadow-teal-500/20">
-              <Activity className="w-6 h-6 text-white" />
-            </div>
-            <span className="font-display font-bold text-2xl tracking-tight hidden sm:inline-block">
-              BCT<span className="text-teal-400">Hub</span>
+          <Link to="/" className="flex items-center gap-3 group">
+            <Logo size={42} className="group-hover:rotate-6 transition-transform duration-300" />
+            <span className="font-display font-bold text-2xl tracking-tighter hidden sm:inline-block">
+              BCTA<span className="text-teal-400">kademi</span>
             </span>
           </Link>
           <div className="hidden md:flex items-center gap-8">
@@ -81,9 +80,9 @@ export function Navbar() {
                 />
               </form>
             </div>
-            {isAuthenticated && user ? (
+            {isAuthenticated && user && (
               <div className="hidden sm:flex items-center gap-4 bg-slate-900/50 p-1 pr-4 rounded-full border border-slate-800">
-                <div className="w-8 h-8 rounded-full bg-teal-500 flex items-center justify-center text-xs font-bold">
+                <div className="w-8 h-8 rounded-full bg-teal-500 flex items-center justify-center text-xs font-bold shadow-lg shadow-teal-500/20">
                   {user.username.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex flex-col">
@@ -91,12 +90,12 @@ export function Navbar() {
                   <span className="text-[10px] text-slate-400 font-bold">{user.points} XP</span>
                 </div>
               </div>
-            ) : null}
-            <Button 
+            )}
+            <Button
               onClick={handlePortalClick}
-              className="bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl px-6 h-11 transition-all active:scale-95 shadow-lg shadow-orange-500/20"
+              className="bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl px-6 h-11 transition-all active:scale-95 shadow-lg shadow-orange-500/20 border-none"
             >
-              <LayoutDashboard className="w-4 h-4 mr-2" /> Portal
+              {isAuthenticated ? <><LayoutDashboard className="w-4 h-4 mr-2" /> Portal</> : 'Derslere Göz At'}
             </Button>
             <div className="md:hidden flex items-center gap-2">
               <button onClick={() => setIsSearchOpen(!isSearchOpen)} className="p-2 text-slate-300 hover:text-white">

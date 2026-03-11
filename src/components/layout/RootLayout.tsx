@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navbar } from './Navbar';
 import { Footer } from './Footer';
+import { BackToTop } from '@/components/ui/back-to-top';
 interface RootLayoutProps {
   children: React.ReactNode;
 }
@@ -12,6 +13,7 @@ export function RootLayout({ children }: RootLayoutProps) {
         {children}
       </main>
       <Footer />
+      <BackToTop />
     </div>
   );
 }
