@@ -1,6 +1,6 @@
 import React, { useMemo, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FileText, CheckCircle2, ArrowRight, TrendingUp, Award, Lock } from 'lucide-react';
+import { FileText, CheckCircle2, ArrowRight, TrendingUp, Award, Lock, Activity } from 'lucide-react';
 import { curriculum } from '@/lib/curriculum';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -15,9 +15,16 @@ export function PortalPage() {
   const isAuthenticated = useUserStore((s) => s.isAuthenticated);
   const [isHydrated, setIsHydrated] = useState(false);
   useEffect(() => {
-    // Hydration check for store persistence
-    const timer = setTimeout(() => setIsHydrated(true), 150);
-    return () => clearTimeout(timer);
+    const unsubscribe = useUserStore.subscribe((state) => {
+      if (state.user) {
+        setIsHydrated(true);
+      }
+    });
+    // Check initial state
+    if (useUserStore.getState().user) {
+      setIsHydrated(true);
+    }
+    return () => unsubscribe();
   }, []);
   useEffect(() => {
     if (isHydrated && !isAuthenticated) {
@@ -36,7 +43,6 @@ export function PortalPage() {
     if (!user) return [];
     const allCourses = curriculum.flatMap(c => c.courses);
     const completedUnits = user.completedUnits;
-    // Sort courses: Priority to those with ZERO units completed, then by remaining units
     return allCourses
       .map(course => ({
         ...course,
@@ -81,6 +87,7 @@ export function PortalPage() {
     { day: 'Cmt', hours: 4.0 },
     { day: 'Paz', hours: 1.2 },
   ];
+  const hasActivity = activityData.some(d => d.hours > 0);
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
       <div className="flex flex-col gap-10">
@@ -122,6 +129,7 @@ export function PortalPage() {
                 </div>
                 <div className="h-4 bg-slate-800 rounded-full overflow-hidden">
                    <motion.div
+                    key={user.points}
                     initial={{ width: 0 }}
                     animate={{ width: `${levelProgress}%` }}
                     transition={{ duration: 1.5, ease: "easeOut" }}
@@ -154,13 +162,21 @@ export function PortalPage() {
         </section>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           <Card className="lg:col-span-2 rounded-[2.5rem] border-slate-100 relative shadow-sm overflow-hidden bg-white">
-            {points < 300 && (
+            {points < 300 ? (
               <div className="absolute inset-0 bg-white/80 backdrop-blur-[4px] z-20 flex flex-col items-center justify-center rounded-3xl p-10 text-center">
                 <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-6">
                   <Lock className="w-8 h-8 text-slate-400" />
                 </div>
                 <h4 className="text-2xl font-bold text-slate-900 mb-2">Performans Analizi</h4>
                 <p className="text-slate-500 text-lg max-w-xs leading-relaxed">Haftalık çalışma grafiğini açmak için en az 300 XP puanına ulaşmalısın.</p>
+              </div>
+            ) : !hasActivity && (
+              <div className="absolute inset-0 bg-white z-20 flex flex-col items-center justify-center rounded-3xl p-10 text-center">
+                 <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-6">
+                   <Activity className="w-8 h-8 text-slate-400" />
+                 </div>
+                 <h4 className="text-2xl font-bold text-slate-900 mb-2">Aktivite Yok</h4>
+                 <p className="text-slate-500 text-lg max-w-xs leading-relaxed">Bu hafta hiç çalışma yapmadın. Derslere dönerek ilerlemeye devam et!</p>
               </div>
             )}
             <CardHeader className="p-8 pb-0">

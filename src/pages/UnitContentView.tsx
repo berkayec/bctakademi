@@ -31,7 +31,8 @@ export function UnitContentView() {
   const completeUnit = useUserStore(s => s.completeUnit);
   const trackVideo = useUserStore(s => s.trackVideo);
   const isAuthenticated = useUserStore(s => s.isAuthenticated);
-  const userPoints = useUserStore(s => s.user?.points ?? 0);
+  const user = useUserStore(s => s.user);
+  const userPoints = user?.points ?? 0;
   const handleScroll = useCallback(() => {
     if (scrollContainerRef.current) {
       const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
@@ -47,7 +48,7 @@ export function UnitContentView() {
   }, [unitId]);
   useEffect(() => {
     if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTo(0, 0);
+      scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
       setScrollProgress(0);
       setHasCompletedCurrentQuiz(false);
     }
@@ -55,8 +56,8 @@ export function UnitContentView() {
   if (!unit || !course) return <div className="p-20 text-center text-slate-500 font-bold">İçerik bulunamadı.</div>;
   const currentTopic = unit.topics[activeTopicIndex];
   const handleComplete = () => {
-    // Check if there's an uncompleted quiz
-    if (currentTopic.quiz && !hasCompletedCurrentQuiz) {
+    // Check if there's an uncompleted quiz for the current topic
+    if (currentTopic.quiz && currentTopic.quiz.length > 0 && !hasCompletedCurrentQuiz) {
       toast("Bilgi Kontrolü", {
         description: "Devam etmeden önce konuyu pekiştirmek için aşağıdaki quizi çözmenizi öneririz.",
         icon: <AlertCircle className="text-orange-500 w-4 h-4" />,
@@ -74,17 +75,17 @@ export function UnitContentView() {
       completeUnit(unit.id);
       setUnitCompleted(true);
       if (isAuthenticated) {
+        // Delay to allow state update to propagate for title check
         setTimeout(() => {
-          const currentStoreState = useUserStore.getState();
-          const newPoints = currentStoreState.user?.points ?? 0;
-          const newTitle = getUserTitle(newPoints);
+          const updatedPoints = useUserStore.getState().user?.points ?? 0;
+          const newTitle = getUserTitle(updatedPoints);
           if (oldTitle !== newTitle) {
             toast.success("SEVİYE ATLADIN!", {
               description: `Yeni unvanın: ${newTitle}`,
               duration: 5000,
             });
           }
-        }, 150);
+        }, 200);
       }
     } else {
       setActiveTopicIndex(prev => prev + 1);
@@ -110,7 +111,7 @@ export function UnitContentView() {
           className={cn(
             "w-full text-left p-4 rounded-xl transition-all border group",
             activeTopicIndex === idx
-              ? "bg-white border-teal-200 shadow-sm"
+              ? "bg-teal-50/50 border-teal-200 shadow-sm"
               : "bg-transparent border-transparent hover:bg-white/50"
           )}
         >
@@ -233,12 +234,12 @@ export function UnitContentView() {
                   {currentTopic.content}
                 </div>
               </article>
-              {currentTopic.quiz && (
+              {currentTopic.quiz && currentTopic.quiz.length > 0 && (
                 <div id="quiz-section" className="py-12 border-t border-slate-100">
-                  <QuizSection 
-                    key={currentTopic.id} 
-                    quiz={currentTopic.quiz} 
-                    isAuthenticated={isAuthenticated} 
+                  <QuizSection
+                    key={currentTopic.id}
+                    quiz={currentTopic.quiz}
+                    isAuthenticated={isAuthenticated}
                     onSuccess={handleQuizSuccess}
                   />
                 </div>
@@ -335,18 +336,26 @@ function QuizSection({ quiz, isAuthenticated, onSuccess }: { quiz: QuizQuestion[
           <Button disabled={selectedOption === null} onClick={handleSubmit} className="w-full h-14 bg-slate-950 text-white rounded-2xl font-bold border-none shadow-xl active:scale-[0.98] transition-all">Cevabı Kontrol Et</Button>
         ) : (
           currentQIndex < quiz.length - 1 ? (
-            <Button onClick={handleNext} className="w-full h-14 bg-teal-500 text-white rounded-2xl font-bold border-none shadow-xl active:scale-[0.98] transition-all">Sonraki Soru</Button>
-          ) : (
-            <div className="text-center p-10 bg-white rounded-[2rem] border border-dashed border-slate-200">
-              <div className="w-16 h-16 bg-teal-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Award className="w-8 h-8 text-teal-600" />
-              </div>
-              <p className="text-3xl font-display font-bold text-teal-600">Skor: {score} / {quiz.length}</p>
-              <p className="text-slate-500 mt-2 font-medium">Bu bölümün değerlendirmesini tamamladın!</p>
-            </div>
-          )
-        )}
-      </div>
-    </div>
+            <Button onClick={handleNext} className="w-full h-14 bg-teal-500 text-white rounded-2xl font-bold border-none shadow-xl active:scale-[0.98```
+# Streamline the global application shell by removing redundant scroll logic.
+cat > src/components/layout/AppShell.tsx << 'EOF'
+import React, { useEffect } from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
+import { ScrollToTop } from './ScrollToTop';
+/**
+ * Global application shell that wraps all routes.
+ * Handles cross-cutting concerns like scrolling to top on navigation
+ * and setting page metadata.
+ */
+export function AppShell() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    document.title = 'BCTAkademi - Biyomedikal Cihaz Teknolojileri';
+  }, [pathname]);
+  return (
+    <>
+      <ScrollToTop />
+      <Outlet />
+    </>
   );
 }
