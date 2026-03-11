@@ -25,11 +25,13 @@ export function LessonsPage() {
     const params: Record<string, string> = {};
     if (searchQuery) params.q = searchQuery;
     if (activeTab !== 'all') params.cat = activeTab;
+    const currentQ = searchParams.get('q');
+    const currentCat = searchParams.get('cat') || 'all';
     // Only update if actually different to prevent infinite loops
-    if (searchParams.get('q') !== (params.q || null) || searchParams.get('cat') !== (params.cat || 'all')) {
+    if (currentQ !== (params.q || null) || currentCat !== (params.cat || 'all')) {
       setSearchParams(params, { replace: true });
     }
-  }, [searchQuery, activeTab, setSearchParams]);
+  }, [searchQuery, activeTab, setSearchParams, searchParams]);
   const filteredCategories = useMemo(() => {
     return curriculum.map(cat => ({
       ...cat,
@@ -119,7 +121,7 @@ export function LessonsPage() {
                     <p className="text-slate-500 mb-8">"{searchQuery}" araması için herhangi bir sonuç çıkmadı.</p>
                     <Button
                       onClick={handleClear}
-                      className="bg-slate-950 text-white rounded-xl px-8"
+                      className="bg-slate-950 text-white rounded-xl px-8 border-none"
                     >
                       Aramayı Temizle
                     </Button>

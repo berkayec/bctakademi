@@ -25,7 +25,6 @@ export function Navbar() {
   useEffect(() => {
     document.title = 'BCTAkademi - Biyomedikal Cihaz Teknolojileri';
   }, []);
-  // Update navbar search if URL changes
   useEffect(() => {
     setSearchQuery(urlQuery);
   }, [urlQuery]);
@@ -52,10 +51,7 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-20 items-center">
           <Link to="/" className="flex items-center gap-3 group">
-            <Logo size={42} className="group-hover:rotate-6 transition-transform duration-300" />
-            <span className="font-display font-bold text-2xl tracking-tighter hidden sm:inline-block">
-              BCTA<span className="text-teal-400">kademi</span>
-            </span>
+            <Logo size={40} className="group-hover:rotate-2 transition-transform duration-300" />
           </Link>
           <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => {
@@ -104,7 +100,7 @@ export function Navbar() {
               onClick={handlePortalClick}
               className="bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl px-6 h-11 transition-all active:scale-95 shadow-lg shadow-orange-500/20 border-none"
             >
-              {isAuthenticated ? <><LayoutDashboard className="w-4 h-4 mr-2" /> Portal</> : 'Portal Giriş'}
+              {isAuthenticated ? <><LayoutDashboard className="w-4 h-4 mr-2" /> Portal</> : 'Giriş Yap'}
             </Button>
             <div className="md:hidden flex items-center gap-2">
               <button onClick={() => setIsSearchOpen(!isSearchOpen)} className="p-2 text-slate-300 hover:text-white">
@@ -119,20 +115,20 @@ export function Navbar() {
       </div>
       <AnimatePresence>
         {isSearchOpen && (
-          <motion.div 
-            initial={{ height: 0, opacity: 0 }} 
-            animate={{ height: 'auto', opacity: 1 }} 
-            exit={{ height: 0, opacity: 0 }} 
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
             className="bg-slate-900/95 backdrop-blur-md border-b border-slate-800 md:hidden overflow-hidden transition-all duration-300"
           >
             <div className="p-4">
               <form onSubmit={handleSearch} className="relative">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                <Input 
-                  className="bg-slate-950 border-slate-800 h-14 pl-12 rounded-xl text-white focus:ring-teal-500" 
-                  placeholder="Arama yap..." 
-                  value={searchQuery} 
-                  onChange={(e) => setSearchQuery(e.target.value)} 
+                <Input
+                  className="bg-slate-950 border-slate-800 h-14 pl-12 rounded-xl text-white focus:ring-teal-500"
+                  placeholder="Arama yap..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </form>
             </div>

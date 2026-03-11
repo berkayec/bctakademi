@@ -3,7 +3,8 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { ScrollToTop } from './ScrollToTop';
 /**
  * Global application shell that wraps all routes.
- * Handles cross-cutting concerns like scrolling to top on navigation.
+ * Handles cross-cutting concerns like scrolling to top on navigation 
+ * and setting page metadata.
  */
 export function AppShell() {
   const { pathname } = useLocation();
