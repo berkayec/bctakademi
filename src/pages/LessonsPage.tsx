@@ -7,17 +7,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Search, ArrowRight, BookOpen, Sparkles, Clock, LayoutGrid } from 'lucide-react';
+import { Search, ArrowRight, BookOpen, Sparkles, Clock, FileWarning } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 export function LessonsPage() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const initialTab = searchParams.get('cat') || 'all';
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const [activeTab, setActiveTab] = useState(initialTab);
   const filteredCategories = useMemo(() => {
     return curriculum.map(cat => ({
       ...cat,
-      courses: cat.courses.filter(course => 
+      courses: cat.courses.filter(course =>
         course.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         course.description.toLowerCase().includes(searchQuery.toLowerCase())
       )
@@ -25,7 +25,7 @@ export function LessonsPage() {
   }, [searchQuery]);
   return (
     <RootLayout>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
         <div className="space-y-12">
           <header className="text-center max-w-3xl mx-auto space-y-4">
             <h1 className="text-5xl font-display font-bold text-slate-900 tracking-tight">Akademik Müfredat</h1>
@@ -44,7 +44,7 @@ export function LessonsPage() {
           </header>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="flex justify-center mb-12">
-              <TabsList className="bg-slate-100/50 backdrop-blur-sm p-1.5 rounded-[2rem] h-auto border border-slate-200/50">
+              <TabsList className="bg-slate-100/50 backdrop-blur-sm p-1.5 rounded-[2rem] h-auto border border-slate-200/50 flex-wrap justify-center">
                 <TabsTrigger value="all" className="rounded-full px-8 py-3 text-sm font-bold data-[state=active]:bg-white data-[state=active]:shadow-xl transition-all">Tümü</TabsTrigger>
                 {curriculum.map(cat => (
                   <TabsTrigger key={cat.id} value={cat.id} className="rounded-full px-8 py-3 text-sm font-bold data-[state=active]:bg-white data-[state=active]:shadow-xl transition-all">
@@ -68,7 +68,7 @@ export function LessonsPage() {
                         <div className="flex items-center gap-6">
                           <h2 className="text-3xl font-display font-bold text-slate-900 whitespace-nowrap">{cat.title}</h2>
                           <div className="h-px flex-1 bg-slate-200" />
-                          <Badge variant="outline" className="rounded-lg border-slate-200">{cat.courses.length} Ders</Badge>
+                          <Badge variant="outline" className="rounded-lg border-slate-200 font-bold">{cat.courses.length} Ders</Badge>
                         </div>
                         <CourseGrid categoryId={cat.id} courses={cat.courses} />
                       </div>
@@ -82,10 +82,18 @@ export function LessonsPage() {
                   </div>
                 )}
                 {filteredCategories.length === 0 && (
-                  <div className="py-24 text-center bg-slate-50/50 rounded-[3rem] border-2 border-dashed border-slate-200">
-                    <BookOpen className="w-20 h-20 text-slate-300 mx-auto mb-6" />
-                    <p className="text-slate-500 font-bold text-xl">Aradığınız kriterlere uygun ders bulunamadı.</p>
-                    <Button variant="link" onClick={() => { setSearchQuery(''); setActiveTab('all'); }} className="mt-2 text-teal-600 font-bold">Tüm dersleri göster</Button>
+                  <div className="py-24 text-center bg-slate-50/50 rounded-[3rem] border-2 border-dashed border-slate-200 max-w-2xl mx-auto">
+                    <div className="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                      <FileWarning className="w-12 h-12 text-slate-300" />
+                    </div>
+                    <p className="text-slate-900 font-bold text-2xl mb-2">Eşleşen Ders Bulunamadı</p>
+                    <p className="text-slate-500 mb-8">"{searchQuery}" araması için herhangi bir sonuç çıkmadı. Lütfen farklı anahtar kelimeler deneyin.</p>
+                    <Button 
+                      onClick={() => { setSearchQuery(''); setActiveTab('all'); }} 
+                      className="bg-slate-900 text-white rounded-xl px-8"
+                    >
+                      Aramayı Temizle
+                    </Button>
                   </div>
                 )}
               </motion.div>

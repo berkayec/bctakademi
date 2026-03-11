@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, Activity, ShieldCheck, Microscope, Cpu, GraduationCap, Search, Globe, ChevronRight, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, Activity, ShieldCheck, Microscope, Cpu, GraduationCap, Search, Globe, ChevronRight, CheckCircle2, Newspaper } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { motion } from 'framer-motion';
@@ -16,10 +16,17 @@ export function HomePage() {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-      <section className="relative bg-slate-950 pt-24 pb-36 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(20,184,166,0.15),transparent_70%)]" />
-        <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.03]" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <section className="relative bg-slate-950 pt-24 pb-36 overflow-hidden min-h-[85vh] flex items-center">
+        {/* Updated high-quality laboratory image with overlay for contrast */}
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="https://images.unsplash.com/photo-1581093588401-fbb62a02f120?auto=format&fit=crop&q=80&w=1920" 
+            alt="Laboratory background" 
+            className="w-full h-full object-cover opacity-30"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/80 via-slate-950/40 to-slate-950" />
+        </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
           <div className="text-center space-y-10">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -29,11 +36,11 @@ export function HomePage() {
               <span className="inline-flex items-center gap-2 px-4 py-2 mb-8 text-xs font-bold tracking-widest text-teal-400 uppercase bg-teal-400/10 border border-teal-400/20 rounded-full">
                 <Globe className="w-3 h-3" /> Universal Biomedical Learning Hub
               </span>
-              <h1 className="text-display text-white mb-8 tracking-tight">
+              <h1 className="text-display text-white mb-8 tracking-tight drop-shadow-sm">
                 Geleceğin Sağlık <br />
                 <span className="text-teal-400">Teknolojilerini Keşfedin</span>
               </h1>
-              <p className="max-w-3xl mx-auto text-xl text-slate-400 leading-relaxed font-medium">
+              <p className="max-w-3xl mx-auto text-xl text-slate-300 leading-relaxed font-medium">
                 Milli Eğitim Bakanlığı standartlarıyla %100 uyumlu, kapsamlı ve etkileşimli biyomedikal eğitim ekosistemi. Teknik bilginizi bir üst seviyeye taşıyın.
               </p>
             </motion.div>
@@ -49,7 +56,7 @@ export function HomePage() {
                   <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                   <Input
                     placeholder="Biyoölçme, Defibrilatör veya İSG ara..."
-                    className="h-14 pl-14 pr-4 border-none shadow-none text-slate-900 bg-transparent text-lg focus-visible:ring-0"
+                    className="h-14 pl-14 pr-4 border-none shadow-none text-slate-900 bg-transparent text-lg focus-visible:ring-0 w-full"
                     value={searchValue}
                     onChange={(e) => setSearchValue(e.target.value)}
                   />
@@ -65,14 +72,14 @@ export function HomePage() {
               transition={{ delay: 0.4 }}
               className="flex flex-col sm:flex-row justify-center gap-6 pt-4"
             >
-              <Link to="/dersler?cat=temel-dersler">
-                <Button className="w-full sm:w-auto h-16 px-10 bg-orange-500 hover:bg-orange-600 text-white font-bold text-lg rounded-2xl group shadow-xl shadow-orange-500/20 transition-all hover:scale-105 active:scale-95">
-                  Temel Derslerden Başla <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              <Link to="/dersler">
+                <Button className="w-full sm:w-auto h-16 px-10 bg-white text-orange-600 hover:bg-orange-50 font-bold text-lg rounded-2xl group shadow-xl transition-all hover:scale-105 active:scale-95 border border-orange-100">
+                  Derslere Göz At <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
-              <Link to="/dersler?cat=alan-dersleri">
+              <Link to="/blog">
                 <Button variant="outline" className="w-full sm:w-auto h-16 px-10 border-slate-700 text-white hover:bg-white hover:text-slate-900 rounded-2xl text-lg font-bold transition-all">
-                  Alanında Uzmanlaş <ChevronRight className="ml-2 w-5 h-5" />
+                  <Newspaper className="mr-2 w-5 h-5" /> Güncel Haberler
                 </Button>
               </Link>
             </motion.div>
@@ -142,54 +149,13 @@ export function HomePage() {
                     <GraduationCap className="w-8 h-8" />
                   </div>
                   <div>
-                    <p className="text-3xl font-display font-bold text-slate-900">120+</p>
+                    <p className="text-3xl font-display font-bold text-slate-900">150+</p>
                     <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Eğitim Modülü</p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
-      {/* Testimonial / Community */}
-      <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h3 className="text-sm font-bold text-teal-600 uppercase tracking-widest mb-16">Eğitmen Gözünden</h3>
-          <div className="max-w-4xl mx-auto">
-             <blockquote className="text-3xl md:text-4xl font-display font-bold text-slate-900 leading-tight">
-               "Biyomedikal cihaz teknolojileri sadece tamir değil, yaşamı koruma sanatıdır. Bu portal, öğrencilerimize bu sanatı en bilimsel ve modern yollarla öğretiyor."
-             </blockquote>
-             <div className="mt-10 flex items-center justify-center gap-4">
-                <div className="w-16 h-16 rounded-full bg-slate-200 overflow-hidden">
-                   <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=100" alt="Instructor" />
-                </div>
-                <div className="text-left">
-                   <p className="font-bold text-slate-900">Dr. Mehmet Akif</p>
-                   <p className="text-slate-500 font-medium">Klinik Mühendisliği Uzmanı</p>
-                </div>
-             </div>
-          </div>
-        </div>
-      </section>
-      {/* Final CTA */}
-      <section className="py-24 bg-teal-600 relative overflow-hidden">
-        <div className="max-w-4xl mx-auto px-4 text-center space-y-10 relative z-10">
-          <h2 className="text-4xl md:text-6xl font-display font-bold text-white tracking-tight">
-            Kariyerinizi Bugün <br /> Şekillendirin
-          </h2>
-          <p className="text-teal-50 text-xl font-medium opacity-90 max-w-2xl mx-auto">
-            Ücretsiz hesap oluşturarak tüm teknik kaynaklara erişin ve biyomedikal dünyasının geleceği için hazırlanmaya başlayın.
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Link to="/portal">
-              <Button size="lg" className="w-full sm:w-auto bg-white text-teal-600 hover:bg-slate-50 h-16 px-12 rounded-2xl font-bold text-xl shadow-2xl transition-all hover:scale-105">
-                Portala Üye Ol
-              </Button>
-            </Link>
-          </div>
-        </div>
-        <div className="absolute top-0 right-0 p-20 opacity-10">
-           <Activity className="w-96 h-96 text-white" />
         </div>
       </section>
     </div>
