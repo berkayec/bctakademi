@@ -24,6 +24,9 @@ export interface Course {
   description: string;
   image: string;
   units: Unit[];
+  difficulty: 'Temel' | 'Orta' | 'İleri';
+  estimatedTime: string;
+  isPopular?: boolean;
 }
 export interface Category {
   id: string;
@@ -40,6 +43,9 @@ export const curriculum: Category[] = [
         title: 'Biyoölçme ve EST',
         description: 'Tıbbi cihazlarda elektriksel güvenlik testleri (EST), kaçak akım analizi ve kalibrasyon protokolleri üzerine uzmanlık eğitimi.',
         image: 'https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?auto=format&fit=crop&q=80&w=1200',
+        difficulty: 'Temel',
+        estimatedTime: '12 Saat',
+        isPopular: true,
         units: Array.from({ length: 5 }).map((_, i) => ({
           id: `est-u-${i + 1}`,
           title: `Ünite ${i + 1}: ${['İSG ve Laboratuvar Disiplini', 'IEC 62353 Standartları', 'Kaçak Akım Ölçüm Teknikleri', 'Kalibrasyon ve İzlenebilirlik', 'Hata Analizi ve Raporlama'][i]}`,
@@ -67,6 +73,8 @@ export const curriculum: Category[] = [
         title: 'Biyoenstrümantasyon',
         description: 'Biyomedikal sinyal işleme, operasyonel yükselteçler (Op-Amp) ve sensör teknolojilerinin mühendislik temelleri.',
         image: 'https://images.unsplash.com/photo-1555664424-778a1e5e1b48?auto=format&fit=crop&q=80&w=1200',
+        difficulty: 'Orta',
+        estimatedTime: '15 Saat',
         units: Array.from({ length: 5 }).map((_, i) => ({
           id: `be-u-${i + 1}`,
           title: `Ünite ${i + 1}: ${['Biyopotansiyel Sensörler', 'Enstrümantasyon Amplifikatörleri', 'Aktif Filtre Tasarımı', 'ADC ve Sinyal Dönüştürme', 'İzolasyon Amplifikatörleri'][i]}`,
@@ -94,6 +102,8 @@ export const curriculum: Category[] = [
         title: 'Mesleki Fizyoloji ve Terminoloji',
         description: 'İnsan anatomisinin ve fizyolojik sistemlerin biyomedikal mühendislik perspektifiyle analizi.',
         image: 'https://images.unsplash.com/photo-1530026405186-ed1f139313f8?auto=format&fit=crop&q=80&w=1200',
+        difficulty: 'Temel',
+        estimatedTime: '10 Saat',
         units: Array.from({ length: 5 }).map((_, i) => ({
           id: `mf-u-${i + 1}`,
           title: `Ünite ${i + 1}: ${['Hücre Elektrofizyolojisi', 'Kardiyovasküler Dinamikler', 'Nörolojik Sinyal İletimi', 'Solunum Mekaniği', 'Renal Sistem ve Diyaliz Fizyolojisi'][i]}`,
@@ -121,6 +131,8 @@ export const curriculum: Category[] = [
         title: 'Teknik Resim',
         description: 'Biyomedikal cihaz parçalarının 2D/3D teknik çizimleri, devre şemaları ve montaj dökümanları.',
         image: 'https://images.unsplash.com/photo-1503387762-592dea58ef21?auto=format&fit=crop&q=80&w=1200',
+        difficulty: 'Temel',
+        estimatedTime: '8 Saat',
         units: Array.from({ length: 5 }).map((_, i) => ({
           id: `tr-u-${i + 1}`,
           title: `Ünite ${i + 1}: ${['Geometrik Çizimler', 'Görünüş Çıkartma', 'Kesit Alma Teknikleri', 'Elektronik Semboller', 'CAD ile Cihaz Tasarımı'][i]}`,
@@ -154,6 +166,9 @@ export const curriculum: Category[] = [
         title: 'Yaşam Destek Cihazları',
         description: 'Ventilatör, defibrilatör, anestezi ve diyaliz sistemlerinin çalışma prensipleri ve arıza giderme yöntemleri.',
         image: 'https://images.unsplash.com/photo-1581093588401-fbb62a02f120?auto=format&fit=crop&q=80&w=1200',
+        difficulty: 'İleri',
+        estimatedTime: '20 Saat',
+        isPopular: true,
         units: Array.from({ length: 5 }).map((_, i) => ({
           id: `yd-u-${i + 1}`,
           title: `Ünite ${i + 1}: ${['Ventilatör Teknolojisi', 'Defibrilasyon Prensipleri', 'Diyaliz Makine Dinamikleri', 'İnfüzyon ve Perfüzyon Pompaları', 'Ameliyathane Destek Sistemleri'][i]}`,
@@ -181,6 +196,8 @@ export const curriculum: Category[] = [
         title: 'Biyomalzeme ve Biyomekanik',
         description: 'Vücut içi implantlar, protez sistemleri ve doku ile etkileşime giren malzemelerin mekanik ve kimyasal analizi.',
         image: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&q=80&w=1200',
+        difficulty: 'Orta',
+        estimatedTime: '15 Saat',
         units: Array.from({ length: 5 }).map((_, i) => ({
           id: `bm-u-${i + 1}`,
           title: `Ünite ${i + 1}: ${['Biyouyumluluk Standartları', 'Metalik İmplantlar', 'Biyoseramikler ve Polimerler', 'Kırılma ve Yorulma Analizi', 'Yapay Organ Mekaniği'][i]}`,

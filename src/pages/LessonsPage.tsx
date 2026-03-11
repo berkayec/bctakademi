@@ -1,13 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { RootLayout } from '@/components/layout/RootLayout';
-import { curriculum } from '@/lib/curriculum';
+import { curriculum, Course, Category } from '@/lib/curriculum';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Search, ArrowRight, BookOpen, Sparkles, Clock, FileWarning } from 'lucide-react';
+import { Search, ArrowRight, Sparkles, Clock, FileWarning } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 export function LessonsPage() {
   const [searchParams] = useSearchParams();
@@ -88,9 +88,9 @@ export function LessonsPage() {
                     </div>
                     <p className="text-slate-900 font-bold text-2xl mb-2">Eşleşen Ders Bulunamadı</p>
                     <p className="text-slate-500 mb-8">"{searchQuery}" araması için herhangi bir sonuç çıkmadı. Lütfen farklı anahtar kelimeler deneyin.</p>
-                    <Button 
-                      onClick={() => { setSearchQuery(''); setActiveTab('all'); }} 
-                      className="bg-slate-900 text-white rounded-xl px-8"
+                    <Button
+                      onClick={() => { setSearchQuery(''); setActiveTab('all'); }}
+                      className="bg-slate-950 text-white rounded-xl px-8"
                     >
                       Aramayı Temizle
                     </Button>
@@ -104,7 +104,11 @@ export function LessonsPage() {
     </RootLayout>
   );
 }
-function CourseGrid({ courses, categoryId }: { courses: any[], categoryId: string }) {
+interface CourseGridProps {
+  courses: Course[];
+  categoryId: string;
+}
+function CourseGrid({ courses, categoryId }: CourseGridProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       {courses.map((course) => (
