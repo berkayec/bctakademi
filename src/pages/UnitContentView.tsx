@@ -52,10 +52,10 @@ export function UnitContentView() {
       completeUnit(unit.id);
       setUnitCompleted(true);
       setTimeout(() => {
-        const newPoints = (user?.points ?? 0) + 100;
-        if (oldTitle !== getUserTitle(newPoints)) {
+        const currentPoints = useUserStore.getState().user?.points ?? 0;
+        if (oldTitle !== getUserTitle(currentPoints)) {
           toast.success("SEVİYE ATLADIN!", {
-            description: `Yeni unvanın: ${getUserTitle(newPoints)}`,
+            description: `Yeni unvanın: ${getUserTitle(currentPoints)}`,
             duration: 5000,
           });
         }
@@ -88,10 +88,10 @@ export function UnitContentView() {
                 <p className="text-slate-400 text-lg">"{unit.title}" ünitesini başarıyla tamamladınız ve 100 XP kazandınız.</p>
                 <div className="flex gap-4 justify-center">
                   <Button asChild variant="outline" className="border-slate-700 text-white hover:bg-slate-800 rounded-xl">
-                    <Link to={`/dersler/${categoryId}/${courseId}`}>Geri Dön</Link>
+                    <Link to={`/dersler/${categoryId}/${courseId}`}>Derse Dön</Link>
                   </Button>
                   <Button asChild className="bg-teal-500 hover:bg-teal-600 rounded-xl border-none">
-                    <Link to="/dersler">Sonraki Ders</Link>
+                    <Link to="/dersler">Müfredata Göz At</Link>
                   </Button>
                 </div>
               </motion.div>
@@ -100,8 +100,8 @@ export function UnitContentView() {
         </AnimatePresence>
         <div className="hidden md:flex w-80 flex-col border-r bg-white/40 backdrop-blur-xl border-slate-200">
           <div className="p-6 border-b bg-white/60">
-            <Link to={`/dersler/${categoryId}/${courseId}`} className="flex items-center text-xs font-bold text-slate-400 hover:text-teal-600 transition-colors uppercase mb-4">
-              <ChevronLeft className="w-4 h-4 mr-1" /> Müfredata Dön
+            <Link to={`/dersler/${categoryId}/${courseId}`} className="flex items-center text-xs font-bold text-teal-600 hover:underline transition-all uppercase mb-4">
+              <ChevronLeft className="w-4 h-4 mr-1" /> {course.title}
             </Link>
             <h3 className="font-bold text-slate-900 line-clamp-2 leading-tight">{unit.title}</h3>
           </div>
@@ -149,8 +149,8 @@ export function UnitContentView() {
             </div>
             <div className="absolute bottom-0 left-0 h-1 bg-teal-500 transition-all duration-150" style={{ width: `${scrollProgress}%` }} />
           </header>
-          <div 
-            className="flex-1 overflow-y-auto scroll-smooth" 
+          <div
+            className="flex-1 overflow-y-auto scroll-smooth"
             onScroll={handleScroll}
             ref={scrollContainerRef}
           >

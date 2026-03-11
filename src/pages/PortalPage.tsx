@@ -151,15 +151,12 @@ export function PortalPage() {
             <h3 className="text-2xl font-bold text-slate-900 tracking-tight">Senin İçin Önerilenler</h3>
             <div className="space-y-4">
               {recommendations.length > 0 ? recommendations.map(rec => (
-                <Link key={rec.id} to="/dersler" className="block group">
+                <Link key={rec.id} to={`/dersler/${curriculum.find(cat => cat.courses.some(c => c.id === rec.id))?.id}/${rec.id}`} className="block group">
                   <div className="flex gap-5 p-5 rounded-[1.5rem] border border-slate-100 bg-white hover:border-teal-200 hover:bg-teal-50/20 transition-all shadow-sm">
                     <img src={rec.image} className="w-24 h-24 rounded-2xl object-cover shrink-0 shadow-sm" alt="" />
                     <div className="flex flex-col justify-center">
                       <p className="text-[10px] font-bold text-teal-600 mb-1 uppercase tracking-widest">Önerilen Ders</p>
                       <h4 className="font-bold text-slate-900 group-hover:text-teal-700 transition-colors line-clamp-1 text-lg">{rec.title}</h4>
-                      <div className="flex items-center gap-2 mt-2">
-                        <Badge variant="outline" className="text-[10px] font-bold border-slate-200">{rec.estimatedTime}</Badge>
-                      </div>
                     </div>
                   </div>
                 </Link>

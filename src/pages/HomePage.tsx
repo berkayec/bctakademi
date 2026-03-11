@@ -40,15 +40,15 @@ export function HomePage() {
                 <Logo size={84} className="animate-float" />
               </div>
               <span className="inline-flex items-center gap-2 px-5 py-2 mb-8 text-xs font-bold tracking-[0.2em] text-teal-400 uppercase bg-teal-400/10 border border-teal-400/20 rounded-full">
-                <Globe className="w-3 h-3" /> Geleceğin Sağlık Teknolojileri Akademisi
+                <Globe className="w-3 h-3" /> Biyomedikal Bilgi Havuzu
               </span>
               <h1 className="text-display text-white mb-8 tracking-tighter">
                 BCTA<span className="text-teal-400">kademi</span> ile <br />
-                <span className="text-orange-500">Geleceği Tasarla</span>
+                <span className="text-orange-500">Teknolojiyi Keşfet</span>
               </h1>
               <p className="max-w-3xl mx-auto text-xl text-slate-200 leading-relaxed font-medium drop-shadow-md">
-                Biyomedikal Cihaz Teknolojileri alanında Türkiye'nin en kapsamlı eğitim platformu. 
-                Profesyonel içerikler, teknik dokümantasyonlar ve interaktif simülasyonlar.
+                Biyomedikal Cihaz Teknolojileri alanında Türkiye'nin en kapsamlı bilgi platformu.
+                Profesyonel teknik içerikler, cihaz dökümantasyonları ve mühendislik temelleri.
               </p>
             </motion.div>
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.2, duration: 0.6 }} className="max-w-2xl mx-auto">
@@ -71,7 +71,7 @@ export function HomePage() {
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="flex flex-col sm:flex-row justify-center gap-6 pt-4">
               <Link to="/dersler">
                 <Button className="w-full sm:w-auto h-16 px-10 bg-teal-600 hover:bg-teal-700 text-white font-bold text-lg rounded-2xl group shadow-xl transition-all hover:scale-105 border-none">
-                  Eğitime Başla <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  Bilgi Havuzuna Gir <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
               <Link to="/blog">
@@ -88,9 +88,9 @@ export function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             {[
-              { icon: ShieldCheck, title: "Profesyonel Müfredat", desc: "Milli Eğitim Bakanlığı standartlarını aşan, endüstri odaklı derinlemesine teknik içerik." },
-              { icon: Microscope, title: "Teknik Derinlik", desc: "Sensörlerden mikrodenetleyicilere, klinik mühendislik uygulamalarından kalibrasyon protokollerine." },
-              { icon: Cpu, title: "Yeni Nesil Teknoloji", desc: "Yapay zeka destekli tanı sistemleri ve modern yaşam destek cihazları üzerine güncel modüller." }
+              { icon: ShieldCheck, title: "Profesyonel İçerik", desc: "Endüstri odaklı derinlemesine teknik incelemeler ve cihaz bakım protokolleri." },
+              { icon: Microscope, title: "Teknik Derinlik", desc: "Sensörlerden mikrodenetleyicilere, klinik mühendislik uygulamalarından kalibrasyon temellerine." },
+              { icon: Cpu, title: "Modern Teknoloji", desc: "Yeni nesil görüntüleme sistemleri ve modern yaşam destek üniteleri üzerine güncel modüller." }
             ].map((f, i) => (
               <div key={i} className="group p-10 rounded-[2.5rem] bg-slate-50/50 border border-slate-100 hover:bg-white hover:shadow-2xl transition-all duration-500">
                 <div className="w-16 h-16 rounded-2xl bg-teal-500 flex items-center justify-center text-white mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg shadow-teal-500/20">

@@ -19,6 +19,9 @@ export function Navbar() {
   const isAuthenticated = useUserStore((s) => s.isAuthenticated);
   const user = useUserStore((s) => s.user);
   const logout = useUserStore((s) => s.logout);
+  useEffect(() => {
+    document.title = 'BCTAkademi - Biyomedikal Cihaz Teknolojileri';
+  }, []);
   const handlePortalClick = () => {
     if (isAuthenticated) {
       navigate('/portal');
@@ -95,7 +98,7 @@ export function Navbar() {
               onClick={handlePortalClick}
               className="bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl px-6 h-11 transition-all active:scale-95 shadow-lg shadow-orange-500/20 border-none"
             >
-              {isAuthenticated ? <><LayoutDashboard className="w-4 h-4 mr-2" /> Portal</> : 'Derslere Göz At'}
+              {isAuthenticated ? <><LayoutDashboard className="w-4 h-4 mr-2" /> Portal</> : 'Portal Giriş'}
             </Button>
             <div className="md:hidden flex items-center gap-2">
               <button onClick={() => setIsSearchOpen(!isSearchOpen)} className="p-2 text-slate-300 hover:text-white">

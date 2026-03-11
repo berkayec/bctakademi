@@ -1,13 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { RootLayout } from '@/components/layout/RootLayout';
-import { curriculum, Course, Category } from '@/lib/curriculum';
+import { curriculum, Course } from '@/lib/curriculum';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Search, ArrowRight, Sparkles, Clock, FileWarning } from 'lucide-react';
+import { Search, ArrowRight, FileWarning } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 export function LessonsPage() {
   const [searchParams] = useSearchParams();
@@ -28,7 +28,7 @@ export function LessonsPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
         <div className="space-y-12">
           <header className="text-center max-w-3xl mx-auto space-y-4">
-            <h1 className="text-5xl font-display font-bold text-slate-900 tracking-tight">Akademik Müfredat</h1>
+            <h1 className="text-5xl font-display font-bold text-slate-900 tracking-tight">Akademik Bilgi Havuzu</h1>
             <p className="text-slate-600 text-lg leading-relaxed">
               Temel teknik eğitimden ileri düzey klinik mühendisliğe kadar tüm modüllerimizle biyomedikal uzmanı olma yolculuğunuzu planlayın.
             </p>
@@ -87,7 +87,7 @@ export function LessonsPage() {
                       <FileWarning className="w-12 h-12 text-slate-300" />
                     </div>
                     <p className="text-slate-900 font-bold text-2xl mb-2">Eşleşen Ders Bulunamadı</p>
-                    <p className="text-slate-500 mb-8">"{searchQuery}" araması için herhangi bir sonuç çıkmadı. Lütfen farklı anahtar kelimeler deneyin.</p>
+                    <p className="text-slate-500 mb-8">"{searchQuery}" araması için herhangi bir sonuç çıkmadı.</p>
                     <Button
                       onClick={() => { setSearchQuery(''); setActiveTab('all'); }}
                       className="bg-slate-950 text-white rounded-xl px-8"
@@ -115,23 +115,8 @@ function CourseGrid({ courses, categoryId }: CourseGridProps) {
         <Card key={course.id} className="group flex flex-col h-full hover:shadow-2xl transition-all duration-500 border-slate-200/60 rounded-[2.5rem] overflow-hidden bg-white/60 backdrop-blur-sm">
           <div className="aspect-[16/10] relative overflow-hidden">
             <img src={course.image} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" />
-            <div className="absolute top-4 left-4 flex gap-2">
-              <Badge className="bg-white/90 backdrop-blur-md text-slate-900 border-none font-bold shadow-sm">
-                <Clock className="w-3 h-3 mr-1" /> {course.estimatedTime}
-              </Badge>
-              {course.isPopular && (
-                <Badge className="bg-orange-500 text-white border-none font-bold shadow-sm">
-                  <Sparkles className="w-3 h-3 mr-1" /> Popüler
-                </Badge>
-              )}
-            </div>
           </div>
           <CardHeader className="p-8">
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-teal-600 bg-teal-50 px-2 py-0.5 rounded-md">
-                {course.difficulty}
-              </span>
-            </div>
             <CardTitle className="text-2xl font-display font-bold group-hover:text-teal-600 transition-colors mb-2">{course.title}</CardTitle>
             <CardDescription className="text-slate-500 text-sm leading-relaxed line-clamp-2">{course.description}</CardDescription>
           </CardHeader>
