@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 export function PortalPage() {
   const stats = [
@@ -48,7 +49,7 @@ export function PortalPage() {
             </div>
             <CardHeader className="relative z-10 p-8">
               <div className="flex items-center gap-2 mb-4">
-                 <Badge className="bg-teal-500 hover:bg-teal-500 px-4 py-1">Aktif Öğrenim</Badge>
+                 <Badge className="bg-teal-500 hover:bg-teal-500 px-4 py-1 border-none">Aktif Öğrenim</Badge>
                  <span className="text-xs text-slate-400 flex items-center gap-1"><Clock className="w-3 h-3" /> Son aktivite: 2 saat önce</span>
               </div>
               <CardTitle className="text-3xl md:text-4xl font-display leading-tight">{featuredCourse.title}</CardTitle>
@@ -63,11 +64,11 @@ export function PortalPage() {
                   <span className="text-teal-400">%45</span>
                 </div>
                 <div className="h-3 bg-slate-800 rounded-full overflow-hidden">
-                   <motion.div 
-                    initial={{ width: 0 }} 
-                    animate={{ width: '45%' }} 
+                   <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: '45%' }}
                     transition={{ duration: 1 }}
-                    className="h-full bg-gradient-to-r from-teal-500 to-teal-300" 
+                    className="h-full bg-gradient-to-r from-teal-500 to-teal-300"
                    />
                 </div>
               </div>

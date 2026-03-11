@@ -18,8 +18,8 @@ export function CourseDetailPage() {
   return (
     <RootLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <nav className="flex items-center gap-2 text-sm text-slate-500 mb-8 overflow-x-auto whitespace-nowrap">
-          <Link to="/dersler" className="hover:text-teal-600">Dersler</Link>
+        <nav className="flex items-center gap-2 text-sm text-slate-500 mb-8 overflow-x-auto whitespace-nowrap pb-2">
+          <Link to="/dersler" className="hover:text-teal-600 transition-colors">Dersler</Link>
           <ChevronRight className="w-4 h-4" />
           <span className="text-slate-900 font-medium">{grade?.title}</span>
           <ChevronRight className="w-4 h-4" />
@@ -28,7 +28,7 @@ export function CourseDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
           <div className="lg:col-span-2 space-y-12">
             <div className="space-y-6">
-              <h1 className="text-4xl md:text-5xl font-display font-bold text-slate-900 tracking-tight">{course.title}</h1>
+              <h1 className="text-4xl md:text-5xl font-display font-bold text-slate-900 tracking-tight leading-tight">{course.title}</h1>
               <p className="text-xl text-slate-600 leading-relaxed max-w-3xl">{course.description}</p>
               <div className="flex flex-wrap gap-4 py-2">
                 <Badge variant="secondary" className="px-4 py-1.5 rounded-full bg-slate-100 text-slate-700 font-bold border-none">
@@ -43,36 +43,37 @@ export function CourseDetailPage() {
               </div>
             </div>
             <div className="space-y-8">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
                 <h2 className="text-2xl font-bold text-slate-900">Müfredat İçeriği</h2>
                 <span className="text-sm font-bold text-slate-400">{course.units.length} Toplam Bölüm</span>
               </div>
               <div className="space-y-4">
                 {course.units.length === 0 ? (
-                  <div className="p-12 text-center bg-slate-50 rounded-3xl border border-dashed border-slate-300">
-                    <BookOpen className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-                    <p className="text-slate-500">Bu ders için henüz ünite eklenmemiş.</p>
+                  <div className="p-16 text-center bg-slate-50 rounded-[2.5rem] border border-dashed border-slate-300">
+                    <BookOpen className="w-16 h-16 text-slate-300 mx-auto mb-6" />
+                    <p className="text-slate-500 font-bold text-lg">Bu ders için henüz ünite eklenmemiş.</p>
                   </div>
                 ) : (
                   course.units.map((unit, index) => (
-                    <Card key={unit.id} className="border-slate-200 hover:border-teal-300 transition-all group rounded-2xl overflow-hidden hover:shadow-lg">
-                      <CardHeader className="flex flex-row items-center justify-between space-y-0 p-6">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-teal-600 uppercase tracking-widest bg-teal-50 px-2 py-0.5 rounded-md">Ünite {index + 1}</span>
-                            <span className="text-xs font-medium text-slate-400">{unit.estimatedReadingTime || '30 dk'}</span>
+                    <Card key={unit.id} className="border-slate-200 hover:border-teal-300 transition-all group rounded-2xl overflow-hidden hover:shadow-xl bg-white">
+                      <CardHeader className="flex flex-row items-center justify-between space-y-0 p-6 md:p-8">
+                        <div className="space-y-2 pr-4">
+                          <div className="flex items-center gap-3">
+                            <span className="text-xs font-bold text-teal-600 uppercase tracking-widest bg-teal-50 px-2 py-1 rounded-md">Ünite {index + 1}</span>
+                            <span className="text-xs font-semibold text-slate-400 flex items-center gap-1"><Clock className="w-3 h-3" /> {unit.estimatedReadingTime || '30 dk'}</span>
                           </div>
-                          <CardTitle className="text-xl group-hover:text-teal-900 transition-colors">{unit.title}</CardTitle>
+                          <CardTitle className="text-xl md:text-2xl group-hover:text-teal-700 transition-colors leading-snug">{unit.title}</CardTitle>
                         </div>
-                        <Link to={`/dersler/${gradeId}/${courseId}/${unit.id}`}>
-                          <Button className="bg-slate-900 hover:bg-orange-500 text-white rounded-xl transition-colors">Derse Başla</Button>
+                        <Link to={`/dersler/${gradeId}/${courseId}/${unit.id}`} className="shrink-0">
+                          <Button className="bg-slate-900 hover:bg-orange-500 text-white rounded-xl px-6 h-12 font-bold transition-all shadow-md group-hover:shadow-lg active:scale-95">Derse Başla</Button>
                         </Link>
                       </CardHeader>
-                      <CardContent className="px-6 pb-6 pt-0">
-                        <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
+                      <CardContent className="px-8 pb-8 pt-0">
+                        <div className="h-px bg-slate-100 mb-6" />
+                        <ul className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-3">
                           {unit.topics.map((topic) => (
-                            <li key={topic.id} className="flex items-center gap-2 text-slate-500 text-sm">
-                              <CheckCircle2 className="w-3.5 h-3.5 text-slate-300" />
+                            <li key={topic.id} className="flex items-center gap-3 text-slate-600 text-sm font-medium">
+                              <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
                               <span className="truncate">{topic.title}</span>
                             </li>
                           ))}
@@ -89,7 +90,7 @@ export function CourseDetailPage() {
                <div className="p-8 space-y-8">
                   <div className="space-y-4">
                      <p className="text-3xl font-display font-bold">Ücretsiz Erişim</p>
-                     <p className="text-slate-400 text-sm">Milli Eğitim Bakanlığı Biyomedikal Cihaz Teknolojileri öğrencileri için tam erişim aktiftir.</p>
+                     <p className="text-slate-400 text-sm leading-relaxed">Milli Eğitim Bakanlığı Biyomedikal Cihaz Teknolojileri öğrencileri için tam erişim aktiftir.</p>
                   </div>
                   <div className="space-y-4">
                      {[
@@ -117,11 +118,11 @@ export function CourseDetailPage() {
                   </p>
                </div>
             </Card>
-            <Card className="rounded-[2rem] border-slate-100 bg-slate-50">
-               <CardContent className="p-6 space-y-4">
-                  <h4 className="font-bold text-slate-900">Kurumsal Bilgi</h4>
-                  <p className="text-sm text-slate-500">Bu ders içeriği alan öğretmenleri tarafından hazırlanmış olup, mesleki gelişim standartlarını %100 karşılamaktadır.</p>
-                  <Button variant="link" className="p-0 text-teal-600 font-bold h-auto">Daha Fazla Bilgi</Button>
+            <Card className="rounded-[2rem] border-slate-100 bg-slate-50 shadow-sm">
+               <CardContent className="p-8 space-y-4">
+                  <h4 className="font-bold text-slate-900 text-lg">Eğitmen Notu</h4>
+                  <p className="text-sm text-slate-500 leading-relaxed">Bu ders içeriği alan öğretmenleri tarafından hazırlanmış olup, mesleki gelişim standartlarını %100 karşılamaktadır.</p>
+                  <Button variant="link" className="p-0 text-teal-600 font-bold h-auto hover:text-teal-700">Daha Fazla Bilgi</Button>
                </CardContent>
             </Card>
           </aside>

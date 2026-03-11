@@ -26,12 +26,12 @@ export function UnitContentView() {
   };
   return (
     <RootLayout>
-      <div className="flex h-[calc(100vh-64px)] overflow-hidden relative">
+      <div className="flex h-[calc(100vh-80px)] overflow-hidden relative">
         <AnimatePresence>
           {unitCompleted && (
-            <motion.div 
-              initial={{ opacity: 0 }} 
-              animate={{ opacity: 1 }} 
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
               className="absolute inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-6 text-center"
             >
               <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} className="max-w-md space-y-6">
@@ -44,7 +44,7 @@ export function UnitContentView() {
                   <Button asChild variant="outline" className="border-slate-700 text-white hover:bg-slate-800">
                     <Link to={`/dersler/${gradeId}/${courseId}`}>Ünite Listesine Dön</Link>
                   </Button>
-                  <Button asChild className="bg-teal-500 hover:bg-teal-600">
+                  <Button asChild className="bg-teal-500 hover:bg-teal-600 border-none">
                     <Link to="/dersler">Ders Kataloğu</Link>
                   </Button>
                 </div>
@@ -57,7 +57,7 @@ export function UnitContentView() {
             <Link to={`/dersler/${gradeId}/${courseId}`} className="flex items-center text-xs font-bold text-slate-400 hover:text-teal-600 transition-colors uppercase mb-4">
               <ChevronLeft className="w-4 h-4" /> Derse Dön
             </Link>
-            <h3 className="font-bold text-slate-900 line-clamp-2">{unit.title}</h3>
+            <h3 className="font-bold text-slate-900 line-clamp-2 leading-tight">{unit.title}</h3>
           </div>
           <ScrollArea className="flex-1">
             <div className="p-4 space-y-2">
@@ -74,7 +74,7 @@ export function UnitContentView() {
                 >
                   <div className="flex items-center gap-3">
                     <div className={cn(
-                      "w-8 h-8 rounded-full flex items-center justify-center transition-colors",
+                      "w-8 h-8 rounded-full flex items-center justify-center transition-colors text-xs font-bold",
                       activeTopicIndex === idx ? "bg-teal-500 text-white" : "bg-slate-200 text-slate-500"
                     )}>
                       {idx + 1}
@@ -92,14 +92,14 @@ export function UnitContentView() {
           </ScrollArea>
         </div>
         <div className="flex-1 flex flex-col bg-white overflow-hidden">
-          <header className="px-8 py-4 border-b flex items-center justify-between">
+          <header className="px-8 py-4 border-b flex items-center justify-between bg-white z-10">
             <div className="flex items-center gap-4">
                <div className="md:hidden">
-                  <Link to={`/dersler/${gradeId}/${courseId}`}><ChevronLeft className="w-6 h-6" /></Link>
+                  <Link to={`/dersler/${gradeId}/${courseId}`} className="text-slate-900"><ChevronLeft className="w-6 h-6" /></Link>
                </div>
-               <h2 className="text-lg font-bold text-slate-900 truncate">{currentTopic.title}</h2>
+               <h2 className="text-lg font-bold text-slate-900 truncate max-w-[200px] sm:max-w-md">{currentTopic.title}</h2>
             </div>
-            <Button size="sm" onClick={handleComplete} className="bg-emerald-500 hover:bg-emerald-600 text-white">
+            <Button size="sm" onClick={handleComplete} className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-4 rounded-lg h-10">
               <CheckCircle className="w-4 h-4 mr-2" /> {activeTopicIndex === unit.topics.length - 1 ? 'Üniteyi Bitir' : 'Sonraki Konu'}
             </Button>
           </header>
@@ -111,13 +111,13 @@ export function UnitContentView() {
               </div>
               <div className="prose prose-slate max-w-none">
                 <h1 className="text-3xl font-display font-bold text-slate-900">{currentTopic.title}</h1>
-                <div className="text-slate-600 text-lg leading-relaxed mt-4">
+                <div className="text-slate-600 text-lg leading-relaxed mt-4 whitespace-pre-wrap">
                   {currentTopic.content}
                 </div>
               </div>
               {currentTopic.quiz && (
                 <div className="pt-12 border-t">
-                  <QuizSection quiz={currentTopic.quiz} />
+                  <QuizSection key={currentTopic.id} quiz={currentTopic.quiz} />
                 </div>
               )}
             </div>
@@ -152,7 +152,7 @@ function QuizSection({ quiz }: { quiz: QuizQuestion[] }) {
       <div className="space-y-6">
         <div className="space-y-2">
           <p className="text-xs font-bold text-slate-400">Soru {currentQIndex + 1} / {quiz.length}</p>
-          <h4 className="text-xl font-bold text-slate-900">{currentQ.question}</h4>
+          <h4 className="text-xl font-bold text-slate-900 leading-snug">{currentQ.question}</h4>
         </div>
         <div className="grid grid-cols-1 gap-3">
           {currentQ.options.map((opt, i) => (
@@ -161,9 +161,9 @@ function QuizSection({ quiz }: { quiz: QuizQuestion[] }) {
               disabled={isSubmitted}
               onClick={() => setSelectedOption(i)}
               className={cn(
-                "p-4 rounded-xl text-left font-medium transition-all border",
-                selectedOption === i 
-                  ? "bg-teal-50 border-teal-500 text-teal-900" 
+                "p-4 rounded-xl text-left font-medium transition-all border outline-none",
+                selectedOption === i
+                  ? "bg-teal-50 border-teal-500 text-teal-900"
                   : "bg-white border-slate-200 hover:border-slate-300",
                 isSubmitted && i === currentQ.correctAnswer && "bg-emerald-50 border-emerald-500 text-emerald-900",
                 isSubmitted && selectedOption === i && i !== currentQ.correctAnswer && "bg-rose-50 border-rose-500 text-rose-900"
@@ -179,23 +179,26 @@ function QuizSection({ quiz }: { quiz: QuizQuestion[] }) {
               "p-4 rounded-xl flex items-start gap-3",
               isCorrect ? "bg-emerald-50 text-emerald-800" : "bg-rose-50 text-rose-800"
             )}>
-              {isCorrect ? <CheckCircle className="w-5 h-5 shrink-0" /> : <AlertCircle className="w-5 h-5 shrink-0" />}
+              {isCorrect ? <CheckCircle className="w-5 h-5 shrink-0 mt-0.5" /> : <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />}
               <div>
-                <p className="font-bold">{isCorrect ? 'Harika! Doğru cevap.' : 'Maalesef yanlış.'}</p>
-                <p className="text-sm opacity-90">{currentQ.explanation}</p>
+                <p className="font-bold text-sm">{isCorrect ? 'Harika! Doğru cevap.' : 'Maalesef yanlış.'}</p>
+                <p className="text-sm opacity-90 leading-relaxed mt-1">{currentQ.explanation}</p>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
         {!isSubmitted ? (
-          <Button disabled={selectedOption === null} onClick={handleSubmit} className="w-full h-12 bg-slate-900 rounded-xl">Cevabı Kontrol Et</Button>
+          <Button disabled={selectedOption === null} onClick={handleSubmit} className="w-full h-12 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl">Cevabı Kontrol Et</Button>
         ) : (
           currentQIndex < quiz.length - 1 ? (
-            <Button onClick={handleNext} className="w-full h-12 bg-teal-500 rounded-xl">Sonraki Soru</Button>
+            <Button onClick={handleNext} className="w-full h-12 bg-teal-500 hover:bg-teal-600 text-white font-bold rounded-xl">Sonraki Soru</Button>
           ) : (
-            <div className="text-center p-4 bg-white rounded-xl border border-dashed border-slate-200">
-              <p className="text-sm font-bold text-slate-500">Testi bitirdiniz!</p>
-              <p className="text-2xl font-bold text-teal-600">Skor: {score + (isCorrect ? 0 : 0)} / {quiz.length}</p>
+            <div className="text-center p-6 bg-white rounded-xl border border-dashed border-slate-200 shadow-sm">
+              <p className="text-sm font-bold text-slate-500 mb-2">Testi bitirdiniz!</p>
+              <div className="flex items-center justify-center gap-2">
+                <Award className="w-6 h-6 text-teal-600" />
+                <p className="text-3xl font-display font-bold text-teal-600">Skor: {score} / {quiz.length}</p>
+              </div>
             </div>
           )
         )}
