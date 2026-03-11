@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowRight, ShieldCheck, Microscope, Cpu, Search, Newspaper, Activity } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Microscope, Cpu, Search, Newspaper } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { motion, useScroll, useSpring, useTransform, useMotionValue } from 'framer-motion';
@@ -11,8 +11,8 @@ export function HomePage() {
   const { scrollYProgress } = useScroll();
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
-  const bgX = useSpring(useTransform(mouseX, [-500, 500], [-10, 10]), { stiffness: 50, damping: 20 });
-  const bgY = useSpring(useTransform(mouseY, [-500, 500], [-10, 10]), { stiffness: 50, damping: 20 });
+  const bgX = useSpring(useTransform(mouseX, [-500, 500], [-15, 15]), { stiffness: 50, damping: 20 });
+  const bgY = useSpring(useTransform(mouseY, [-500, 500], [-15, 15]), { stiffness: 50, damping: 20 });
   const handleMouseMove = (e: React.MouseEvent) => {
     const { clientX, clientY } = e;
     const { innerWidth, innerHeight } = window;
@@ -34,68 +34,20 @@ export function HomePage() {
     <div className="flex flex-col" onMouseMove={handleMouseMove}>
       <motion.div className="fixed top-0 left-0 right-0 h-1 bg-orange-500 origin-left z-[60]" style={{ scaleX }} />
       {/* Hero Section */}
-      <section className="relative bg-slate-950 pt-20 pb-32 md:pt-28 md:pb-40 overflow-hidden min-h-[95vh] flex items-center">
-        {/* Wide Horizontal Interactive Background */}
-        <div className="absolute inset-0 z-0 flex items-center justify-center">
+      <section className="relative bg-slate-950 pt-24 pb-36 md:pt-32 md:pb-48 overflow-hidden min-h-[90vh] flex items-center">
+        {/* Tech Grid & Node Interactive Background */}
+        <div className="absolute inset-0 z-0">
           <HeroInteractiveCanvas />
         </div>
-        {/* Ambient background image layer */}
+        {/* Parallax Overlay Layer */}
         <motion.div
-          className="absolute inset-0 z-0 pointer-events-none opacity-20"
+          className="absolute inset-0 z-0 pointer-events-none opacity-30"
           style={{ x: bgX, y: bgY }}
         >
           <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-transparent to-slate-950" />
         </motion.div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
-          <div className="text-center space-y-10">
-            {/* Dominant Central Visual */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1, ease: "circOut" }}
-              className="flex justify-center mb-8"
-            >
-              <div className="relative">
-                {/* Neural Pulsing Rings */}
-                {[0, 1, 2].map((i) => (
-                  <motion.div
-                    key={i}
-                    className="absolute inset-0 border border-teal-500/30 rounded-full"
-                    animate={{
-                      scale: [1, 1.5 + i * 0.2, 1],
-                      opacity: [0.3, 0, 0.3],
-                    }}
-                    transition={{
-                      duration: 4,
-                      repeat: Infinity,
-                      delay: i * 0.8,
-                      ease: "easeInOut",
-                    }}
-                  />
-                ))}
-                <motion.div
-                  whileHover={{ rotate: 180, scale: 1.1 }}
-                  transition={{ type: "spring", stiffness: 100 }}
-                  className="w-40 h-40 md:w-56 md:h-56 bg-slate-900/80 backdrop-blur-3xl border-2 border-teal-500/40 rounded-[3rem] flex items-center justify-center text-teal-400 relative z-10 shadow-[0_0_50px_rgba(20,184,166,0.2)]"
-                >
-                  <Activity className="w-20 h-20 md:w-28 md:h-28" />
-                  <motion.div
-                    className="absolute -right-3 -top-3 w-6 h-6 bg-orange-500 rounded-full shadow-[0_0_20px_rgba(249,115,22,0.5)]"
-                    animate={{ scale: [1, 1.4, 1] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  />
-                  {/* Floating Particles Around the Core */}
-                  <motion.div 
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-                    className="absolute inset-0 p-2"
-                  >
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-teal-300 rounded-full" />
-                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 bg-orange-400 rounded-full" />
-                  </motion.div>
-                </motion.div>
-              </div>
-            </motion.div>
+          <div className="text-center space-y-12">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -110,11 +62,11 @@ export function HomePage() {
                 Biyomedikal Cihaz Teknolojileri Akademisi
               </p>
               <p className="max-w-3xl mx-auto text-lg md:text-2xl text-slate-400 leading-relaxed font-normal">
-                Türkiye'nin en kapsamlı biyomedikal eğitim platformu. Profesyonel teknik içerikler ve 
+                Türkiye'nin en kapsamlı biyomedikal eğitim platformu. Profesyonel teknik içerikler ve
                 klinik mühendislik temelleri ile uzmanlığınızı şekillendirin.
               </p>
             </motion.div>
-            {/* Refined Search Interface */}
+            {/* Light Glass Search Interface */}
             <motion.div
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -122,12 +74,12 @@ export function HomePage() {
               className="max-w-2xl mx-auto"
             >
               <form onSubmit={handleSearch} className="relative group">
-                <div className="absolute -inset-2 bg-gradient-to-r from-teal-500/20 to-orange-500/20 rounded-[2rem] blur-2xl opacity-0 group-focus-within:opacity-100 transition-all duration-700" />
-                <div className="relative flex p-2 bg-white/15 backdrop-blur-2xl rounded-[1.8rem] border border-white/20 shadow-2xl transition-all duration-300 hover:bg-white/20">
-                  <Search className="absolute left-7 top-1/2 -translate-y-1/2 w-6 h-6 text-white" />
+                <div className="absolute -inset-2 bg-gradient-to-r from-teal-500/10 to-orange-500/10 rounded-[2.2rem] blur-3xl opacity-0 group-focus-within:opacity-100 transition-all duration-700" />
+                <div className="relative flex p-2 bg-white/10 backdrop-blur-2xl rounded-[2rem] border border-white/10 shadow-2xl transition-all duration-300 hover:bg-white/15">
+                  <Search className="absolute left-7 top-1/2 -translate-y-1/2 w-6 h-6 text-white/70" />
                   <Input
                     placeholder="Ders, cihaz veya teknik konu ara..."
-                    className="h-16 pl-16 pr-6 border-none shadow-none text-white bg-transparent text-xl focus-visible:ring-0 w-full placeholder:text-white/60 font-semibold"
+                    className="h-16 pl-16 pr-6 border-none shadow-none text-white bg-transparent text-xl focus-visible:ring-0 w-full placeholder:text-white/40 font-semibold"
                     value={searchValue}
                     onChange={(e) => setSearchValue(e.target.value)}
                   />
