@@ -6,16 +6,24 @@ export const navLinks = [
   { name: 'Blog', href: '/blog' },
   { name: 'İletişim', href: '/iletisim' },
 ];
+export interface QuizQuestion {
+  question: string;
+  options: string[];
+  correctAnswer: number;
+  explanation: string;
+}
 export interface Topic {
   id: string;
   title: string;
   content: string;
+  quiz?: QuizQuestion[];
 }
 export interface Unit {
   id: string;
   title: string;
   description: string;
   topics: Topic[];
+  estimatedReadingTime?: string;
 }
 export interface Course {
   id: string;
@@ -23,6 +31,9 @@ export interface Course {
   description: string;
   image: string;
   units: Unit[];
+  difficulty?: 'Temel' | 'Orta' | 'İleri';
+  estimatedTime?: string;
+  isPopular?: boolean;
 }
 export interface Grade {
   id: string;
@@ -39,21 +50,47 @@ export const grades: Grade[] = [
         title: 'Biyoölçme',
         description: 'Biyomedikal cihazlarda temel ölçme teknikleri, elektriksel güvenlik ve laboratuvar disiplini.',
         image: 'https://images.unsplash.com/photo-1576091160550-2173bdb999ef?auto=format&fit=crop&q=80&w=800',
+        difficulty: 'Temel',
+        estimatedTime: '12 Saat',
+        isPopular: true,
         units: [
           {
             id: 'is-sagligi',
             title: 'Ünite 1: İş Sağlığı ve Güvenliği',
             description: 'Biyomedikal atölyelerinde OSGB kuralları ve güvenlik protokolleri.',
+            estimatedReadingTime: '45 dk',
             topics: [
-              { 
-                id: 'isg-temelleri', 
-                title: 'Biyomedikalde İSG Temelleri', 
-                content: 'Biyomedikal cihaz teknolojileri alanında iş sağlığı ve güvenliği, sadece yasal bir zorunluluk değil, aynı zamanda hem teknisyenin hem de hastanın hayatını koruyan kritik bir disiplindir. Atölye çalışmalarında 6331 sayılı İş Sağlığı ve Güvenliği Kanunu temel alınır. Biyomedikal teknik servislerinde karşılaşılan riskler; elektriksel riskler, radyasyon riskleri, biyolojik riskler ve kimyasal riskler olarak sınıflandırılır. Koruyucu ekipman kullanımı (ESD bileklikler, yalıtkan ayakkabılar, önlükler) zorunludur. Özellikle tıbbi cihazların kalibrasyonu sırasında yüksek gerilimle çalışırken izole edilmiş araçlar kullanılmalıdır.' 
+              {
+                id: 'isg-temelleri',
+                title: 'Biyomedikalde İSG Temelleri',
+                content: 'Biyomedikal cihaz teknolojileri alanında iş sağlığı ve güvenliği, sadece yasal bir zorunluluk değil, aynı zamanda hem teknisyenin hem de hastanın hayatını koruyan kritik bir disiplindir. Atölye çalışmalarında 6331 sayılı İş Sağlığı ve Güvenliği Kanunu temel alınır.',
+                quiz: [
+                  {
+                    question: "Biyomedikal atölyelerinde 9. Sınıf düzeyinde en çok hangi İSG kanunu temel alınır?",
+                    options: ["4857 Sayılı İş Kanunu", "6331 Sayılı İSG Kanunu", "5510 Sayılı Sosyal Sigortalar Kanunu", "2822 Sayılı Grev Kanunu"],
+                    correctAnswer: 1,
+                    explanation: "Biyomedikal teknik servislerinde tüm İSG süreçleri 6331 sayılı İş Sağlığı ve Güvenliği Kanunu çerçevesinde yürütülür."
+                  },
+                  {
+                    question: "Elektrostatik deşarjdan (ESD) korunmak için hangi ekipman zorunludur?",
+                    options: ["Güneş Gözlüğü", "Yün Kazak", "ESD Bileklik", "Plastik Eldiven"],
+                    correctAnswer: 2,
+                    explanation: "Hassas elektronik bileşenleri korumak için teknisyenlerin ESD (Elektrostatik Deşarj) bilekliği kullanması şarttır."
+                  }
+                ]
               },
-              { 
-                id: 'laboratuvar-guvenligi', 
-                title: 'Laboratuvar ve Atölye Güvenliği', 
-                content: 'Laboratuvar ortamında düzen, hatasız ölçümün ilk adımıdır. Her cihazın bir kullanım kılavuzu ve güvenlik kartı (MSDS) bulunmalıdır. Atölye içinde "Sıfır Hata" prensibi ile çalışılmalı, arızalı cihazlar mutlaka etiketlenerek karantinaya alınmalıdır. Yangın güvenliği için biyomedikal atölyelerinde genellikle CO2 veya Kuru Kimyevi Toz tipi söndürücüler bulundurulur. Acil durumlarda panik yapmadan "Acil Durum Eylem Planı"na uyulmalı ve acil durdurma butonlarının yerleri tüm personel tarafından bilinmelidir.' 
+              {
+                id: 'laboratuvar-guvenligi',
+                title: 'Laboratuvar ve Atölye Güvenliği',
+                content: 'Laboratuvar ortamında düzen, hatasız ölçümün ilk adımıdır. Her cihazın bir kullanım kılavuzu ve güvenlik kartı (MSDS) bulunmalıdır.',
+                quiz: [
+                  {
+                    question: "Biyomedikal atölyelerinde yangın söndürme tüpü tipi ne olmalıdır?",
+                    options: ["Su", "Köpük", "CO2 veya Kuru Kimyevi Toz", "Hava"],
+                    correctAnswer: 2,
+                    explanation: "Elektrik yangınları ve teknik donanımlar için CO2 veya KKT tipi söndürücüler ekipmana zarar vermeden müdahale sağlar."
+                  }
+                ]
               }
             ]
           },
@@ -61,8 +98,9 @@ export const grades: Grade[] = [
             id: 'temel-olcme',
             title: 'Ünite 2: Temel Elektriksel Ölçümler',
             description: 'Gerilim, akım ve direnç ölçme teknikleri.',
+            estimatedReadingTime: '60 dk',
             topics: [
-              { id: 'multimetre', title: 'Multimetre Kullanımı', content: 'Dijital ve analog multimetreler ile gerilim (V), akım (A) ve direnç (Ω) ölçümleri yapılırken dikkat edilmesi gereken en önemli nokta, ölçüm kademesinin doğru seçilmesidir. Yanlış kademede yapılan ölçümler hem cihaza hem de kullanıcıya zarar verebilir.' }
+              { id: 'multimetre', title: 'Multimetre Kullanımı', content: 'Dijital ve analog multimetreler ile ölçüm yapılırken kademe seçimi hayati önem taşır.' }
             ]
           }
         ]
@@ -78,23 +116,18 @@ export const grades: Grade[] = [
         title: 'Biyoenstrümantasyon Atölyesi',
         description: 'Tıbbi cihazların çalışma prensipleri ve arıza giderme yöntemleri.',
         image: 'https://images.unsplash.com/photo-1555664424-778a1e5e1b48?auto=format&fit=crop&q=80&w=800',
+        difficulty: 'Orta',
+        estimatedTime: '15 Saat',
         units: [
           {
             id: 'bakim-temelleri',
             title: 'Cihaz Bakım Temelleri',
             description: 'Koruyucu ve önleyici bakım süreçleri.',
             topics: [
-              { id: 'periyodik-bakim', title: 'Periyodik Bakım Planlaması', content: 'Tıbbi cihazların ömrünü uzatmak ve hasta güvenliğini sağlamak için belirli aralıklarla yapılan bakımlardır.' }
+              { id: 'periyodik-bakim', title: 'Periyodik Bakım Planlaması', content: 'Tıbbi cihazların ömrünü uzatmak için yapılan planlı bakımlardır.' }
             ]
           }
         ]
-      },
-      {
-        id: 'mesleki-fizyoloji',
-        title: 'Mesleki Fizyoloji ve Terminoloji',
-        description: 'İnsan vücudu sistemleri ve biyomedikal terimler.',
-        image: 'https://images.unsplash.com/photo-1530210124550-912dc1381cb8?auto=format&fit=crop&q=80&w=800',
-        units: []
       }
     ]
   },
@@ -107,13 +140,16 @@ export const grades: Grade[] = [
         title: 'Yaşam Destek Cihazları',
         description: 'Ventilatör, defibrilatör ve diyaliz makineleri teknolojisi.',
         image: 'https://images.unsplash.com/photo-1581093588401-fbb62a02f120?auto=format&fit=crop&q=80&w=800',
+        difficulty: 'İleri',
+        estimatedTime: '20 Saat',
+        isPopular: true,
         units: [
           {
             id: 'ventilator-tek',
             title: 'Ventilatör Teknolojisi',
             description: 'Yapay solunum cihazlarının mekanik ve elektronik yapısı.',
             topics: [
-              { id: 'akıs-kontrol', title: 'Akış Kontrol Valfleri', content: 'Ventilatörlerde oksijen ve hava karışımını sağlayan hassas valf sistemlerinin çalışma mantığı.' }
+              { id: 'akıs-kontrol', title: 'Akış Kontrol Valfleri', content: 'Ventilatörlerde oksijen ve hava karışımını sağlayan hassas valf sistemleri.' }
             ]
           }
         ]

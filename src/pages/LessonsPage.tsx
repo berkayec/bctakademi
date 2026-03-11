@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Search, ArrowRight, BookOpen } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Search, ArrowRight, BookOpen, Sparkles, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 export function LessonsPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -31,11 +32,11 @@ export function LessonsPage() {
             </div>
           </div>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="flex justify-center mb-12">
+            <div className="flex justify-center mb-12 overflow-x-auto pb-2">
               <TabsList className="bg-slate-100 p-1.5 rounded-2xl h-auto">
                 <TabsTrigger value="all" className="rounded-xl px-8 py-3 text-sm font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">Tüm Sınıflar</TabsTrigger>
                 {grades.map(grade => (
-                  <TabsTrigger key={grade.id} value={grade.id} className="rounded-xl px-8 py-3 text-sm font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                  <TabsTrigger key={grade.id} value={grade.id} className="rounded-xl px-8 py-3 text-sm font-bold data-[state=active]:bg-white data-[state=active]:shadow-sm whitespace-nowrap">
                     {grade.title}
                   </TabsTrigger>
                 ))}
@@ -102,11 +103,23 @@ function CourseGrid({ courses, gradeId }: { courses: any[], gradeId: string }) {
         <Card key={`${gradeId}-${course.id}`} className="group flex flex-col h-full hover:shadow-2xl transition-all duration-500 border-slate-200 rounded-3xl overflow-hidden bg-white">
           <div className="aspect-[16/10] relative overflow-hidden">
             <img src={course.image} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-            <div className="absolute top-4 left-4">
-               <Badge className="bg-white/90 backdrop-blur-md text-slate-900 border-none font-bold">Kredi: 5</Badge>
+            <div className="absolute top-4 left-4 flex gap-2">
+              <Badge className="bg-white/90 backdrop-blur-md text-slate-900 border-none font-bold shadow-sm">
+                <Clock className="w-3 h-3 mr-1" /> {course.estimatedTime || '10+ Saat'}
+              </Badge>
+              {course.isPopular && (
+                <Badge className="bg-orange-500 text-white border-none font-bold shadow-sm">
+                  <Sparkles className="w-3 h-3 mr-1" /> Popüler
+                </Badge>
+              )}
             </div>
           </div>
           <CardHeader className="p-7">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-teal-600 bg-teal-50 px-2 py-0.5 rounded-md">
+                {course.difficulty || 'Temel'} Seviye
+              </span>
+            </div>
             <CardTitle className="text-2xl font-display font-bold line-clamp-1 group-hover:text-teal-600 transition-colors mb-2">{course.title}</CardTitle>
             <CardDescription className="line-clamp-2 text-slate-500 text-sm leading-relaxed">{course.description}</CardDescription>
           </CardHeader>
