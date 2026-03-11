@@ -1,18 +1,7 @@
-import React, { useEffect, useRef, useState, memo } from 'react';
-import { motion } from 'framer-motion';
-interface Node {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  originalX: number;
-  originalY: number;
-  opacity: number;
-}
-const BackgroundNodes = memo(() => {
+import React, { useEffect, useRef } from 'react';
+export function HeroInteractiveCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const mouseRef = useRef({ x: 0, y: 0, targetX: 0, targetY: 0 });
-  const opacityRef = useRef(0);
+  const mouseRef = useRef({ x: 0, y: 0 });
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -20,81 +9,80 @@ const BackgroundNodes = memo(() => {
     if (!ctx) return;
     let animationFrameId: number;
     let width = (canvas.width = window.innerWidth);
-    let height = (canvas.height = window.innerHeight * 0.95);
+    let height = (canvas.height = 400);
     const handleResize = () => {
       width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight * 0.95;
-      initNodes();
+      height = canvas.height = 400;
     };
     const handleMouseMove = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      mouseRef.current.targetX = (x / width - 0.5) * 2;
-      mouseRef.current.targetY = (y / height - 0.5) * 2;
+      mouseRef.current = {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+      };
     };
     window.addEventListener('resize', handleResize);
     window.addEventListener('mousemove', handleMouseMove);
-    const nodes: Node[] = [];
-    const nodeCount = Math.floor((width * height) / 12000);
-    const initNodes = () => {
-      nodes.length = 0;
-      for (let i = 0; i < nodeCount; i++) {
-        const x = Math.random() * width;
-        const y = Math.random() * height;
-        nodes.push({
-          x,
-          y,
-          originalX: x,
-          originalY: y,
-          vx: (Math.random() - 0.5) * 0.1,
-          vy: (Math.random() - 0.5) * 0.1,
-          opacity: Math.random() * 0.5 + 0.2
-        });
-      }
-    };
-    initNodes();
-    let currentParallaxX = 0;
-    let currentParallaxY = 0;
+    // ECG Wave Parameters
+    let offset = 0;
+    const points: { x: number; y: number }[] = [];
+    const numPoints = 100;
     const draw = () => {
       ctx.clearRect(0, 0, width, height);
-      if (opacityRef.current < 1) opacityRef.current += 0.005;
-      currentParallaxX += (mouseRef.current.targetX - currentParallaxX) * 0.05;
-      currentParallaxY += (mouseRef.current.targetY - currentParallaxY) * 0.05;
-      const parallaxShiftX = currentParallaxX * 45;
-      const parallaxShiftY = currentParallaxY * 45;
-      ctx.lineWidth = 0.5;
-      for (let i = 0; i < nodes.length; i++) {
-        const node = nodes[i];
-        node.originalX += node.vx;
-        node.originalY += node.vy;
-        if (node.originalX < 0) node.originalX = width;
-        if (node.originalX > width) node.originalX = 0;
-        if (node.originalY < 0) node.originalY = height;
-        if (node.originalY > height) node.originalY = 0;
-        node.x = node.originalX + parallaxShiftX;
-        node.y = node.originalY + parallaxShiftY;
-        ctx.fillStyle = `rgba(20, 184, 166, ${node.opacity * opacityRef.current})`;
-        ctx.beginPath();
-        ctx.arc(node.x, node.y, 1.2, 0, Math.PI * 2);
-        ctx.fill();
-        for (let j = i + 1; j < nodes.length; j++) {
-          const other = nodes[j];
-          const dx = node.x - other.x;
-          const dy = node.y - other.y;
-          const distSq = dx * dx + dy * dy;
-          const maxDist = 160;
-          if (distSq < maxDist * maxDist) {
-            const dist = Math.sqrt(distSq);
-            const opacity = (1 - dist / maxDist) * 0.15 * opacityRef.current;
-            ctx.strokeStyle = `rgba(20, 184, 166, ${opacity})`;
-            ctx.beginPath();
-            ctx.moveTo(node.x, node.y);
-            ctx.lineTo(other.x, other.y);
-            ctx.stroke();
-          }
+      const centerY = height / 2;
+      const step = width / numPoints;
+      ctx.beginPath();
+      ctx.lineWidth = 2;
+      // Gradient for the stroke
+      const gradient = ctx.createLinearGradient(0, 0, width, 0);
+      gradient.addColorStop(0, 'rgba(20, 184, 166, 0)');
+      gradient.addColorStop(0.2, 'rgba(20, 184, 166, 0.4)');
+      gradient.addColorStop(0.5, 'rgba(20, 184, 166, 0.8)');
+      gradient.addColorStop(0.8, 'rgba(20, 184, 166, 0.4)');
+      gradient.addColorStop(1, 'rgba(20, 184, 166, 0)');
+      ctx.strokeStyle = gradient;
+      ctx.shadowBlur = 15;
+      ctx.shadowColor = 'rgba(20, 184, 166, 0.5)';
+      for (let i = 0; i <= numPoints; i++) {
+        const x = i * step;
+        // Base sine wave
+        let y = Math.sin(i * 0.2 + offset) * 10;
+        // Simulate ECG "QRS complex" spikes at intervals
+        if ((i + Math.floor(offset * 5)) % 40 === 0) {
+          y -= 80; // R wave
+        } else if ((i + Math.floor(offset * 5)) % 40 === 1) {
+          y += 30; // S wave
+        } else if ((i + Math.floor(offset * 5)) % 40 === 39) {
+          y += 20; // Q wave
         }
+        // Mouse interaction: distort wave near cursor
+        const dx = x - mouseRef.current.x;
+        const dist = Math.sqrt(dx * dx);
+        if (dist < 200) {
+          const force = (200 - dist) / 200;
+          y += Math.sin(offset * 10) * 20 * force;
+        }
+        if (i === 0) ctx.moveTo(x, centerY + y);
+        else ctx.lineTo(x, centerY + y);
       }
+      ctx.stroke();
+      // Add a subtle technical grid overlay
+      ctx.shadowBlur = 0;
+      ctx.strokeStyle = 'rgba(20, 184, 166, 0.05)';
+      ctx.lineWidth = 1;
+      for (let x = 0; x < width; x += 50) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+      for (let y = 0; y < height; y += 50) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+      }
+      offset += 0.05;
       animationFrameId = requestAnimationFrame(draw);
     };
     draw();
@@ -104,83 +92,10 @@ const BackgroundNodes = memo(() => {
       cancelAnimationFrame(animationFrameId);
     };
   }, []);
-  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none opacity-50" />;
-});
-BackgroundNodes.displayName = 'BackgroundNodes';
-const ECGWavePattern = memo(({ width, height }: { width: number; height: number }) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas || width === 0) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    ctx.clearRect(0, 0, width, height);
-    const centerY = height / 2;
-    const numPoints = 140;
-    const step = width / numPoints;
-    ctx.beginPath();
-    ctx.lineWidth = 2.5;
-    const waveGradient = ctx.createLinearGradient(0, 0, width, 0);
-    waveGradient.addColorStop(0, 'rgba(20, 184, 166, 0.2)');
-    waveGradient.addColorStop(0.5, 'rgba(243, 128, 32, 0.8)');
-    waveGradient.addColorStop(1, 'rgba(20, 184, 166, 0.2)');
-    ctx.strokeStyle = waveGradient;
-    ctx.shadowBlur = 12;
-    ctx.shadowColor = 'rgba(20, 184, 166, 0.3)';
-    for (let i = 0; i <= numPoints; i++) {
-      const x = i * step;
-      let y = Math.sin(i * 0.2) * 2; 
-      const waveCycle = i % 45;
-      if (waveCycle === 2) y -= 10;   
-      if (waveCycle === 5) y -= 75;   
-      if (waveCycle === 6) y += 35;   
-      if (waveCycle === 12) y -= 12;  
-      const renderX = x;
-      const renderY = centerY + y;
-      if (i === 0) ctx.moveTo(renderX, renderY);
-      else ctx.lineTo(renderX, renderY);
-    }
-    ctx.stroke();
-  }, [width, height]);
-  return <canvas ref={canvasRef} width={width} height={height} className="shrink-0" />;
-});
-ECGWavePattern.displayName = 'ECGWavePattern';
-export function HeroInteractiveCanvas() {
-  const [dimensions, setDimensions] = useState(() => ({
-    width: typeof window !== 'undefined' ? window.innerWidth : 0,
-    height: typeof window !== 'undefined' ? window.innerHeight * 0.95 : 0
-  }));
-  useEffect(() => {
-    const updateSize = () => {
-      setDimensions({
-        width: window.innerWidth,
-        height: window.innerHeight * 0.95
-      });
-    };
-    updateSize();
-    window.addEventListener('resize', updateSize);
-    return () => window.removeEventListener('resize', updateSize);
-  }, []);
   return (
-    <div className="relative w-full h-full overflow-hidden">
-      <BackgroundNodes />
-      {dimensions.width > 0 && (
-        <div className="absolute inset-0 flex items-center pointer-events-none opacity-40">
-          <motion.div
-            className="flex will-change-transform"
-            initial={{ x: 0 }}
-            animate={{ x: `-${dimensions.width}px` }}
-            transition={{
-              duration: 25,
-              ease: "linear",
-              repeat: Infinity
-            }}
-          >
-            <ECGWavePattern width={dimensions.width} height={dimensions.height} />
-            <ECGWavePattern width={dimensions.width} height={dimensions.height} />
-          </motion.div>
-        </div>
-      )}
-    </div>
+    <canvas
+      ref={canvasRef}
+      className="w-full h-[400px] pointer-events-none opacity-40"
+    />
   );
 }

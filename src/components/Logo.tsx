@@ -21,18 +21,18 @@ export function Logo({ className, size = 32, hideText = false }: LogoProps) {
           <path
             d="M50 5L15 20V45C15 65 30 85 50 95C70 85 85 65 85 45V20L50 5Z"
             className="fill-slate-900 stroke-teal-500"
-            strokeWidth="4"
+            strokeWidth="5"
           />
-          {/* ECG Pulse Wave */}
+          {/* ECG Pulse Wave - Thickened for better visibility */}
           <path
-            d="M25 55H35L40 35L50 75L55 55H65L70 45L75 55H80"
+            d="M20 55H32L38 30L50 80L56 55H68L74 42L80 55H85"
             className="stroke-orange-500"
-            strokeWidth="6"
+            strokeWidth="7"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
           {/* Bottom Sparkle Detail */}
-          <circle cx="50" cy="80" r="3" className="fill-teal-400 animate-pulse" />
+          <circle cx="50" cy="82" r="4" className="fill-teal-400 animate-pulse" />
         </svg>
       </div>
       {!hideText && (
