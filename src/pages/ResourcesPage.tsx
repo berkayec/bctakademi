@@ -14,8 +14,9 @@ export function ResourcesPage() {
   const filteredResources = resources.filter(res => {
     const typeLabel = res.type === 'Sunum' ? 'Sunum' : res.type;
     const matchesFilter = filter === 'Tümü' || typeLabel === filter;
-    const matchesSearch = res.title.toLowerCase().includes(search.toLowerCase()) ||
-                          res.description.toLowerCase().includes(search.toLowerCase());
+    const matchesSearch = 
+      res.title.toLowerCase().includes(search.toLowerCase()) ||
+      res.description.toLowerCase().includes(search.toLowerCase());
     return matchesFilter && matchesSearch;
   });
   return (

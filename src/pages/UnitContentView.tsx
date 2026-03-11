@@ -4,7 +4,7 @@ import { RootLayout } from '@/components/layout/RootLayout';
 import { grades } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, ChevronRight, PlayCircle, FileText, CheckCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 export function UnitContentView() {
@@ -13,7 +13,7 @@ export function UnitContentView() {
   const grade = grades.find(g => g.id === gradeId);
   const course = grade?.courses.find(c => c.id === courseId);
   const unit = course?.units.find(u => u.id === unitId);
-  if (!unit) return <div className="p-20 text-center">İçerik bulunamadı.</div>;
+  if (!unit) return <div className="p-20 text-center text-slate-500">İçerik bulunamadı.</div>;
   const currentTopic = unit.topics[activeTopicIndex];
   return (
     <RootLayout>
@@ -34,8 +34,8 @@ export function UnitContentView() {
                   onClick={() => setActiveTopicIndex(idx)}
                   className={cn(
                     "w-full text-left p-4 rounded-xl transition-all border group",
-                    activeTopicIndex === idx 
-                      ? "bg-white border-teal-200 shadow-sm" 
+                    activeTopicIndex === idx
+                      ? "bg-white border-teal-200 shadow-sm"
                       : "bg-transparent border-transparent hover:bg-white/50"
                   )}
                 >
@@ -82,10 +82,10 @@ export function UnitContentView() {
               </div>
               <div className="prose prose-slate max-w-none">
                 <h1 className="text-3xl font-display font-bold text-slate-900">{currentTopic.title}</h1>
-                <p className="text-slate-600 text-lg leading-relaxed mt-4">
-                  {currentTopic.content}. Bu bölüm, biyomedikal cihazların temel prensiplerini ve çalışma mekanizmalarını derinlemesine incelemektedir. 
+                <div className="text-slate-600 text-lg leading-relaxed mt-4">
+                  {currentTopic.content}. Bu bölüm, biyomedikal cihazların temel prensiplerini ve çalışma mekanizmalarını derinlemesine incelemektedir.
                   Teknik detaylar, devre şemaları ve uygulama alanları bu ünitenin temelini oluşturur.
-                </p>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
                    <div className="p-6 bg-slate-50 rounded-2xl border">
                       <FileText className="w-8 h-8 text-teal-500 mb-4" />
@@ -104,8 +104,8 @@ export function UnitContentView() {
             </div>
           </ScrollArea>
           <footer className="px-8 py-6 border-t bg-slate-50 flex items-center justify-between">
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               disabled={activeTopicIndex === 0}
               onClick={() => setActiveTopicIndex(prev => prev - 1)}
             >
@@ -114,7 +114,7 @@ export function UnitContentView() {
             <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">
               Konu {activeTopicIndex + 1} / {unit.topics.length}
             </div>
-            <Button 
+            <Button
               className="bg-slate-900 text-white"
               disabled={activeTopicIndex === unit.topics.length - 1}
               onClick={() => setActiveTopicIndex(prev => prev + 1)}
