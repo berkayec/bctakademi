@@ -4,7 +4,6 @@ import { Play, FileText, CheckCircle2, ArrowRight, TrendingUp, BookOpen, Clock, 
 import { grades } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
@@ -72,12 +71,12 @@ export function PortalPage() {
                     transition={{ duration: 1.5, ease: "easeOut" }}
                     className="h-full bg-gradient-to-r from-teal-500 to-teal-300 relative"
                    >
-                     <motion.div 
+                     <motion.div
                       animate={{ opacity: [0.3, 0.6, 0.3] }}
                       transition={{ repeat: Infinity, duration: 2 }}
-                      className="absolute inset-0 bg-white" />
+                      className="absolute inset-0 bg-white" 
+                     />
                    </motion.div>
-                   />
                 </div>
               </div>
               <Link to={`/dersler/${grades[0].id}/${featuredCourse.id}`} className="block">
@@ -113,6 +112,7 @@ export function PortalPage() {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={activityData}>
                   <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: 600, fill: '#94a3b8' }} dy={10} />
+                  <YAxis hide />
                   <Tooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
                   <Bar dataKey="hours" radius={[6, 6, 0, 0]} barSize={40}>
                     {activityData.map((entry, index) => (

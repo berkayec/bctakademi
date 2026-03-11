@@ -4,15 +4,13 @@ import { RootLayout } from '@/components/layout/RootLayout';
 import { curriculum, QuizQuestion } from '@/lib/curriculum';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
-import { 
-  ChevronLeft, 
-  ChevronRight, 
-  PlayCircle, 
-  FileText, 
-  CheckCircle, 
-  HelpCircle, 
-  AlertCircle, 
+import {
+  ChevronLeft,
+  ChevronRight,
+  FileText,
+  CheckCircle,
+  HelpCircle,
+  AlertCircle,
   Award,
   Download,
   Share2
@@ -32,7 +30,6 @@ export function UnitContentView() {
     const progress = (target.scrollTop / (target.scrollHeight - target.clientHeight)) * 100;
     setScrollProgress(progress);
   };
-
   useEffect(() => {
     setActiveTopicIndex(0);
     setUnitCompleted(false);
@@ -132,7 +129,7 @@ export function UnitContentView() {
             <div className="absolute bottom-0 left-0 h-0.5 bg-teal-500 transition-all duration-150" style={{ width: `${scrollProgress}%` }} />
           </header>
           <ScrollArea className="flex-1" onScrollCapture={handleScroll}>
-            <div className="max-w-4xl mx-auto px-6 sm:px-8 py-12 space-y-12 mt-4">
+            <div className="max-w-4xl mx-auto px-6 sm:px-8 pt-10 pb-20 space-y-12">
               {currentTopic.videoYoutubeId && (
                 <div className="aspect-video bg-slate-900 rounded-3xl overflow-hidden shadow-2xl relative group">
                   <iframe
@@ -148,7 +145,7 @@ export function UnitContentView() {
                 <h1 className="text-4xl font-display font-bold text-slate-900 leading-tight mb-8">
                   {currentTopic.title}
                 </h1>
-                <div className="text-slate-600 text-lg md:text-xl leading-[1.8] font-sans whitespace-pre-wrap">
+                <div className="text-slate-600 text-lg md:text-xl leading-relaxed md:leading-loose font-sans whitespace-pre-wrap">
                   {currentTopic.content}
                 </div>
               </article>

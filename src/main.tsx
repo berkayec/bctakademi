@@ -7,7 +7,6 @@ import {
   createBrowserRouter,
   RouterProvider,
   Navigate,
-  Outlet,
 } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
@@ -23,17 +22,8 @@ import { BlogPage } from '@/pages/BlogPage'
 import { ContactPage } from '@/pages/ContactPage'
 import { CertificatePage } from '@/pages/CertificatePage'
 import { RootLayout } from '@/components/layout/RootLayout'
-import { ScrollToTop } from '@/components/layout/ScrollToTop'
+import { AppShell } from '@/components/layout/AppShell'
 const queryClient = new QueryClient();
-// Shell component to wrap routes with global logic like ScrollToTop
-function AppShell() {
-  return (
-    <>
-      <ScrollToTop />
-      <Outlet />
-    </>
-  );
-}
 const router = createBrowserRouter([
   {
     element: <AppShell />,
