@@ -1,61 +1,92 @@
-import { FileText, Video, Presentation } from 'lucide-react';
+import { BookOpen, FileText, Video, Presentation } from 'lucide-react';
 export const navLinks = [
-  { name: 'Ana Sayfa', href: '/' },
-  { name: 'Dersler', href: '/dersler' },
-  { name: 'Kaynaklar', href: '/kaynaklar' },
+  { name: 'Home', href: '/' },
+  { name: 'Lessons', href: '/lessons' },
+  { name: 'Resources', href: '/resources' },
   { name: 'Blog', href: '/blog' },
-  { name: 'İletişim', href: '/iletisim' },
 ];
+export const curriculum = {
+  grade9: {
+    title: '9th Grade Curriculum',
+    lessons: [
+      {
+        id: 'g9-1',
+        title: 'Introduction to Biomedical Tech',
+        description: 'Foundations of medical device technology and its role in modern healthcare.',
+        duration: '45 mins',
+        image: 'https://images.unsplash.com/photo-1576091160550-2173bdb999ef?auto=format&fit=crop&q=80&w=800',
+      },
+      {
+        id: 'g9-2',
+        title: 'Basic Anatomy for Engineers',
+        description: 'Understanding human systems from a mechanical and electrical perspective.',
+        duration: '60 mins',
+        image: 'https://images.unsplash.com/photo-1530210124550-912dc1381cb8?auto=format&fit=crop&q=80&w=800',
+      },
+    ],
+  },
+  grade10: {
+    title: '10th Grade Curriculum',
+    lessons: [
+      {
+        id: 'g10-1',
+        title: 'Sensors & Transducers',
+        description: 'Exploring how physical biological signals are converted into electrical data.',
+        duration: '55 mins',
+        image: 'https://images.unsplash.com/photo-1555664424-778a1e5e1b48?auto=format&fit=crop&q=80&w=800',
+      },
+      {
+        id: 'g10-2',
+        title: 'Medical Imaging Fundamentals',
+        description: 'Introduction to X-Ray, MRI, and Ultrasound technology principles.',
+        duration: '75 mins',
+        image: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&q=80&w=800',
+      },
+    ],
+  },
+  coreFields: {
+    title: 'Core Field Lessons',
+    lessons: [
+      {
+        id: 'core-1',
+        title: 'Clinical Engineering',
+        description: 'Management and maintenance of medical equipment in hospital settings.',
+        duration: '90 mins',
+        image: 'https://images.unsplash.com/photo-1581093588401-fbb62a02f120?auto=format&fit=crop&q=80&w=800',
+      },
+      {
+        id: 'core-2',
+        title: 'Bio-Signal Processing',
+        description: 'Advanced techniques for analyzing ECG, EEG, and EMG signals.',
+        duration: '120 mins',
+        image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800',
+      },
+    ],
+  },
+};
 export const resources = [
   {
     id: 'res-1',
     type: 'PDF',
-    title: 'MEB BCT Müfredat Kitabı',
-    description: 'Resmi müfredata uygun Biyomedikal Cihaz Teknolojileri dersi konu anlatımı ve uygulamaları.',
+    title: 'Safety Standards Handbook',
+    description: 'Essential electrical safety guidelines for medical devices.',
     icon: FileText,
-    category: 'Müfredat',
-    fileSize: '4.2 MB',
+    category: 'Safety',
   },
   {
     id: 'res-2',
-    type: 'Sunum',
-    title: 'Elektriksel Güvenlik Testleri (EST)',
-    description: 'BCT Akademi teknik eğitim serisi: Tıbbi cihazlarda kaçak akım testleri ve IEC 62353 standartları.',
+    type: 'Presentation',
+    title: 'The Future of Prosthetics',
+    description: 'Visual slides covering robotic limbs and neural interfaces.',
     icon: Presentation,
-    category: 'Teknik Eğitim',
-    fileSize: '8.4 MB',
+    category: 'Innovation',
   },
   {
     id: 'res-3',
     type: 'Video',
-    title: 'Defibrilatör Kullanım ve Bakımı',
-    description: 'Uygulamalı defibrilatör test ve kalibrasyon adımları uzman eğitmen anlatımıyla.',
+    title: 'Hemodialysis Machine Walkthrough',
+    description: 'Step-by-step breakdown of blood purification systems.',
     icon: Video,
-    category: 'Cihaz Eğitimi',
-    duration: '15:20',
-  }
-];
-export const blogPosts = [
-  {
-    id: 'post-1',
-    title: 'Biyomedikalde Kariyer: Uzmanlık Yolculuğu',
-    excerpt: 'Lise ve üniversite döneminde kendinizi geliştirmeniz gereken temel klinik mühendislik alanları.',
-    date: '10 Kasım 2023',
-    readTime: '8 dk okuma',
-    author: 'Öğr. Gör. Mehmet Ak',
-    category: 'Kariyer',
-    image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=800',
-    featured: true,
+    category: 'Equipment',
   },
-  {
-    id: 'post-2',
-    title: 'Görüntüleme Teknolojilerinde Yapay Zeka',
-    excerpt: 'BCT Akademi incelemesi: MRI ve BT cihazlarındaki son teknolojik gelişmeler ve AI entegrasyonu.',
-    date: '5 Kasım 2023',
-    readTime: '5 dk okuma',
-    author: 'Dr. Ayşe Yılmaz',
-    category: 'Teknoloji',
-    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=800',
-    featured: false,
-  }
 ];
