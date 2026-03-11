@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { RootLayout } from '@/components/layout/RootLayout';
 import { curriculum, QuizQuestion } from '@/lib/curriculum';
@@ -6,14 +6,9 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   ChevronLeft,
-  ChevronRight,
-  FileText,
   CheckCircle,
   HelpCircle,
-  AlertCircle,
-  Award,
-  Download,
-  Share2
+  Award
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -24,21 +19,31 @@ export function UnitContentView() {
   const [activeTopicIndex, setActiveTopicIndex] = useState(0);
   const [unitCompleted, setUnitCompleted] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const category = curriculum.find(c => c.id === categoryId);
   const course = category?.courses.find(c => c.id === courseId);
   const unit = course?.units.find(u => u.id === unitId);
   const completeUnit = useUserStore(s => s.completeUnit);
   const trackVideo = useUserStore(s => s.trackVideo);
   const user = useUserStore(s => s.user);
-  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const target = e.currentTarget;
-    const progress = (target.scrollTop / (target.scrollHeight - target.clientHeight)) * 100;
-    setScrollProgress(progress);
+  const handleScroll = () => {
+    if (scrollContainerRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
+      const progress = (scrollTop / (scrollHeight - clientHeight)) * 100;
+      setScrollProgress(isNaN(progress) ? 0 : Math.min(progress, 100));
+    }
   };
   useEffect(() => {
     setActiveTopicIndex(0);
     setUnitCompleted(false);
+    setScrollProgress(0);
   }, [unitId]);
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo(0, 0);
+      setScrollProgress(0);
+    }
+  }, [activeTopicIndex]);
   if (!unit || !course) return <div className="p-20 text-center text-slate-500">İçerik bulunamadı.</div>;
   const currentTopic = unit.topics[activeTopicIndex];
   const handleComplete = () => {
@@ -47,9 +52,10 @@ export function UnitContentView() {
       completeUnit(unit.id);
       setUnitCompleted(true);
       setTimeout(() => {
-        if (user && oldTitle !== getUserTitle(user.points + 100)) {
+        const newPoints = (user?.points ?? 0) + 100;
+        if (oldTitle !== getUserTitle(newPoints)) {
           toast.success("SEVİYE ATLADIN!", {
-            description: `Yeni unvanın: ${getUserTitle(user.points + 100)}`,
+            description: `Yeni unvanın: ${getUserTitle(newPoints)}`,
             duration: 5000,
           });
         }
@@ -84,7 +90,7 @@ export function UnitContentView() {
                   <Button asChild variant="outline" className="border-slate-700 text-white hover:bg-slate-800 rounded-xl">
                     <Link to={`/dersler/${categoryId}/${courseId}`}>Geri Dön</Link>
                   </Button>
-                  <Button asChild className="bg-teal-500 hover:bg-teal-600 rounded-xl">
+                  <Button asChild className="bg-teal-500 hover:bg-teal-600 rounded-xl border-none">
                     <Link to="/dersler">Sonraki Ders</Link>
                   </Button>
                 </div>
@@ -132,18 +138,22 @@ export function UnitContentView() {
           </ScrollArea>
         </div>
         <div className="flex-1 flex flex-col bg-white overflow-hidden relative">
-          <header className="px-8 py-4 border-b flex items-center justify-between bg-white/80 backdrop-blur-md z-10">
+          <header className="px-8 py-4 border-b flex items-center justify-between bg-white/80 backdrop-blur-md z-10 sticky top-0">
             <div className="flex items-center gap-4">
                <h2 className="text-lg font-bold text-slate-900 truncate max-w-[200px] sm:max-w-md">{currentTopic.title}</h2>
             </div>
             <div className="flex items-center gap-2">
-              <Button size="sm" onClick={handleComplete} className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-6 rounded-xl h-10 shadow-lg shadow-emerald-500/20">
+              <Button size="sm" onClick={handleComplete} className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-6 rounded-xl h-10 shadow-lg shadow-emerald-500/20 border-none">
                 {activeTopicIndex === unit.topics.length - 1 ? 'Üniteyi Bitir' : 'Sonraki Konu'}
               </Button>
             </div>
-            <div className="absolute bottom-0 left-0 h-0.5 bg-teal-500 transition-all duration-150" style={{ width: `${scrollProgress}%` }} />
+            <div className="absolute bottom-0 left-0 h-1 bg-teal-500 transition-all duration-150" style={{ width: `${scrollProgress}%` }} />
           </header>
-          <ScrollArea className="flex-1" onScrollCapture={handleScroll}>
+          <div 
+            className="flex-1 overflow-y-auto scroll-smooth" 
+            onScroll={handleScroll}
+            ref={scrollContainerRef}
+          >
             <div className="max-w-4xl mx-auto px-6 sm:px-8 pt-10 pb-20 space-y-12">
               {currentTopic.videoYoutubeId && (
                 <div className="aspect-video bg-slate-900 rounded-3xl overflow-hidden shadow-2xl relative group">
@@ -171,7 +181,7 @@ export function UnitContentView() {
                 </div>
               )}
             </div>
-          </ScrollArea>
+          </div>
         </div>
       </div>
     </RootLayout>
@@ -227,10 +237,10 @@ function QuizSection({ quiz }: { quiz: QuizQuestion[] }) {
           ))}
         </div>
         {!isSubmitted ? (
-          <Button disabled={selectedOption === null} onClick={handleSubmit} className="w-full h-14 bg-slate-900 text-white rounded-2xl font-bold">Cevabı Kontrol Et</Button>
+          <Button disabled={selectedOption === null} onClick={handleSubmit} className="w-full h-14 bg-slate-900 text-white rounded-2xl font-bold border-none">Cevabı Kontrol Et</Button>
         ) : (
           currentQIndex < quiz.length - 1 ? (
-            <Button onClick={handleNext} className="w-full h-14 bg-teal-500 text-white rounded-2xl font-bold">Sonraki Soru</Button>
+            <Button onClick={handleNext} className="w-full h-14 bg-teal-500 text-white rounded-2xl font-bold border-none">Sonraki Soru</Button>
           ) : (
             <div className="text-center p-8 bg-white rounded-3xl border border-dashed border-slate-200">
               <Award className="w-12 h-12 text-teal-600 mx-auto mb-2" />

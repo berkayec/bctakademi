@@ -1,15 +1,24 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { RootLayout } from '@/components/layout/RootLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Award, Download, Share2, ChevronLeft, Calendar, ShieldCheck } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Award, Download, Share2, ChevronLeft, ShieldCheck } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useUserStore } from '@/store/use-user-store';
 const MOCK_CERTIFICATES = [
-  { id: 'cert-1', title: 'Biyoölçme Temelleri Sertifikası', date: '12 Ocak 2024', grade: '95/100', code: 'BCT-2024-001' },
+  { id: 'cert-1', title: 'Biyoölçme Temelleri Sertifikası', date: '12 Ocak 2024', grade: '95/100', prefix: 'BCT' },
 ];
 export function CertificatePage() {
+  const navigate = useNavigate();
+  const user = useUserStore(s => s.user);
+  const isAuthenticated = useUserStore(s => s.isAuthenticated);
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/');
+    }
+  }, [isAuthenticated, navigate]);
+  if (!isAuthenticated || !user) return null;
   return (
     <RootLayout>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
@@ -48,7 +57,9 @@ export function CertificatePage() {
                           <div className="h-px w-24 bg-slate-200 mx-auto" />
                           <div className="space-y-4">
                             <p className="text-slate-500 italic">Bu sertifika, ilgili eğitim modülünü başarıyla tamamlayan</p>
-                            <p className="text-3xl font-display font-bold text-slate-900 underline decoration-teal-400 decoration-4 underline-offset-8">Ahmet Yılmaz</p>
+                            <p className="text-3xl font-display font-bold text-slate-900 underline decoration-teal-400 decoration-4 underline-offset-8">
+                              {user.username || 'Öğrenci'}
+                            </p>
                             <p className="text-slate-500 italic">adına düzenlenmiştir.</p>
                           </div>
                           <div className="grid grid-cols-2 gap-8 pt-12">
@@ -58,7 +69,9 @@ export function CertificatePage() {
                             </div>
                             <div className="text-right">
                               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Sertifika No</p>
-                              <p className="text-sm font-bold text-slate-900">{cert.code}</p>
+                              <p className="text-sm font-bold text-slate-900">
+                                {cert.prefix}-{new Date().getFullYear()}-{(user.points + 100).toString().padStart(4, '0')}
+                              </p>
                             </div>
                           </div>
                           <div className="pt-8 flex justify-center">
@@ -74,7 +87,7 @@ export function CertificatePage() {
                 <div className="bg-slate-950 text-white p-8 rounded-[2rem] shadow-xl space-y-6">
                   <h3 className="text-xl font-bold">İşlemler</h3>
                   <div className="space-y-3">
-                    <Button className="w-full bg-teal-500 hover:bg-teal-600 text-white h-12 rounded-xl font-bold">
+                    <Button className="w-full bg-teal-500 hover:bg-teal-600 text-white h-12 rounded-xl font-bold border-none shadow-lg shadow-teal-500/20">
                       <Download className="w-4 h-4 mr-2" /> PDF İndir
                     </Button>
                     <Button variant="outline" className="w-full border-slate-700 hover:bg-slate-800 text-white h-12 rounded-xl font-bold">

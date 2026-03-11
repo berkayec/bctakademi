@@ -1,6 +1,5 @@
 import '@/lib/errorReporter';
 import { enableMapSet } from "immer";
-enableMapSet();
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import {
@@ -23,10 +22,20 @@ import { ContactPage } from '@/pages/ContactPage'
 import { CertificatePage } from '@/pages/CertificatePage'
 import { RootLayout } from '@/components/layout/RootLayout'
 import { AppShell } from '@/components/layout/AppShell'
-const queryClient = new QueryClient();
+// Enable Immer Map/Set support
+enableMapSet();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 const router = createBrowserRouter([
   {
     element: <AppShell />,
+    errorElement: <RouteErrorBoundary />,
     children: [
       {
         path: "/",
@@ -35,7 +44,6 @@ const router = createBrowserRouter([
             <HomePage />
           </RootLayout>
         ),
-        errorElement: <RouteErrorBoundary />,
       },
       {
         path: "/portal",
@@ -44,32 +52,26 @@ const router = createBrowserRouter([
             <PortalPage />
           </RootLayout>
         ),
-        errorElement: <RouteErrorBoundary />,
       },
       {
         path: "/dersler",
         element: <LessonsPage />,
-        errorElement: <RouteErrorBoundary />,
       },
       {
         path: "/dersler/:categoryId/:courseId",
         element: <CourseDetailPage />,
-        errorElement: <RouteErrorBoundary />,
       },
       {
         path: "/dersler/:categoryId/:courseId/:unitId",
         element: <UnitContentView />,
-        errorElement: <RouteErrorBoundary />,
       },
       {
         path: "/kaynaklar",
         element: <ResourcesPage />,
-        errorElement: <RouteErrorBoundary />,
       },
       {
         path: "/blog",
         element: <BlogPage />,
-        errorElement: <RouteErrorBoundary />,
       },
       {
         path: "/iletisim",
@@ -78,7 +80,6 @@ const router = createBrowserRouter([
             <ContactPage />
           </RootLayout>
         ),
-        errorElement: <RouteErrorBoundary />,
       },
       {
         path: "/sertifikalar",
@@ -87,7 +88,6 @@ const router = createBrowserRouter([
             <CertificatePage />
           </RootLayout>
         ),
-        errorElement: <RouteErrorBoundary />,
       },
       {
         path: "*",
@@ -96,7 +96,9 @@ const router = createBrowserRouter([
     ]
   }
 ]);
-createRoot(document.getElementById('root')!).render(
+const rootElement = document.getElementById('root');
+if (!rootElement) throw new Error('Failed to find the root element');
+createRoot(rootElement).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <ErrorBoundary>

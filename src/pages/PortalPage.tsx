@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Play, FileText, CheckCircle2, ArrowRight, TrendingUp, Award, Lock } from 'lucide-react';
+import { FileText, CheckCircle2, ArrowRight, TrendingUp, Award, Lock } from 'lucide-react';
 import { curriculum } from '@/lib/curriculum';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -17,16 +17,26 @@ export function PortalPage() {
       navigate('/');
     }
   }, [isAuthenticated, navigate]);
+  const stats = useMemo(() => {
+    if (!user) return [];
+    return [
+      { label: 'Modüller', value: user.completedUnits.length.toString(), icon: CheckCircle2, color: 'text-emerald-500', bg: 'bg-emerald-50' },
+      { label: 'Akademik Puan', value: user.points.toString(), icon: TrendingUp, color: 'text-orange-500', bg: 'bg-orange-50' },
+      { label: 'Materyaller', value: user.accessedResources.length.toString(), icon: FileText, color: 'text-blue-500', bg: 'bg-blue-50' }
+    ];
+  }, [user]);
+  const recommendations = useMemo(() => {
+    if (!user) return [];
+    const allCourses = curriculum.flatMap(c => c.courses);
+    return allCourses
+      .filter(c => !user.completedUnits.some(unitId => c.units.some(u => u.id === unitId)))
+      .slice(0, 2);
+  }, [user]);
   if (!user) return null;
   const currentTitle = getUserTitle(user.points);
   const nextTitleThresholds = [500, 1500, 3000, 10000];
   const nextThreshold = nextTitleThresholds.find(t => t > user.points) || 10000;
-  const levelProgress = (user.points / nextThreshold) * 100;
-  const stats = [
-    { label: 'Modüller', value: user.completedUnits.length.toString(), icon: CheckCircle2, color: 'text-emerald-500', bg: 'bg-emerald-50' },
-    { label: 'Akademik Puan', value: user.points.toString(), icon: TrendingUp, color: 'text-orange-500', bg: 'bg-orange-50' },
-    { label: 'Materyaller', value: user.accessedResources.length.toString(), icon: FileText, color: 'text-blue-500', bg: 'bg-blue-50' }
-  ];
+  const levelProgress = Math.min(Math.max((user.points / nextThreshold) * 100, 0), 100);
   const activityData = [
     { day: 'Pzt', hours: 2.5 },
     { day: 'Sal', hours: 1.8 },
@@ -36,7 +46,6 @@ export function PortalPage() {
     { day: 'Cmt', hours: 4.0 },
     { day: 'Paz', hours: 1.2 },
   ];
-  const recommendations = curriculum.flatMap(c => c.courses).filter(c => c.isPopular).slice(0, 2);
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
       <div className="flex flex-col gap-10">
@@ -50,7 +59,7 @@ export function PortalPage() {
             <p className="text-slate-500 text-lg font-medium">Hoş geldin {user.username}. Akademik gelişimin burada yönetiliyor.</p>
           </div>
           <div className="flex gap-3">
-             <Button variant="outline" className="rounded-xl h-12 font-bold border-slate-200" asChild>
+             <Button variant="outline" className="rounded-xl h-12 font-bold border-slate-200 shadow-sm" asChild>
                <Link to="/sertifikalar">Başarı Belgelerim</Link>
              </Button>
           </div>
@@ -141,12 +150,12 @@ export function PortalPage() {
           <div className="space-y-8">
             <h3 className="text-2xl font-bold text-slate-900 tracking-tight">Senin İçin Önerilenler</h3>
             <div className="space-y-4">
-              {recommendations.map(rec => (
-                <Link key={rec.id} to={`/dersler`} className="block group">
+              {recommendations.length > 0 ? recommendations.map(rec => (
+                <Link key={rec.id} to="/dersler" className="block group">
                   <div className="flex gap-5 p-5 rounded-[1.5rem] border border-slate-100 bg-white hover:border-teal-200 hover:bg-teal-50/20 transition-all shadow-sm">
                     <img src={rec.image} className="w-24 h-24 rounded-2xl object-cover shrink-0 shadow-sm" alt="" />
                     <div className="flex flex-col justify-center">
-                      <p className="text-[10px] font-bold text-teal-600 mb-1 uppercase tracking-widest">Popüler Ders</p>
+                      <p className="text-[10px] font-bold text-teal-600 mb-1 uppercase tracking-widest">Önerilen Ders</p>
                       <h4 className="font-bold text-slate-900 group-hover:text-teal-700 transition-colors line-clamp-1 text-lg">{rec.title}</h4>
                       <div className="flex items-center gap-2 mt-2">
                         <Badge variant="outline" className="text-[10px] font-bold border-slate-200">{rec.estimatedTime}</Badge>
@@ -154,9 +163,13 @@ export function PortalPage() {
                     </div>
                   </div>
                 </Link>
-              ))}
+              )) : (
+                <div className="p-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                  <p className="text-sm text-slate-500 font-medium">Harika! Tüm dersleri tamamladın.</p>
+                </div>
+              )}
               <Button variant="ghost" className="w-full rounded-2xl h-14 text-slate-500 font-bold group hover:bg-slate-50" asChild>
-                <Link to="/dersler">Tüm Kataloğu Keşfet <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1" /></Link>
+                <Link to="/dersler">Tüm Kataloğu Keşfet <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" /></Link>
               </Button>
             </div>
           </div>
