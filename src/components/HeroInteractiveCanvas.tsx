@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState, memo } from 'react';
+import { motion } from 'framer-motion';
 interface Node {
   x: number;
   y: number;
@@ -8,7 +9,11 @@ interface Node {
   originalY: number;
   opacity: number;
 }
-export function HeroInteractiveCanvas() {
+/**
+ * BackgroundNodes Layer: Handles the floating particles and parallax effect
+ * using Canvas for efficient rendering of hundreds of connected points.
+ */
+const BackgroundNodes = memo(() => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mouseRef = useRef({ x: 0, y: 0, targetX: 0, targetY: 0 });
   const opacityRef = useRef(0);
@@ -29,7 +34,6 @@ export function HeroInteractiveCanvas() {
       const rect = canvas.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-      // Mouse interaction kept for nodes, but separated from wave logic
       mouseRef.current.targetX = (x / width - 0.5) * 2;
       mouseRef.current.targetY = (y / height - 0.5) * 2;
     };
@@ -54,16 +58,13 @@ export function HeroInteractiveCanvas() {
       }
     };
     initNodes();
-    let offset = 0;
     let currentParallaxX = 0;
     let currentParallaxY = 0;
     const draw = () => {
       ctx.clearRect(0, 0, width, height);
       if (opacityRef.current < 1) opacityRef.current += 0.005;
-      // Smoothed parallax for nodes
       currentParallaxX += (mouseRef.current.targetX - currentParallaxX) * 0.05;
       currentParallaxY += (mouseRef.current.targetY - currentParallaxY) * 0.05;
-      // Background Nodes: Keep parallax for depth
       const parallaxShiftX = currentParallaxX * 45;
       const parallaxShiftY = currentParallaxY * 45;
       ctx.lineWidth = 0.5;
@@ -98,47 +99,6 @@ export function HeroInteractiveCanvas() {
           }
         }
       }
-      // ECG Wave System: Strictly Horizontal & Linear
-      // centerY is fixed to ensure no vertical jitter
-      const centerY = height / 2;
-      const numWavePoints = 140;
-      const step = width / numWavePoints;
-      ctx.beginPath();
-      ctx.lineWidth = 2.5; // Slightly refined line width for clinical look
-      const waveGradient = ctx.createLinearGradient(0, 0, width, 0);
-      waveGradient.addColorStop(0, 'rgba(20, 184, 166, 0)');
-      waveGradient.addColorStop(0.2, 'rgba(20, 184, 166, 0.3)');
-      waveGradient.addColorStop(0.5, 'rgba(243, 128, 32, 0.7)'); // Orange peak highlight
-      waveGradient.addColorStop(0.8, 'rgba(20, 184, 166, 0.3)');
-      waveGradient.addColorStop(1, 'rgba(20, 184, 166, 0)');
-      ctx.strokeStyle = waveGradient;
-      ctx.shadowBlur = 10;
-      ctx.shadowColor = 'rgba(20, 184, 166, 0.2)';
-      // We calculate the wave from right-to-left
-      // offset controls the horizontal propagation
-      for (let i = 0; i <= numWavePoints; i++) {
-        const x = i * step;
-        // Base sine for idle pulse
-        let y = Math.sin(i * 0.15 + offset) * 3;
-        // PQRST Peak Logic
-        // The cycle is based on horizontal position + global time offset
-        // This creates the "moving through" effect from right to left
-        const waveCycle = (i + Math.floor(offset * 6)) % 45;
-        if (waveCycle === 2) y -= 10;   // P wave
-        if (waveCycle === 5) y -= 70;   // R peak
-        if (waveCycle === 6) y += 30;   // S wave
-        if (waveCycle === 12) y -= 12;  // T wave
-        // NO Mouse proximity vertical jitter or Parallax Y shift applied to wave
-        const renderX = x; 
-        const renderY = centerY + y;
-        if (i === 0) ctx.moveTo(renderX, renderY);
-        else ctx.lineTo(renderX, renderY);
-      }
-      ctx.stroke();
-      ctx.shadowBlur = 0;
-      // offset increment controls speed of right-to-left flow
-      // 0.01 is calm and professional
-      offset += 0.01;
       animationFrameId = requestAnimationFrame(draw);
     };
     draw();
@@ -148,10 +108,96 @@ export function HeroInteractiveCanvas() {
       cancelAnimationFrame(animationFrameId);
     };
   }, []);
+  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none opacity-50" />;
+});
+BackgroundNodes.displayName = 'BackgroundNodes';
+/**
+ * ECGWavePattern Layer: Pre-renders one full screen cycle of the ECG wave.
+ * Used for GPU-accelerated CSS translation to ensure ultra-smooth 60fps.
+ */
+const ECGWavePattern = memo(({ width, height }: { width: number; height: number }) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas || width === 0) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.clearRect(0, 0, width, height);
+    const centerY = height / 2;
+    const numPoints = 140;
+    const step = width / numPoints;
+    ctx.beginPath();
+    ctx.lineWidth = 2.5;
+    const waveGradient = ctx.createLinearGradient(0, 0, width, 0);
+    waveGradient.addColorStop(0, 'rgba(20, 184, 166, 0.2)');
+    waveGradient.addColorStop(0.5, 'rgba(243, 128, 32, 0.8)');
+    waveGradient.addColorStop(1, 'rgba(20, 184, 166, 0.2)');
+    ctx.strokeStyle = waveGradient;
+    ctx.shadowBlur = 12;
+    ctx.shadowColor = 'rgba(20, 184, 166, 0.3)';
+    for (let i = 0; i <= numPoints; i++) {
+      const x = i * step;
+      let y = Math.sin(i * 0.2) * 2; // Subtle baseline jitter
+      // PQRST cycle logic for static pattern
+      // One cycle roughly every 45 points
+      const waveCycle = i % 45;
+      if (waveCycle === 2) y -= 10;   // P
+      if (waveCycle === 5) y -= 75;   // R
+      if (waveCycle === 6) y += 35;   // S
+      if (waveCycle === 12) y -= 12;  // T
+      const renderX = x;
+      const renderY = centerY + y;
+      if (i === 0) ctx.moveTo(renderX, renderY);
+      else ctx.lineTo(renderX, renderY);
+    }
+    ctx.stroke();
+  }, [width, height]);
+  return <canvas ref={canvasRef} width={width} height={height} className="shrink-0" />;
+});
+ECGWavePattern.displayName = 'ECGWavePattern';
+/**
+ * HeroInteractiveCanvas: Optimized 2-layer background system.
+ * Background nodes run on Canvas RAF for depth.
+ * ECG Wave runs on GPU (CSS transforms) for ultra-smooth scrolling.
+ */
+export function HeroInteractiveCanvas() {
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
+  useEffect(() => {
+    const updateSize = () => {
+      setDimensions({
+        width: window.innerWidth,
+        height: window.innerHeight * 0.95
+      });
+    };
+    updateSize();
+    window.addEventListener('resize', updateSize);
+    return () => window.removeEventListener('resize', updateSize);
+  }, []);
   return (
-    <canvas
-      ref={canvasRef}
-      className="w-full h-full pointer-events-none opacity-50"
-    />
+    <div className="relative w-full h-full overflow-hidden">
+      <BackgroundNodes />
+      {/* 
+        ECG Scrolling Layer: 
+        Uses two identical canvases side-by-side to create a seamless loop 
+        when translated from 0 to -100%. 
+      */}
+      {dimensions.width > 0 && (
+        <div className="absolute inset-0 flex items-center pointer-events-none opacity-40">
+          <motion.div
+            className="flex will-change-transform"
+            initial={{ x: 0 }}
+            animate={{ x: `-${dimensions.width}px` }}
+            transition={{
+              duration: 25,
+              ease: "linear",
+              repeat: Infinity
+            }}
+          >
+            <ECGWavePattern width={dimensions.width} height={dimensions.height} />
+            <ECGWavePattern width={dimensions.width} height={dimensions.height} />
+          </motion.div>
+        </div>
+      )}
+    </div>
   );
 }
