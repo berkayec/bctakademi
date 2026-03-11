@@ -36,9 +36,9 @@ export function Logo({ className, size = 32, hideText = false }: LogoProps) {
         </svg>
       </div>
       {!hideText && (
-        <span 
+        <span
           style={{ fontSize }}
-          className="font-display font-black tracking-tighter bg-gradient-to-r from-teal-400 to-cyan-500 bg-clip-text text-transparent select-none whitespace-nowrap"
+          className="font-display font-black tracking-tighter bg-gradient-to-r from-teal-400 to-slate-400 bg-clip-text text-transparent select-none whitespace-nowrap"
         >
           BCTAkademi
         </span>

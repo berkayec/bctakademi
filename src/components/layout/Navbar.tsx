@@ -21,10 +21,7 @@ export function Navbar() {
   const isAuthenticated = useUserStore((s) => s.isAuthenticated);
   const user = useUserStore((s) => s.user);
   const logout = useUserStore((s) => s.logout);
-  const points = useUserStore((s) => s.user?.points ?? 0);
-  useEffect(() => {
-    document.title = 'BCTAkademi - Biyomedikal Cihaz Teknolojileri';
-  }, []);
+  const points = user?.points ?? 0;
   useEffect(() => {
     setSearchQuery(urlQuery);
   }, [urlQuery]);
@@ -47,11 +44,11 @@ export function Navbar() {
     setIsSearchOpen(false);
   }, [location.pathname]);
   return (
-    <nav className="bg-slate-950 text-slate-100 sticky top-0 z-50 border-b border-slate-800 shadow-xl">
+    <nav className="bg-slate-950 text-slate-100 sticky top-0 z-50 border-b border-slate-800/60 shadow-xl backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-20 items-center">
           <Link to="/" className="flex items-center gap-3 group">
-            <Logo size={40} className="group-hover:rotate-2 transition-transform duration-300" />
+            <Logo size={40} className="group-hover:rotate-1 transition-transform duration-300" />
           </Link>
           <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => {
@@ -67,7 +64,10 @@ export function Navbar() {
                 >
                   {link.name}
                   {isActive && (
-                    <span className="absolute -bottom-2 left-0 w-full h-1 bg-teal-400 rounded-full" />
+                    <motion.span 
+                      layoutId="nav-underline"
+                      className="absolute -bottom-2 left-0 w-full h-1 bg-teal-400 rounded-full" 
+                    />
                   )}
                 </Link>
               );
@@ -75,10 +75,10 @@ export function Navbar() {
           </div>
           <div className="flex items-center gap-4">
             <div className="relative hidden lg:flex items-center">
-              <form onSubmit={handleSearch} className="flex items-center relative">
-                <Search className="absolute left-3 w-4 h-4 text-slate-500" />
+              <form onSubmit={handleSearch} className="flex items-center relative group">
+                <Search className="absolute left-3 w-4 h-4 text-slate-500 group-focus-within:text-teal-400 transition-colors" />
                 <Input
-                  className="bg-slate-900 border-slate-800 w-40 focus:w-56 transition-all rounded-xl h-10 pl-10 text-xs font-bold text-white placeholder:text-slate-500 focus-visible:ring-teal-500"
+                  className="bg-slate-900/50 border-slate-800 w-40 focus:w-60 transition-all duration-300 rounded-xl h-10 pl-10 text-xs font-bold text-white placeholder:text-slate-600 focus-visible:ring-teal-500/50 focus-visible:border-teal-500/50"
                   placeholder="Ara..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -86,27 +86,27 @@ export function Navbar() {
               </form>
             </div>
             {isAuthenticated && user && (
-              <div className="hidden sm:flex items-center gap-4 bg-slate-900/50 p-1 pr-4 rounded-full border border-slate-800">
-                <div className="w-8 h-8 rounded-full bg-teal-500 flex items-center justify-center text-xs font-bold shadow-lg shadow-teal-500/20">
+              <div className="hidden sm:flex items-center gap-3 bg-slate-900/50 p-1.5 pr-4 rounded-full border border-slate-800">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center text-xs font-black text-slate-950 shadow-lg shadow-teal-500/10">
                   {user.username.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex flex-col">
-                  <span className="text-[10px] font-bold text-teal-400 uppercase leading-none">{getUserTitle(points)}</span>
-                  <span className="text-[10px] text-slate-400 font-bold">{points} XP</span>
+                  <span className="text-[10px] font-black text-teal-400 uppercase leading-none">{getUserTitle(points)}</span>
+                  <span className="text-[10px] text-slate-500 font-bold">{points} XP</span>
                 </div>
               </div>
             )}
             <Button
               onClick={handlePortalClick}
-              className="bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl px-6 h-11 transition-all active:scale-95 shadow-lg shadow-orange-500/20 border-none"
+              className="bg-gradient-primary hover:scale-[1.03] text-white font-bold rounded-xl px-6 h-11 transition-all active:scale-95 shadow-lg shadow-orange-500/20 border-none"
             >
               {isAuthenticated ? <><LayoutDashboard className="w-4 h-4 mr-2" /> Portal</> : 'Portal Giriş'}
             </Button>
             <div className="md:hidden flex items-center gap-2">
-              <button onClick={() => setIsSearchOpen(!isSearchOpen)} className="p-2 text-slate-300 hover:text-white">
+              <button onClick={() => setIsSearchOpen(!isSearchOpen)} className="p-2 text-slate-300 hover:text-white transition-colors">
                 <Search className="w-6 h-6" />
               </button>
-              <button onClick={() => setIsOpen(!isOpen)} className="p-2 text-slate-300 hover:text-white" aria-label="Menü">
+              <button onClick={() => setIsOpen(!isOpen)} className="p-2 text-slate-300 hover:text-white transition-colors" aria-label="Menü">
                 {isOpen ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7" />}
               </button>
             </div>
@@ -119,7 +119,7 @@ export function Navbar() {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="bg-slate-900/95 backdrop-blur-md border-b border-slate-800 md:hidden overflow-hidden transition-all duration-300"
+            className="bg-slate-900/95 backdrop-blur-md border-b border-slate-800 md:hidden overflow-hidden"
           >
             <div className="p-4">
               <form onSubmit={handleSearch} className="relative">

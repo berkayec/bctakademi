@@ -1,6 +1,6 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowRight, ShieldCheck, Microscope, Cpu, Search, Newspaper } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Microscope, Cpu, Search, Newspaper, Activity } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { motion, useScroll, useSpring, useTransform, useMotionValue } from 'framer-motion';
@@ -11,9 +11,9 @@ export function HomePage() {
   // Mouse movement parallax effect for the hero background
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
-  const bgX = useSpring(useTransform(mouseX, [-500, 500], [-20, 20]), { stiffness: 50, damping: 20 });
-  const bgY = useSpring(useTransform(mouseY, [-500, 500], [-20, 20]), { stiffness: 50, damping: 20 });
-  const bgScale = useSpring(useTransform(scrollYProgress, [0, 0.5], [1, 1.1]), { stiffness: 100, damping: 30 });
+  const bgX = useSpring(useTransform(mouseX, [-500, 500], [-15, 15]), { stiffness: 50, damping: 20 });
+  const bgY = useSpring(useTransform(mouseY, [-500, 500], [-15, 15]), { stiffness: 50, damping: 20 });
+  const bgScale = useSpring(useTransform(scrollYProgress, [0, 0.5], [1, 1.05]), { stiffness: 100, damping: 30 });
   const handleMouseMove = (e: React.MouseEvent) => {
     const { clientX, clientY } = e;
     const { innerWidth, innerHeight } = window;
@@ -35,9 +35,9 @@ export function HomePage() {
     <div className="flex flex-col" onMouseMove={handleMouseMove}>
       <motion.div className="fixed top-0 left-0 right-0 h-1 bg-orange-500 origin-left z-[60]" style={{ scaleX }} />
       {/* Hero Section */}
-      <section className="relative bg-slate-950 pt-24 pb-32 md:pt-32 md:pb-40 overflow-hidden min-h-[90vh] flex items-center">
+      <section className="relative bg-slate-950 pt-20 pb-32 md:pt-28 md:pb-40 overflow-hidden min-h-[90vh] flex items-center">
         {/* Interactive Background Layer */}
-        <motion.div 
+        <motion.div
           className="absolute inset-0 z-0 pointer-events-none"
           style={{ x: bgX, y: bgY, scale: bgScale }}
         >
@@ -50,7 +50,37 @@ export function HomePage() {
           <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-transparent to-slate-950 opacity-60" />
         </motion.div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
-          <div className="text-center space-y-10">
+          <div className="text-center space-y-8">
+            {/* Animated Biomedical Visual */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1, ease: "easeOut" }}
+              className="flex justify-center mb-6"
+            >
+              <div className="relative group">
+                <div className="absolute inset-0 bg-teal-500/20 blur-2xl rounded-full scale-150 animate-pulse" />
+                <motion.div
+                  animate={{ 
+                    y: [0, -10, 0],
+                    rotate: [0, 5, -5, 0]
+                  }}
+                  transition={{ 
+                    duration: 4, 
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                  className="w-16 h-16 bg-slate-900 border border-teal-500/30 rounded-2xl flex items-center justify-center text-teal-400 relative z-10 shadow-2xl"
+                >
+                  <Activity className="w-8 h-8" />
+                  <motion.div 
+                    className="absolute -right-1 -top-1 w-3 h-3 bg-orange-500 rounded-full"
+                    animate={{ scale: [1, 1.5, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  />
+                </motion.div>
+              </div>
+            </motion.div>
             <motion.div
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
@@ -61,7 +91,7 @@ export function HomePage() {
                 Geleceğin Sağlık <br className="hidden sm:block" />
                 <span className="text-orange-500">Teknolojisini Keşfet</span>
               </h1>
-              <p className="max-w-xl mx-auto text-xs md:text-sm text-teal-400/80 font-bold tracking-[0.5em] uppercase mb-8">
+              <p className="max-w-xl mx-auto text-2xs md:text-xs text-teal-400/80 font-bold tracking-[0.5em] uppercase mb-8">
                 Biyomedikal Cihaz Teknolojileri Akademisi
               </p>
               <p className="max-w-2xl mx-auto text-base md:text-xl text-slate-400 leading-relaxed font-normal">
@@ -76,16 +106,19 @@ export function HomePage() {
               className="max-w-xl mx-auto"
             >
               <form onSubmit={handleSearch} className="relative group">
-                <div className="absolute -inset-1 bg-gradient-to-r from-teal-500/20 to-orange-500/20 rounded-2xl blur-lg opacity-0 group-focus-within:opacity-100 transition-opacity" />
-                <div className="relative flex p-1 bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 shadow-2xl">
-                  <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                <div className="absolute -inset-1 bg-gradient-to-r from-teal-500/30 to-orange-500/30 rounded-2xl blur-xl opacity-0 group-focus-within:opacity-100 transition-all duration-500" />
+                <div className="relative flex p-1.5 bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 shadow-2xl transition-all duration-300 group-hover:bg-white/15">
+                  <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-white/60" />
                   <Input
                     placeholder="Ders, cihaz veya teknik konu ara..."
-                    className="h-14 pl-14 pr-4 border-none shadow-none text-white bg-transparent text-lg focus-visible:ring-0 w-full placeholder:text-slate-500"
+                    className="h-14 pl-14 pr-4 border-none shadow-none text-white bg-transparent text-lg focus-visible:ring-0 w-full placeholder:text-white/40 font-medium"
                     value={searchValue}
                     onChange={(e) => setSearchValue(e.target.value)}
                   />
-                  <Button type="submit" className="h-12 px-6 bg-white hover:bg-slate-100 text-slate-950 font-bold rounded-xl hidden sm:flex border-none my-auto mr-1">
+                  <Button 
+                    type="submit" 
+                    className="h-12 px-8 bg-gradient-primary hover:scale-[1.02] text-white font-bold rounded-xl hidden sm:flex border-none my-auto mr-1 shadow-lg shadow-orange-500/20 active:scale-95 transition-all"
+                  >
                     Ara
                   </Button>
                 </div>
@@ -95,7 +128,7 @@ export function HomePage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5 }}
-              className="flex flex-col sm:flex-row justify-center gap-5 pt-2"
+              className="flex flex-col sm:flex-row justify-center gap-5 pt-4"
             >
               <Link to="/dersler">
                 <Button className="w-full sm:w-auto h-14 px-10 bg-teal-600 hover:bg-teal-700 text-white font-bold text-lg rounded-2xl group shadow-lg transition-all hover:scale-105 border-none">
