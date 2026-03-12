@@ -13,7 +13,7 @@ export function AppShell() {
 
   // --- BAKIM MODU KONTROLÜ ---
   // Siteyi kapatmak istediğinde burayı 'true' yap.
-  const isMaintenanceMode = false; 
+  const isMaintenanceMode = true; 
 
   // Kendi girişin için gizli anahtar (bctakademi.com/?admin=true)
   const isAdmin = new URLSearchParams(search).get('admin') === 'true';
