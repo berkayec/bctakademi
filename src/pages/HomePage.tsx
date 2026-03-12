@@ -56,7 +56,7 @@ export function HomePage() {
               <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0a0e1a] pointer-events-none" />
             </div>
           </motion.div>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full mt-12 md:mt-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 w-full -mt-16">
             <div className="text-center space-y-8 md:space-y-12">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
