@@ -2,25 +2,28 @@ import React, { useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { Toaster } from '@/components/ui/sonner';
 import { useTheme } from '@/hooks/use-theme';
-import { ScrollToTop } from '@/components/layout/ScrollToTop'; // Absolute path kullanıldı
-import { Navbar } from '@/components/layout/Navbar'; // Doğrulanmış tam yol
+import { ScrollToTop } from '@/components/layout/ScrollToTop';
+import { Navbar } from '@/components/layout/Navbar';
 
-/**
- * Global uygulama kabuğu. 
- * Navbar'ı sabitler, sayfa geçişlerinde en üste kaydırır 
- * ve bildirim sistemini (Toaster) yönetir.
- */
 export function AppShell() {
   const { pathname } = useLocation();
   const { isDark } = useTheme();
 
   useEffect(() => {
-    // Tarayıcı sekme başlığını güncelle
+    // 1. Tailwind Dark Mode Sınıf Kontrolü
+    const root = window.document.documentElement;
+    if (isDark) {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+
+    // 2. Metadata ve Tema Rengi Yönetimi
     document.title = 'BCT Akademi | Biyomedikal Eğitim Portalı';
-    
-    // Mobil tarayıcılar için üst bar renk uyumu
     const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-    const color = isDark ? '#020617' : '#0f172a';
+    
+    // Açık modda beyaz, koyu modda lacivert bar rengi
+    const color = isDark ? '#020617' : '#ffffff';
     
     if (metaThemeColor) {
       metaThemeColor.setAttribute('content', color);
@@ -33,19 +36,15 @@ export function AppShell() {
   }, [pathname, isDark]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0a0e1a]">
-      {/* Sayfa her değiştiğinde otomatik en üste kaydırır */}
+    // bg-background kullanarak index.css'deki dinamik renge bağlandık
+    <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300 font-sans">
       <ScrollToTop />
-      
-      {/* Navbar artık tüm sayfalarda buradan yönetiliyor */}
       <Navbar /> 
       
       <main className="flex-1">
-        {/* main.tsx içindeki çocuk sayfalar buraya yüklenir */}
         <Outlet /> 
       </main>
 
-      {/* Global bildirim sistemi */}
       <Toaster
         position="top-right"
         richColors
