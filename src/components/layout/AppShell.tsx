@@ -1,15 +1,22 @@
-// src/components/layout/AppShell.tsx
 import React, { useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { Toaster } from '@/components/ui/sonner';
 import { useTheme } from '@/hooks/use-theme';
 import { ScrollToTop } from '@/components/layout/ScrollToTop';
 import { Navbar } from '@/components/layout/Navbar';
-import { Footer } from '@/components/layout/Footer'; // Footer eklendi
+import { Footer } from '@/components/layout/Footer';
+import { MaintenancePage } from '@/pages/MaintenancePage'; // Import etmeyi unutma
 
 export function AppShell() {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const { isDark } = useTheme();
+
+  // --- BAKIM MODU KONTROLÜ ---
+  // Siteyi kapatmak istediğinde burayı 'true' yap.
+  const isMaintenanceMode = false; 
+
+  // Kendi girişin için gizli anahtar (bctakademi.com/?admin=true)
+  const isAdmin = new URLSearchParams(search).get('admin') === 'true';
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -33,17 +40,20 @@ export function AppShell() {
     }
   }, [pathname, isDark]);
 
+  // Eğer bakım modu aktifse ve admin parametresi yoksa sadece Bakım Sayfasını göster
+  if (isMaintenanceMode && !isAdmin) {
+    return <MaintenancePage />;
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300 font-sans">
       <ScrollToTop />
       <Navbar /> 
       
-      {/* flex-1 sayesinde içerik az olsa bile footer en altta kalır */}
       <main className="flex-1">
         <Outlet /> 
       </main>
 
-      {/* FOOTER BURAYA EKLENDİ */}
       <Footer />
 
       <Toaster
