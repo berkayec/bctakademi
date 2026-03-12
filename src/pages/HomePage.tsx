@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { ArrowRight, ShieldCheck, Microscope, Cpu, Search, Newspaper } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { motion, useScroll, useSpring, useTransform, useMotionValue } from 'framer-motion';
+import { motion, useScroll, useSpring, useMotionValue } from 'framer-motion';
 import { HeroInteractiveCanvas } from '@/components/HeroInteractiveCanvas';
 import { RootLayout } from '@/components/layout/RootLayout';
 export function HomePage() {
@@ -44,16 +44,16 @@ export function HomePage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1.5, ease: "easeOut" }}
-            className="relative w-full z-10 overflow-hidden"
+            className="relative w-full z-10 overflow-hidden bg-[#0a0e1a]"
           >
-            <div className="relative w-full max-h-[300px]">
+            <div className="relative w-full max-h-[400px] min-h-[200px] flex items-center justify-center">
               <img
                 src="https://i.ibb.co/27b9C9m2/"
                 alt="Biomedical Technology Banner"
-                className="w-full h-full max-h-[300px] object-cover"
+                className="w-full h-full max-h-[400px] object-contain"
               />
               {/* Single Gradient Blending for smooth transition to background */}
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#0a0e1a] pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0a0e1a] pointer-events-none" />
             </div>
           </motion.div>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full mt-12 md:mt-16">
