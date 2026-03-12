@@ -54,12 +54,10 @@ export function Navbar() {
     <nav className="bg-slate-950 text-slate-100 sticky top-0 z-50 border-b border-slate-800/60 shadow-xl backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 sm:h-20 items-center">
-          {/* LOGO BÖLÜMÜ */}
           <Link to="/" className="flex items-center gap-2 sm:gap-3 group shrink-0">
             <Logo size={32} className="sm:size-[40px] group-hover:rotate-1 transition-transform duration-300" />
           </Link>
 
-          {/* MASAÜSTÜ LİNKLER */}
           <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => {
               const isActive = location.pathname === link.href;
@@ -84,9 +82,7 @@ export function Navbar() {
             })}
           </div>
 
-          {/* SAĞ TARAF: BUTON VE İKONLAR */}
           <div className="flex items-center gap-2 sm:gap-4">
-            {/* Masaüstü Arama */}
             <div className="relative hidden lg:flex items-center">
               <form onSubmit={handleSearch} className="flex items-center relative group">
                 <Search className="absolute left-3 w-4 h-4 text-slate-500 group-focus-within:text-teal-400 transition-colors" />
@@ -99,10 +95,9 @@ export function Navbar() {
               </form>
             </div>
 
-            {/* Kullanıcı XP Bilgisi (Sadece mobilden büyük ekranlarda) */}
             {isAuthenticated && user && (
               <div className="hidden sm:flex items-center gap-3 bg-slate-900/50 p-1.5 pr-4 rounded-full border border-slate-800">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center text-xs font-black text-slate-950 shadow-lg shadow-teal-500/10">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center text-xs font-black text-slate-950">
                   {user.username.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex flex-col">
@@ -112,10 +107,9 @@ export function Navbar() {
               </div>
             )}
 
-            {/* PORTAL BUTONU - MOBİL İÇİN KÜÇÜLTÜLDÜ */}
             <Button
               onClick={handlePortalClick}
-              className="bg-gradient-primary hover:scale-[1.03] text-white font-bold rounded-xl px-3 sm:px-6 h-9 sm:h-11 text-[10px] sm:text-xs transition-all active:scale-95 shadow-lg shadow-orange-500/20 border-none whitespace-nowrap"
+              className="bg-gradient-primary hover:scale-[1.03] text-white font-bold rounded-xl px-3 sm:px-6 h-9 sm:h-11 text-[10px] sm:text-xs transition-all active:scale-95 border-none whitespace-nowrap"
             >
               {isAuthenticated ? (
                 <><LayoutDashboard className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" /> Portal</>
@@ -124,12 +118,11 @@ export function Navbar() {
               )}
             </Button>
 
-            {/* Mobil İkonlar */}
             <div className="md:hidden flex items-center gap-1">
-              <button onClick={() => setIsSearchOpen(!isSearchOpen)} className="p-1.5 text-slate-300 hover:text-white transition-colors">
+              <button onClick={() => setIsSearchOpen(!isSearchOpen)} className="p-1.5 text-slate-300 hover:text-white">
                 <Search className="w-5 h-5 sm:w-6 sm:h-6" />
               </button>
-              <button onClick={() => setIsOpen(!isOpen)} className="p-1.5 text-slate-300 hover:text-white transition-colors" aria-label="Menü">
+              <button onClick={() => setIsOpen(!isOpen)} className="p-1.5 text-slate-300 hover:text-white">
                 {isOpen ? <X className="w-6 h-6 sm:w-7 sm:h-7" /> : <Menu className="w-6 h-6 sm:w-7 sm:h-7" />}
               </button>
             </div>
@@ -137,40 +130,27 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* MOBİL ARAMA ÇUBUĞU */}
-      <AnimatePresence>
-        {isSearchOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            className="bg-slate-900/95 backdrop-blur-md border-b border-slate-800 md:hidden overflow-hidden"
-          >
-            <div className="p-4">
-              <form onSubmit={handleSearch} className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                <Input
-                  className="bg-slate-950 border-slate-800 h-12 sm:h-14 pl-12 rounded-xl text-white focus:ring-teal-500"
-                  placeholder="Arama yap..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </form>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* MOBİL MENÜ LİNKLERİ */}
-      <div className={cn("md:hidden absolute w-full bg-slate-950/98 backdrop-blur-lg border-b border-slate-800 transition-all duration-300 z-40 overflow-hidden", isOpen ? "max-h-[600px] opacity-100 py-10" : "max-h-0 opacity-0")}>
+      {/* MOBİL MENÜ LİNKLERİ - DÜZELTİLMİŞ KISIM */}
+      <div className={cn(
+        "md:hidden absolute top-full left-0 w-full bg-slate-950 border-b border-slate-800 transition-all duration-300 z-50 overflow-hidden shadow-2xl", 
+        isOpen ? "max-h-[600px] opacity-100 py-10" : "max-h-0 opacity-0"
+      )}>
         <div className="px-6 space-y-6">
           {navLinks.map((link) => (
-            <Link key={link.name} to={link.href} className="block text-xl font-bold text-slate-400 hover:text-white" onClick={() => setIsOpen(false)}>
+            <Link 
+              key={link.name} 
+              to={link.href} 
+              className="block text-xl font-bold text-slate-100 hover:text-teal-400" 
+              onClick={() => setIsOpen(false)}
+            >
               {link.name}
             </Link>
           ))}
           {isAuthenticated && (
-            <button onClick={() => { logout(); setIsOpen(false); }} className="flex items-center gap-2 text-xl font-bold text-rose-400">
+            <button 
+              onClick={() => { logout(); setIsOpen(false); }} 
+              className="flex items-center gap-2 text-xl font-bold text-rose-400 pt-4 border-t border-slate-800 w-full"
+            >
               <LogOut className="w-5 h-5" /> Çıkış Yap
             </button>
           )}
