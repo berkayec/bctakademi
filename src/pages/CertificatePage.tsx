@@ -7,7 +7,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useUserStore } from '@/store/use-user-store';
 
-// DİKKAT: "export function CertificatePage" isminin main.tsx ile tam uyuşması şart
+// DİKKAT: main.tsx içindeki import ile bu ismin birebir uyuşması şart
 export function CertificatePage() {
   const navigate = useNavigate();
   const user = useUserStore(s => s.user);
@@ -35,7 +35,7 @@ export function CertificatePage() {
       id: `cert-${course.id}`,
       title: `${course.title} Uzmanlık Sertifikası`,
       date: new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' }),
-      prefix: course.prefix || course.categoryPrefix,
+      prefix: course.prefix || course.categoryPrefix || 'BCT',
       points: user.points
     }));
   }, [user]);
@@ -47,14 +47,13 @@ export function CertificatePage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
         <div className="flex flex-col gap-12">
           
-          {/* ÜST BAŞLIK */}
           <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div className="space-y-2">
               <Link to="/portal" className="flex items-center text-[10px] font-bold text-teal-500 hover:text-teal-400 transition-colors uppercase mb-4 tracking-widest">
                 <ChevronLeft className="w-4 h-4 mr-1" /> Panele Dön
               </Link>
               <h1 className="text-4xl font-display font-bold text-white tracking-tight leading-tight">Başarı Belgelerim</h1>
-              <p className="text-slate-400 font-medium">Tamamladığınız kurslar için kazandığınız resmi sertifikalar.</p>
+              <p className="text-slate-400 font-medium">Tamamladığınız eğitim modülleri için hak kazandığınız belgeler.</p>
             </div>
           </header>
 
@@ -68,7 +67,6 @@ export function CertificatePage() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                   >
-                    {/* SERTİFİKA KARTI */}
                     <Card className="overflow-hidden border-none shadow-2xl bg-white rounded-[2.5rem] relative">
                       <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/5 rounded-full -mr-20 -mt-20 blur-3xl" />
                       <CardContent className="p-8 md:p-16 border-[12px] border-double border-slate-50 m-3 rounded-[2rem]">
@@ -87,11 +85,11 @@ export function CertificatePage() {
                           <div className="h-px w-24 bg-slate-200 mx-auto" />
 
                           <div className="space-y-4">
-                            <p className="text-slate-500 italic text-sm">Bu sertifika, ilgili eğitim modülünü başarıyla tamamlayan</p>
+                            <p className="text-slate-500 italic text-sm">Bu belge, ilgili eğitim programını başarıyla bitiren</p>
                             <p className="text-3xl font-display font-black text-slate-900 underline decoration-teal-400 decoration-4 underline-offset-8">
                               {user.username}
                             </p>
-                            <p className="text-slate-500 italic text-sm">adına BCT Akademi tarafından düzenlenmiştir.</p>
+                            <p className="text-slate-500 italic text-sm">adına BCT Akademi tarafından tanzim edilmiştir.</p>
                           </div>
 
                           <div className="grid grid-cols-2 gap-8 pt-12 border-t border-slate-50">
@@ -115,18 +113,17 @@ export function CertificatePage() {
                     </Card>
 
                     <div className="mt-6 flex flex-wrap gap-4 justify-center md:justify-end px-4">
-                      <Button variant="ghost" className="text-slate-400 hover:text-white font-bold gap-2">
-                        <Download className="w-4 h-4" /> PDF İNDİR
+                      <Button variant="ghost" className="text-slate-400 hover:text-white font-bold gap-2 uppercase tracking-widest text-[10px]">
+                        <Download className="w-4 h-4" /> PDF İndir
                       </Button>
-                      <Button variant="ghost" className="text-slate-400 hover:text-white font-bold gap-2">
-                        <Share2 className="w-4 h-4" /> LINKEDIN'DE PAYLAŞ
+                      <Button variant="ghost" className="text-slate-400 hover:text-white font-bold gap-2 uppercase tracking-widest text-[10px]">
+                        <Share2 className="w-4 h-4" /> LinkedIn'de Paylaş
                       </Button>
                     </div>
                   </motion.div>
                 ))}
               </div>
 
-              {/* YAN PANEL */}
               <aside className="lg:sticky lg:top-28 space-y-6">
                 <div className="bg-slate-900 p-8 rounded-[2.5rem] border border-slate-800 shadow-2xl space-y-6">
                   <h3 className="text-xl font-bold text-white tracking-tight">Akademik Durum</h3>
@@ -136,18 +133,17 @@ export function CertificatePage() {
                       <p className="text-3xl font-black text-white">{earnedCertificates.length}</p>
                     </div>
                     <p className="text-xs text-slate-400 leading-relaxed">
-                      Sertifikalarınız block-chain tabanlı doğrulama koduna sahiptir ve profesyonel ağlarda paylaşılabilir.
+                      Eğitimlerin tamamını bitirdiğinizde "Kıdemli Biyomedikal Uzmanı" unvanına sahip olursunuz.
                     </p>
                   </div>
                 </div>
               </aside>
             </div>
           ) : (
-            /* SERTİFİKA YOKSA */
             <div className="py-24 text-center bg-slate-900/30 rounded-[3rem] border-2 border-dashed border-slate-800 max-w-2xl mx-auto">
               <Award className="w-16 h-16 text-slate-700 mx-auto mb-6" />
               <h2 className="text-2xl font-bold text-white mb-2 tracking-tight">Henüz Sertifikanız Yok</h2>
-              <p className="text-slate-500 mb-8 px-8">Bir kursun tüm ünitelerini başarıyla tamamlayarak ilk uzmanlık belgenizi hemen alabilirsiniz.</p>
+              <p className="text-slate-500 mb-8 px-8">Üniteleri tamamlayıp quizleri çözerek ilk uzmanlık belgenizi alabilirsiniz.</p>
               <Button asChild className="bg-teal-600 hover:bg-teal-500 text-white rounded-xl px-10 h-14 font-bold border-none shadow-xl">
                 <Link to="/dersler">DERSLERİ KEŞFET</Link>
               </Button>
