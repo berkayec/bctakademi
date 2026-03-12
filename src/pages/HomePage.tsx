@@ -36,24 +36,46 @@ export function HomePage() {
       <div className="flex flex-col" onMouseMove={handleMouseMove}>
         <motion.div className="fixed top-0 left-0 right-0 h-1 bg-orange-500 origin-left z-[60]" style={{ scaleX }} />
         {/* Hero Section */}
-        <section className="relative bg-slate-950 pt-24 pb-36 md:pt-32 md:pb-48 overflow-hidden min-h-[90vh] flex items-center">
+        <section className="relative bg-slate-950 pt-20 pb-36 md:pt-28 md:pb-48 overflow-hidden min-h-[95vh] flex items-center">
           {/* Tech Grid & Node Interactive Background */}
           <div className="absolute inset-0 z-0">
             <HeroInteractiveCanvas />
           </div>
           {/* Parallax Overlay Layer */}
-          <motion.div 
+          <motion.div
             className="absolute inset-0 z-0 pointer-events-none opacity-30"
             style={{ x: bgX, y: bgY }}
           >
             <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-transparent to-slate-950" />
           </motion.div>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
-            <div className="text-center space-y-12">
+            <div className="text-center space-y-8 md:space-y-12">
+              {/* Client Feedback: High-fidelity biomedical image container inserted above heading */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, ease: "easeOut" }}
+                className="relative w-full max-w-5xl mx-auto mb-4 md:mb-8 rounded-3xl overflow-hidden group shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/5"
+              >
+                {/* Horizontal Cinematic Image */}
+                <div className="relative aspect-[21/9] md:aspect-[32/9] w-full">
+                  <img 
+                    src="https://images.unsplash.com/photo-1579154212624-b15132d8a961?auto=format&fit=crop&q=80&w=2000" 
+                    alt="Biomedical Technology Visual" 
+                    className="w-full h-full object-cover grayscale-[0.2] brightness-[0.7] group-hover:scale-105 transition-transform duration-[10s] ease-linear"
+                  />
+                  {/* Advanced Gradient Masking for Seamless BG Blend */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-transparent to-slate-950 pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-transparent to-slate-950 pointer-events-none" />
+                  <div className="absolute inset-0 bg-orange-500/10 mix-blend-overlay pointer-events-none" />
+                  {/* Internal Glow Effect */}
+                  <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-slate-950 to-transparent" />
+                </div>
+              </motion.div>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, ease: "easeOut" }}
+                transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
                 className="flex flex-col items-center"
               >
                 <h1 className="text-display text-white mb-6 tracking-tighter drop-shadow-2xl">
@@ -63,8 +85,8 @@ export function HomePage() {
                 <p className="max-w-xl mx-auto text-2xs md:text-xs text-orange-500 font-black tracking-[0.6em] uppercase mb-10">
                   BCT AKADEMİ
                 </p>
-                <p className="max-w-3xl mx-auto text-lg md:text-2xl text-slate-400 leading-relaxed font-normal">
-                  Türkiye'nin en kapsamlı biyomedikal eğitim platformu. Profesyonel teknik içerikler ve 
+                <p className="max-w-3xl mx-auto text-lg md:text-2xl text-slate-400 leading-relaxed font-normal px-4">
+                  Türkiye'nin en kapsamlı biyomedikal eğitim platformu. Profesyonel teknik içerikler ve
                   klinik mühendislik temelleri ile uzmanlığınızı şekillendirin.
                 </p>
               </motion.div>
@@ -72,8 +94,8 @@ export function HomePage() {
               <motion.div
                 initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.3, duration: 0.6 }}
-                className="max-w-2xl mx-auto"
+                transition={{ delay: 0.5, duration: 0.6 }}
+                className="max-w-2xl mx-auto px-4"
               >
                 <form onSubmit={handleSearch} className="relative group">
                   <div className="absolute -inset-2 bg-gradient-to-r from-orange-500/10 to-teal-500/10 rounded-[2.2rem] blur-3xl opacity-0 group-focus-within:opacity-100 transition-all duration-700" />
@@ -97,8 +119,8 @@ export function HomePage() {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-                className="flex flex-col sm:flex-row justify-center gap-6 pt-6"
+                transition={{ delay: 0.7 }}
+                className="flex flex-col sm:flex-row justify-center gap-6 pt-6 px-4"
               >
                 <Link to="/dersler">
                   <Button className="w-full sm:w-auto h-16 px-12 bg-orange-500 hover:bg-orange-600 text-white font-bold text-xl rounded-2xl group shadow-lg transition-all hover:scale-105 border-none">
