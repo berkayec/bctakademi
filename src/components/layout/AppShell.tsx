@@ -3,31 +3,37 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { Toaster } from '@/components/ui/sonner';
 import { useTheme } from '@/hooks/use-theme';
 import { ScrollToTop } from './ScrollToTop';
-/**
- * Global application shell that wraps all routes.
- * Handles cross-cutting concerns like scrolling to top on navigation,
- * setting page metadata, and hosting the global notification system.
- */
+import { Navbar } from './Navbar'; // Navbar'ı buraya ekledik
+
 export function AppShell() {
   const { pathname } = useLocation();
   const { isDark } = useTheme();
+
   useEffect(() => {
-    // Synchronize the application's browser tab title with the updated brand name and specific page context
     document.title = 'BCT Akademi | Biyomedikal Eğitim Portalı';
-    // Set theme color for mobile browsers to match header branding
+    
     const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    const color = isDark ? '#020617' : '#0f172a';
+    
     if (metaThemeColor) {
-      metaThemeColor.setAttribute('content', isDark ? '#020617' : '#0f172a');
+      metaThemeColor.setAttribute('content', color);
     } else {
       const meta = document.createElement('meta');
       meta.name = 'theme-color';
-      meta.content = isDark ? '#020617' : '#0f172a';
+      meta.content = color;
       document.getElementsByTagName('head')[0].appendChild(meta);
     }
   }, [pathname, isDark]);
+
   return (
-    <>
+    <div className="min-h-screen flex flex-col bg-[#0a0e1a]">
       <ScrollToTop />
+      <Navbar /> {/* Navbar artık tüm sayfalarda otomatik görünecek */}
+      
+      <main className="flex-1">
+        <Outlet /> {/* Sayfalar buraya yüklenecek */}
+      </main>
+
       <Toaster
         position="top-right"
         richColors
@@ -37,7 +43,6 @@ export function AppShell() {
         closeButton
         duration={4000}
       />
-      <Outlet />
-    </>
+    </div>
   );
 }
