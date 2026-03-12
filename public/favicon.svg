@@ -1,1 +1,32 @@
-
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect
+    x="5"
+    y="10"
+    width="90"
+    height="70"
+    rx="8"
+    fill="#0f172a"
+    stroke="#334155"
+    stroke-width="4"
+  />
+  <rect
+    x="12"
+    y="17"
+    width="76"
+    height="50"
+    rx="4"
+    fill="#020617"
+  />
+  <path
+    d="M15 42H25L32 25L45 65L52 42H62L68 35L75 42H85"
+    stroke="#f97316"
+    stroke-width="6"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <circle cx="25" cy="87" r="4" fill="#334155" />
+  <circle cx="50" cy="87" r="4" fill="#334155" />
+  <circle cx="75" cy="87" r="4" fill="#334155" />
+  <circle cx="85" cy="22" r="2.5" fill="#f97316" />
+</svg>
