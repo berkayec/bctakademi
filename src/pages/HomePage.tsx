@@ -46,11 +46,11 @@ export function HomePage() {
             transition={{ duration: 1.5, ease: "easeOut" }}
             className="relative w-full z-10 overflow-hidden bg-[#0a0e1a]"
           >
-            <div className="relative w-full max-h-[400px] min-h-[200px] flex items-center justify-center">
+            <div className="relative w-full">
               <img
-                src="https://i.ibb.co/27b9C9m2/"
+                src="https://i.ibb.co/gMn2f2H1/unnamed.jpg"
                 alt="Biomedical Technology Banner"
-                className="w-full h-full max-h-[400px] object-contain"
+                className="w-full h-[300px] object-cover"
               />
               {/* Single Gradient Blending for smooth transition to background */}
               <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0a0e1a] pointer-events-none" />
