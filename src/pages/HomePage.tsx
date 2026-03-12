@@ -68,8 +68,8 @@ export function HomePage() {
                   Geleceğin Sağlık <br className="hidden sm:block" />
                   <span className="text-orange-500">Teknolojisini Keşfet</span>
                 </h1>
-                <p className="max-w-xl mx-auto text-2xs md:text-xs text-orange-500 font-black tracking-[0.6em] uppercase mb-10">
-                  BİYOMEDİKAL CİHAZ TEKNOLOJİLERİ EĞİTİM PLATFORMU
+                <p className="max-w-xl mx-auto text-2xs md:text-xs text-[#2dd4bf] font-black tracking-[0.6em] uppercase mb-10">
+                BİYOMEDİKAL CİHAZ TEKNOLOJİLERİ EĞİTİM PLATFORMU
                 </p>
                 <p className="max-w-3xl mx-auto text-lg md:text-2xl text-slate-400 leading-relaxed font-normal px-4">
                   Türkiye'nin en kapsamlı biyomedikal eğitim platformu. Profesyonel teknik içerikler ve
