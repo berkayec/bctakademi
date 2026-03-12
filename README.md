@@ -2,7 +2,7 @@
 
 [![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/berkayec/bctakademi)
 
-A modern full-stack web application powered by Cloudflare Workers for the backend API and React with shadcn/ui for a stunning, responsive frontend. Built with TypeScript, Tailwind CSS, and best-in-class tools for rapid development and deployment. 
+A modern full-stack web application powered by Cloudflare Workers for the backend API and React with shadcn/ui for a stunning, responsive frontend. Built with TypeScript, Tailwind CSS, and best-in-class tools for rapid development and deployment.
 
 ## Features
 
