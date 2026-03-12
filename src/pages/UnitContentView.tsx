@@ -37,9 +37,9 @@ const TopicList = memo(({ unit, activeTopicIndex, setActiveTopicIndex, isMobile 
           if (isMobile && setIsMobileMenuOpen) setIsMobileMenuOpen(false);
         }}
         className={cn(
-          "w-full text-left p-4 rounded-2xl transition-all border group",
+          "w-full text-left p-4 rounded-2xl transition-all border group relative",
           activeTopicIndex === idx
-            ? "bg-teal-50/80 border-teal-200 shadow-sm ring-1 ring-teal-200/50"
+            ? "bg-teal-50/80 border-teal-200 shadow-sm ring-2 ring-teal-500/20"
             : "bg-transparent border-transparent hover:bg-slate-100/50"
         )}
       >
@@ -77,6 +77,7 @@ export function UnitContentView() {
   const completeUnit = useUserStore(s => s.completeUnit);
   const trackVideo = useUserStore(s => s.trackVideo);
   const isAuthenticated = useUserStore(s => s.isAuthenticated);
+  const user = useUserStore(s => s.user);
   const handleScroll = useCallback(() => {
     if (scrollContainerRef.current) {
       const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
@@ -89,15 +90,15 @@ export function UnitContentView() {
     setUnitCompleted(false);
     setScrollProgress(0);
     setHasCompletedCurrentQuiz(false);
+    // Reset window and body scroll to ensure container-based scrolling works reliably
     window.scrollTo(0, 0);
+    document.body.scrollTo(0, 0);
   }, [unitId]);
   useEffect(() => {
     if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+      scrollContainerRef.current.scrollTo({ top: 0, behavior: 'instant' });
       setScrollProgress(0);
       setHasCompletedCurrentQuiz(false);
-      // Extra ensure for mobile view chrome
-      window.scrollTo(0, 0);
     }
   }, [activeTopicIndex]);
   const currentTopic = unit?.topics[activeTopicIndex];
@@ -123,7 +124,7 @@ export function UnitContentView() {
       });
     }
     if (activeTopicIndex === unit.topics.length - 1) {
-      const currentPoints = useUserStore.getState().user?.points ?? 0;
+      const currentPoints = user?.points ?? 0;
       const oldTitle = getUserTitle(currentPoints);
       completeUnit(unit.id);
       setUnitCompleted(true);
@@ -195,7 +196,7 @@ export function UnitContentView() {
           </ScrollArea>
         </div>
         <div className="flex-1 flex flex-col bg-white overflow-hidden relative">
-          <header className="px-6 md:px-8 py-4 border-b flex items-center justify-between bg-white/80 backdrop-blur-md z-10 sticky top-0">
+          <header className="px-6 md:px-8 py-4 border-b flex items-center justify-between bg-white/80 backdrop-blur-md z-10 sticky top-0 relative">
             <div className="flex items-center gap-3">
               <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
                 <SheetTrigger asChild>
@@ -230,12 +231,13 @@ export function UnitContentView() {
                 {activeTopicIndex === unit.topics.length - 1 ? 'Üniteyi Bitir' : 'Sonraki Konu'}
               </Button>
             </div>
-            <div className="absolute bottom-0 left-0 h-1 bg-teal-500 transition-all duration-300" style={{ width: `${scrollProgress}%` }} />
+            <div className="absolute bottom-0 left-0 h-[3px] bg-teal-500 transition-all duration-300 z-20" style={{ width: `${scrollProgress}%` }} />
           </header>
           <div
-            className="flex-1 overflow-y-auto scroll-smooth"
+            className="flex-1 overflow-y-auto scroll-smooth outline-none"
             onScroll={handleScroll}
             ref={scrollContainerRef}
+            tabIndex={-1}
           >
             <div className="max-w-4xl mx-auto px-6 sm:px-8 pt-8 pb-24 space-y-12">
               <div className="flex flex-wrap items-center gap-6 text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-6">
@@ -267,7 +269,13 @@ export function UnitContentView() {
                     key={currentTopic.id}
                     quiz={currentTopic.quiz}
                     isAuthenticated={isAuthenticated}
-                    onSuccess={() => setHasCompletedCurrentQuiz(true)}
+                    onSuccess={() => {
+                      setHasCompletedCurrentQuiz(true);
+                      toast.success("Bilgi Kontrolü Tamamlandı!", {
+                        description: "Konuyu bitirmeye hazırsınız.",
+                        icon: <Trophy className="text-teal-500 w-4 h-4" />
+                      });
+                    }}
                   />
                 </div>
               )}

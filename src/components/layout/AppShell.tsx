@@ -12,9 +12,19 @@ export function AppShell() {
   const { pathname } = useLocation();
   const { isDark } = useTheme();
   useEffect(() => {
-    // Synchronize the application's browser tab title with the updated brand name
-    document.title = 'BCT Akademi - Biyomedikal Cihaz Teknolojileri';
-  }, [pathname]);
+    // Synchronize the application's browser tab title with the updated brand name and specific page context
+    document.title = 'BCT Akademi | Biyomedikal Eğitim Portalı';
+    // Set theme color for mobile browsers to match header branding
+    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (metaThemeColor) {
+      metaThemeColor.setAttribute('content', isDark ? '#020617' : '#0f172a');
+    } else {
+      const meta = document.createElement('meta');
+      meta.name = 'theme-color';
+      meta.content = isDark ? '#020617' : '#0f172a';
+      document.getElementsByTagName('head')[0].appendChild(meta);
+    }
+  }, [pathname, isDark]);
   return (
     <>
       <ScrollToTop />
@@ -24,6 +34,8 @@ export function AppShell() {
         expand={false}
         theme={isDark ? 'dark' : 'light'}
         className="font-sans"
+        closeButton
+        duration={4000}
       />
       <Outlet />
     </>
