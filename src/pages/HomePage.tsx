@@ -110,12 +110,12 @@ export function HomePage() {
               >
                 <Link to="/dersler">
                   <Button className="w-full sm:w-auto h-16 px-12 bg-orange-500 hover:bg-orange-600 text-white font-bold text-xl rounded-2xl group shadow-lg transition-all hover:scale-105 border-none">
-                    Eğitimi İncele <ArrowRight className="ml-2 w-6 h-6 group-hover:translate-x-1 transition-transform" />
+                    Eğitimlere Göz At <ArrowRight className="ml-2 w-6 h-6 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
                 <Link to="/blog">
                   <Button className="w-full sm:w-auto h-16 px-12 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-2xl text-xl transition-all hover:scale-105 border-none shadow-lg">
-                    <Newspaper className="mr-2 w-6 h-6" /> BCT Güncel
+                    <Newspaper className="mr-2 w-6 h-6" /> BCT Blog
                   </Button>
                 </Link>
               </motion.div>
