@@ -4,6 +4,7 @@ export interface QuizQuestion {
   correctAnswer: number;
   explanation: string;
 }
+
 export interface Topic {
   id: string;
   title: string;
@@ -11,6 +12,7 @@ export interface Topic {
   videoYoutubeId?: string;
   quiz?: QuizQuestion[];
 }
+
 export interface Unit {
   id: string;
   title: string;
@@ -18,6 +20,7 @@ export interface Unit {
   estimatedReadingTime: string;
   topics: Topic[];
 }
+
 export interface Course {
   id: string;
   title: string;
@@ -25,11 +28,13 @@ export interface Course {
   image: string;
   units: Unit[];
 }
+
 export interface Category {
   id: string;
   title: string;
   courses: Course[];
 }
+
 export const curriculum: Category[] = [
   {
     id: 'temel-dersler',
@@ -85,13 +90,13 @@ export const curriculum: Category[] = [
               {
                 id: 'est-t-2-1',
                 title: 'Uluslararası Güvenlik Protokolleri',
-                content: 'IEC 62353 standardı, IEC 60601-1 standardının hastane ortamındaki periyodik testler için optimize edilmiş halidir. Bu ünite kapsamında cihaz sınıfları (Class I, II) ve uygulama parçası tipleri (Type B, BF, CF) arasındaki farkları inceleyeceğiz.\n\nÖzellikle CF tipi uygulama parçalarının (kalp ile doğrudan temas edenler) kaçak akım limitlerinin ne kadar düşük olduğunu ve nedenini öğrenmek klinik mühendislik açısından kritiktir.',
+                content: 'IEC 62353 standardı, IEC 60601-1 standardının hastane ortamındaki periyodik testler için optimize edilmiş halidir.',
                 quiz: [
                   {
                     question: "Aşağıdaki uygulama parçası tiplerinden hangisi en sıkı kaçak akım limitlerine sahiptir?",
                     options: ["Tip B", "Tip BF", "Tip CF", "Tip DEF"],
                     correctAnswer: 2,
-                    explanation: "Tip CF (Cardiac Floating), kalp ile doğrudan temas eden cihazlar içindir ve mikro-şok riskine karşı en düşük kaçak akım limitlerine (10µA normal durumda) sahiptir."
+                    explanation: "Tip CF (Cardiac Floating), kalp ile doğrudan temas eden cihazlar içindir."
                   }
                 ]
               }
@@ -106,7 +111,7 @@ export const curriculum: Category[] = [
               {
                 id: 'est-t-3-1',
                 title: 'Diferansiyel ve Doğrudan Ölçüm',
-                content: 'Kaçak akım ölçümünde üç temel yöntem kullanılır: Doğrudan yöntem, Diferansiyel yöntem ve Alternatif yöntem. Doğrudan ölçümde, kaçak akım bir ölçüm direnci üzerinden direkt toprağa akar. Diferansiyel yöntemde ise faz ve nötr arasındaki akım farkı hesaplanır.\n\nHer yöntemin kendine has avantajları ve kullanım alanları vardır. Örneğin, diferansiyel yöntem cihazın normal çalışma modunda (yük altındayken) test edilmesine olanak sağlar.',
+                content: 'Kaçak akım ölçümünde üç temel yöntem kullanılır: Doğrudan yöntem, Diferansiyel yöntem ve Alternatif yöntem.',
                 quiz: []
               }
             ]
@@ -128,13 +133,13 @@ export const curriculum: Category[] = [
               {
                 id: 'be-t-1-1',
                 title: 'Enstrümantasyon Yükselteçleri (In-Amp)',
-                content: 'Biyomedikal sinyaller genellikle mikrovolt seviyesindedir ve yüksek gürültü içerir. Standart bir Op-Amp yerine In-Amp (Instrumentation Amplifier) kullanılması, yüksek ortak mod reddetme oranı (CMRR) sağlayarak 50Hz şebeke gürültüsünü filtrelemek için elzemdir.',
+                content: 'Biyomedikal sinyaller genellikle mikrovolt seviyesindedir ve yüksek gürültü içerir.',
                 quiz: [
                   {
-                    question: "Biyomedikal sinyal işlemede neden yüksek CMRR (Common Mode Rejection Ratio) istenir?",
-                    options: ["Sinyali daha hızlı iletmek için", "Şebeke gürültüsü gibi ortak mod sinyallerini yok edip fark sinyalini yükseltmek için", "Güç tüketimini azaltmak için", "Elektrot empedansını düşürmek için"],
+                    question: "Biyomedikal sinyal işlemede neden yüksek CMRR istenir?",
+                    options: ["Hız için", "Gürültü bastırma için", "Güç tasarrufu için", "Empedans için"],
                     correctAnswer: 1,
-                    explanation: "CMRR ne kadar yüksekse, her iki elektrot girişine de aynı anda gelen (ortak) gürültüler o kadar iyi bastırılır."
+                    explanation: "CMRR ne kadar yüksekse, ortak mod gürültüleri o kadar iyi bastırılır."
                   }
                 ]
               }
@@ -149,10 +154,61 @@ export const curriculum: Category[] = [
               {
                 id: 'be-t-2-1',
                 title: 'Band-Pass ve Notch Filtreler',
-                content: 'Örneğin bir EKG sinyali 0.05 Hz ile 150 Hz arasındaki frekans bileşenlerine sahiptir. Bu aralık dışındaki sinyaller (DC kayması, kas gürültüsü vb.) filtreler aracılığıyla ayıklanmalıdır.',
+                content: 'EKG sinyali 0.05 Hz ile 150 Hz frekans bileşenlerine sahiptir.',
                 quiz: []
               }
             ]
+          }
+        ]
+      },
+      {
+        id: 'mesleki-fizyoloji-ve-terminoloji',
+        title: 'Mesleki Fizyoloji ve Terminoloji',
+        description: 'İnsan anatomisinin ve fizyolojik sistemlerin biyomedikal mühendislik perspektifiyle analizi.',
+        image: 'https://images.unsplash.com/photo-1530026405186-ed1f139313f8?auto=format&fit=crop&q=80&w=1200',
+        units: [
+          {
+            id: 'mf-u-1',
+            title: 'Ünite 1: Kardiyovasküler Sistem Dinamiği',
+            description: 'Kalbin elektriksel iletim sistemi ve hemodinamik parametreler.',
+            estimatedReadingTime: '100 dk',
+            topics: [
+              {
+                id: 'mf-t-1-1',
+                title: 'EKG Dalga Formu ve Fizyolojik Kaynağı',
+                content: 'P dalgası atriyal depolarizasyonu, QRS kompleksi ventriküler depolarizasyonu temsil eder.',
+                quiz: []
+              }
+            ]
+          },
+          {
+            id: 'mf-u-2',
+            title: 'Ünite 2: Sinir Sistemi ve Biyo-elektrik',
+            description: 'Nöronal iletim, aksiyon potansiyeli ve EEG temelleri.',
+            estimatedReadingTime: '120 dk',
+            topics: [
+              {
+                id: 'mf-t-2-1',
+                title: 'Aksiyon Potansiyeli ve İyon Kanalları',
+                content: 'Hücre membranındaki sodyum-potasyum pompası sinyal oluşumunu sağlar.',
+                quiz: []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'teknik-resim',
+        title: 'Teknik Resim',
+        description: 'Biyomedikal cihaz tasarımı ve standart teknik çizim protokolleri.',
+        image: 'https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&q=80&w=1200',
+        units: [
+          {
+            id: 'tr-u-1',
+            title: 'Ünite 1: Teknik Çizim Esasları',
+            description: 'Temel geometrik çizimler ve görünüş çıkarma teknikleri.',
+            estimatedReadingTime: '60 dk',
+            topics: []
           }
         ]
       }
@@ -177,13 +233,13 @@ export const curriculum: Category[] = [
               {
                 id: 'yd-t-1-1',
                 title: 'Ventilasyon Kontrol Modları',
-                content: 'Modern ventilatörler Basınç Kontrollü (PCV) ve Volüm Kontrollü (VCV) olmak üzere iki temel modda çalışır. Teknik servis uzmanı olarak bu modlardaki akış sensörlerinin ve ekspirasyon valflerinin nasıl çalıştığını bilmeniz gerekir.',
+                content: 'Modern ventilatörler PCV ve VCV olmak üzere iki temel modda çalışır.',
                 quiz: [
                   {
-                    question: "Bir ventilatörde PEEP (Positive End-Expiratory Pressure) ne işe yarar?",
-                    options: ["Nefes vermeyi kolaylaştırır", "Alveollerin sönmesini önlemek için ekspirasyon sonunda pozitif basınç sağlar", "Oksijen konsantrasyonunu artırır", "Cihazın ısınmasını engeller"],
+                    question: "Ventilatörde PEEP ne işe yarar?",
+                    options: ["Kolay nefes", "Alveollerin sönmesini önler", "Oksijen artırır", "Isınmayı engeller"],
                     correctAnswer: 1,
-                    explanation: "PEEP, akciğerlerin tamamen kapanmasını önleyerek gaz değişim alanını korur."
+                    explanation: "Akciğerlerin tamamen kapanmasını önler."
                   }
                 ]
               }
@@ -198,52 +254,25 @@ export const curriculum: Category[] = [
               {
                 id: 'yd-t-2-1',
                 title: 'Bifazik vs Monofazik Dalga Formları',
-                content: 'Modern defibrilatörler bifazik dalga formu kullanır. Bu sayede daha düşük enerji seviyelerinde (Joule) daha etkili bir şok verilebilir ve miyokardiyal doku hasarı minimize edilir.',
+                content: 'Modern defibrilatörler bifazik dalga formu kullanır.',
                 quiz: []
               }
             ]
           }
         ]
-      }
-    ]
-  },
-  {
-    id: 'fizyoloji-dersleri',
-    title: 'Mesleki Fizyoloji',
-    courses: [
+      },
       {
-        id: 'mesleki-fizyoloji',
-        title: 'Mesleki Fizyoloji ve Terminoloji',
-        description: 'İnsan anatomisinin ve fizyolojik sistemlerin biyomedikal mühendislik perspektifiyle analizi.',
-        image: 'https://images.unsplash.com/photo-1530026405186-ed1f139313f8?auto=format&fit=crop&q=80&w=1200',
+        id: 'biyomalzeme-biyomekanik',
+        title: 'Biyomalzeme ve Biyomekanik',
+        description: 'Vücut içi implantlar, biyomalzeme sınıfları ve insan vücudunun mekanik analizleri.',
+        image: 'https://images.unsplash.com/photo-1576086213369-97a306dca664?auto=format&fit=crop&q=80&w=1200',
         units: [
           {
-            id: 'mf-u-1',
-            title: 'Ünite 1: Kardiyovasküler Sistem Dinamiği',
-            description: 'Kalbin elektriksel iletim sistemi ve hemodinamik parametreler.',
-            estimatedReadingTime: '100 dk',
-            topics: [
-              {
-                id: 'mf-t-1-1',
-                title: 'EKG Dalga Formu ve Fizyolojik Kaynağı',
-                content: 'P dalgası atriyal depolarizasyonu, QRS kompleksi ventriküler depolarizasyonu ve T dalgası ventriküler repolarizasyonu temsil eder. Bu ünite boyunca her dalganın genlik ve süre değerlerinin klinik önemini tartışacağız.',
-                quiz: []
-              }
-            ]
-          },
-          {
-            id: 'mf-u-2',
-            title: 'Ünite 2: Sinir Sistemi ve Biyo-elektrik',
-            description: 'Nöronal iletim, aksiyon potansiyeli ve EEG temelleri.',
-            estimatedReadingTime: '120 dk',
-            topics: [
-              {
-                id: 'mf-t-2-1',
-                title: 'Aksiyon Potansiyeli ve İyon Kanalları',
-                content: 'Hücre membranındaki sodyum-potasyum pompası ve voltaj kapılı iyon kanalları biyoelektrik sinyallerin oluşumunu sağlar.',
-                quiz: []
-              }
-            ]
+            id: 'bm-u-1',
+            title: 'Ünite 1: Biyomalzeme Sınıflandırması',
+            description: 'Metaller, seramikler ve polimerlerin biyolojik uyumluluğu.',
+            estimatedReadingTime: '90 dk',
+            topics: []
           }
         ]
       }
