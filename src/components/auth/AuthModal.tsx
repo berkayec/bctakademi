@@ -65,13 +65,13 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 <div className="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center text-orange-400">
                    <ShieldCheck className="w-4 h-4" />
                 </div>
-                Profesyonel Sertifikasyon
+                Sertifikasyon
               </div>
               <div className="flex items-center gap-3 text-sm font-semibold text-slate-300">
                 <div className="w-8 h-8 rounded-full bg-teal-500/20 flex items-center justify-center text-teal-400">
                   <GraduationCap className="w-4 h-4" />
                 </div>
-                Klinik Odaklı Eğitim
+                Tüm Seviyelere Eğitim
               </div>
             </div>
           </div>
