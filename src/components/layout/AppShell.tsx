@@ -16,7 +16,7 @@ export function AppShell() {
   const isMaintenanceMode = true; 
 
   // Kendi girişin için gizli anahtar (bctakademi.com/?admin=true)
-  const isAdmin = new URLSearchParams(search).get('admin') === 'true';
+  const isAdmin = new URLSearchParams(search).get('key') === 'shizi2510';
 
   useEffect(() => {
     const root = window.document.documentElement;
