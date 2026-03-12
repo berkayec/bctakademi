@@ -12,8 +12,6 @@ export function HomePage() {
   const { scrollYProgress } = useScroll();
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
-  const bgX = useSpring(useTransform(mouseX, [-500, 500], [-15, 15]), { stiffness: 50, damping: 20 });
-  const bgY = useSpring(useTransform(mouseY, [-500, 500], [-15, 15]), { stiffness: 50, damping: 20 });
   const handleMouseMove = (e: React.MouseEvent) => {
     const { clientX, clientY } = e;
     const { innerWidth, innerHeight } = window;
@@ -36,7 +34,7 @@ export function HomePage() {
       <div className="flex flex-col" onMouseMove={handleMouseMove}>
         <motion.div className="fixed top-0 left-0 right-0 h-1 bg-orange-500 origin-left z-[60]" style={{ scaleX }} />
         {/* Hero Section */}
-        <section className="relative bg-slate-950 pt-0 pb-36 md:pb-48 overflow-hidden min-h-[95vh] flex flex-col">
+        <section className="relative bg-[#0a0e1a] pt-0 pb-36 md:pb-48 overflow-hidden min-h-[95vh] flex flex-col">
           {/* Tech Grid & Node Interactive Background */}
           <div className="absolute inset-0 z-0">
             <HeroInteractiveCanvas />
@@ -48,16 +46,14 @@ export function HomePage() {
             transition={{ duration: 1.5, ease: "easeOut" }}
             className="relative w-full z-10 overflow-hidden"
           >
-            <div className="relative aspect-[21/9] md:aspect-[21/7] w-full">
+            <div className="relative w-full max-h-[300px]">
               <img
-                src="https://images.unsplash.com/photo-1579154212624-b15132d8a961?auto=format&fit=crop&q=80&w=2000"
+                src="https://i.ibb.co/27b9C9m2/"
                 alt="Biomedical Technology Banner"
-                className="w-full h-full object-cover grayscale-[0.3] brightness-[0.6] scale-105"
+                className="w-full h-full max-h-[300px] object-cover"
               />
-              {/* Deep Gradient Blending */}
-              <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-transparent to-slate-950 pointer-events-none" />
-              <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
-              <div className="absolute inset-0 bg-orange-500/5 mix-blend-overlay pointer-events-none" />
+              {/* Single Gradient Blending for smooth transition to background */}
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#0a0e1a] pointer-events-none" />
             </div>
           </motion.div>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full mt-12 md:mt-16">
