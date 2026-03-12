@@ -3,7 +3,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { Toaster } from '@/components/ui/sonner';
 import { useTheme } from '@/hooks/use-theme';
 import { ScrollToTop } from './ScrollToTop';
-import { Navbar } from './Navbar'; // Navbar'ı buraya ekledik
+import { Navbar } from '@/components/layout/Navbar'; // Navbar'ı buraya ekledik
 
 export function AppShell() {
   const { pathname } = useLocation();
