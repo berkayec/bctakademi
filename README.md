@@ -1,6 +1,6 @@
 # Biomed Tech Hub
 
-[cloudflarebutton]
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/berkayec/bctakademi)
 
 A modern full-stack web application powered by Cloudflare Workers for the backend API and React with shadcn/ui for a stunning, responsive frontend. Built with TypeScript, Tailwind CSS, and best-in-class tools for rapid development and deployment.
 
@@ -99,7 +99,7 @@ app.get('/api/users', (c) => c.json({ users: ['Alice', 'Bob'] }));
 
 3. Customize domain in `wrangler.toml` or Cloudflare dashboard.
 
-[cloudflarebutton]
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/berkayec/bctakademi)
 
 ## Project Structure
 
