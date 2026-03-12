@@ -34,7 +34,6 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
       return;
     }
     setLoading(true);
-    // Simulate network latency for professional feel
     await new Promise(r => setTimeout(r, 800));
     if (type === 'login') {
       login(formData.username, formData.email);
@@ -49,28 +48,27 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[800px] p-0 overflow-hidden border-none rounded-[2.5rem] bg-white shadow-2xl focus:outline-none">
-        <DialogTitle className="sr-only">BCTAkademi - Giriş / Kayıt</DialogTitle>
+        <DialogTitle className="sr-only">BCT Akademi - Giriş / Kayıt</DialogTitle>
         <DialogDescription className="sr-only">Hesabınıza giriş yapın veya yeni üye olun.</DialogDescription>
         <div className="flex flex-col md:flex-row min-h-[550px]">
           <div className="hidden md:flex md:w-1/2 bg-slate-950 p-12 flex-col justify-between relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-teal-500/30 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-transparent" />
             <div className="relative z-10">
-              <div className="flex items-center gap-3 mb-10">
+              <div className="mb-10">
                 <Logo size={48} />
-                <span className="font-display font-bold text-2xl text-white tracking-tighter">BCTAkademi</span>
               </div>
               <h2 className="text-4xl font-display font-bold text-white mb-6 leading-tight">Geleceğin Sağlık Teknolojisine Adım At</h2>
               <p className="text-slate-400 text-lg">Müfredat uyumlu içeriklerimizle kariyerini bir üst seviyeye taşı.</p>
             </div>
             <div className="relative z-10 space-y-5">
               <div className="flex items-center gap-3 text-sm font-semibold text-slate-300">
-                <div className="w-8 h-8 rounded-full bg-teal-500/20 flex items-center justify-center text-teal-400">
+                <div className="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center text-orange-400">
                    <ShieldCheck className="w-4 h-4" />
                 </div>
                 Profesyonel Sertifikasyon
               </div>
               <div className="flex items-center gap-3 text-sm font-semibold text-slate-300">
-                <div className="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center text-orange-400">
+                <div className="w-8 h-8 rounded-full bg-teal-500/20 flex items-center justify-center text-teal-400">
                   <GraduationCap className="w-4 h-4" />
                 </div>
                 Klinik Odaklı Eğitim
@@ -109,7 +107,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                     <Input id="s-email" type="email" placeholder="ogrenci@bct.com" className="rounded-xl h-12 border-slate-200" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
                   </div>
                 </div>
-                <Button disabled={loading} className="w-full bg-teal-500 hover:bg-teal-600 h-14 rounded-xl font-bold text-lg text-white mt-4 border-none shadow-xl shadow-teal-500/20 transition-all active:scale-95" onClick={() => handleAuth('signup')}>
+                <Button disabled={loading} className="w-full bg-orange-500 hover:bg-orange-600 h-14 rounded-xl font-bold text-lg text-white mt-4 border-none shadow-xl shadow-orange-500/20 transition-all active:scale-95" onClick={() => handleAuth('signup')}>
                   {loading ? "Kaydolunuyor..." : "Akademiye Katıl (+150 XP)"}
                 </Button>
               </TabsContent>

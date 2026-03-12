@@ -60,8 +60,8 @@ export function HomePage() {
                   Geleceğin Sağlık <br className="hidden sm:block" />
                   <span className="text-orange-500">Teknolojisini Keşfet</span>
                 </h1>
-                <p className="max-w-xl mx-auto text-2xs md:text-xs text-teal-400 font-black tracking-[0.6em] uppercase mb-10">
-                  Biyomedikal Cihaz Teknolojileri Akademisi
+                <p className="max-w-xl mx-auto text-2xs md:text-xs text-orange-500 font-black tracking-[0.6em] uppercase mb-10">
+                  BCT Akademi
                 </p>
                 <p className="max-w-3xl mx-auto text-lg md:text-2xl text-slate-400 leading-relaxed font-normal">
                   Türkiye'nin en kapsamlı biyomedikal eğitim platformu. Profesyonel teknik içerikler ve
@@ -76,7 +76,7 @@ export function HomePage() {
                 className="max-w-2xl mx-auto"
               >
                 <form onSubmit={handleSearch} className="relative group">
-                  <div className="absolute -inset-2 bg-gradient-to-r from-teal-500/10 to-orange-500/10 rounded-[2.2rem] blur-3xl opacity-0 group-focus-within:opacity-100 transition-all duration-700" />
+                  <div className="absolute -inset-2 bg-gradient-to-r from-orange-500/10 to-teal-500/10 rounded-[2.2rem] blur-3xl opacity-0 group-focus-within:opacity-100 transition-all duration-700" />
                   <div className="relative flex p-2 bg-white/95 backdrop-blur-2xl rounded-[2rem] border border-white/20 shadow-2xl transition-all duration-300 hover:bg-white">
                     <Search className="absolute left-7 top-1/2 -translate-y-1/2 w-6 h-6 text-slate-500" />
                     <Input
@@ -101,7 +101,7 @@ export function HomePage() {
                 className="flex flex-col sm:flex-row justify-center gap-6 pt-6"
               >
                 <Link to="/dersler">
-                  <Button className="w-full sm:w-auto h-16 px-12 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xl rounded-2xl group shadow-lg transition-all hover:scale-105 border-none">
+                  <Button className="w-full sm:w-auto h-16 px-12 bg-orange-500 hover:bg-orange-600 text-white font-bold text-xl rounded-2xl group shadow-lg transition-all hover:scale-105 border-none">
                     Eğitimi İncele <ArrowRight className="ml-2 w-6 h-6 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
@@ -124,7 +124,7 @@ export function HomePage() {
                 { icon: Cpu, title: "Modern Teknoloji", desc: "Yeni nesil görüntüleme sistemleri ve modern yaşam destek üniteleri üzerine güncel modüller." }
               ].map((f, i) => (
                 <div key={i} className="group p-10 rounded-[2.5rem] bg-slate-50/50 border border-slate-100 hover:bg-white hover:shadow-2xl transition-all duration-500">
-                  <div className="w-16 h-16 rounded-2xl bg-teal-500 flex items-center justify-center text-white mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg shadow-teal-500/20">
+                  <div className="w-16 h-16 rounded-2xl bg-orange-500 flex items-center justify-center text-white mb-8 group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-lg shadow-orange-500/20">
                     <f.icon className="w-8 h-8" />
                   </div>
                   <h3 className="text-2xl font-bold text-slate-900 mb-4">{f.title}</h3>

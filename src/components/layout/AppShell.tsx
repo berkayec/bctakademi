@@ -12,8 +12,8 @@ export function AppShell() {
   const { pathname } = useLocation();
   const { isDark } = useTheme();
   useEffect(() => {
-    // Ensure the professional brand name persists across all views
-    document.title = 'BCTAkademi - Biyomedikal Cihaz Teknolojileri';
+    // Synchronize the application's browser tab title with the updated brand name
+    document.title = 'BCT Akademi - Biyomedikal Cihaz Teknolojileri';
   }, [pathname]);
   return (
     <>
