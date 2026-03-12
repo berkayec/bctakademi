@@ -32,26 +32,30 @@ export function ResourcesPage() {
   };
 
   return (
-    <div className="bg-[#0a0e1a] min-h-screen">
+    // bg-[#0a0e1a] -> bg-background | Transition eklendi
+    <div className="bg-background min-h-screen transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
         
         {/* BAŞLIK VE ARAMA */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
           <div className="space-y-2">
-            <h1 className="text-4xl font-display font-bold text-white tracking-tight leading-tight">
+            {/* text-white -> text-foreground */}
+            <h1 className="text-4xl font-display font-bold text-foreground tracking-tight leading-tight transition-colors">
               Kaynak Merkezi
             </h1>
-            <p className="text-slate-400 font-medium">
+            {/* text-slate-400 -> text-muted-foreground */}
+            <p className="text-muted-foreground font-medium transition-colors">
               Akademik çalışmalarınız için teknik belgelere ve eğitim videolarına erişin.
             </p>
           </div>
           <div className="relative w-full md:w-96 group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-orange-500 transition-colors" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-orange-500 transition-colors" />
             <Input 
               placeholder="Kaynak ara..." 
               value={search} 
               onChange={(e) => setSearch(e.target.value)} 
-              className="pl-11 h-12 rounded-xl border-slate-800 bg-slate-900/50 text-white placeholder:text-slate-500 focus-visible:ring-teal-500 shadow-2xl" 
+              // bg-slate-900/50 -> bg-muted/50 | border-slate-800 -> border-border
+              className="pl-11 h-12 rounded-xl border-border bg-muted/50 text-foreground placeholder:text-muted-foreground focus-visible:ring-teal-500 shadow-2xl transition-all" 
             />
           </div>
         </div>
@@ -66,7 +70,7 @@ export function ResourcesPage() {
                 "px-5 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all border",
                 filter === cat
                   ? "bg-teal-500 text-white border-teal-500 shadow-[0_0_15px_rgba(20,184,166,0.4)]"
-                  : "bg-slate-900/50 text-slate-400 border-slate-800 hover:border-slate-700 hover:text-slate-300"
+                  : "bg-muted/50 text-muted-foreground border-border hover:border-foreground/20 hover:text-foreground"
               )}
             >
               {cat === 'Tümü' ? 'Tümü' : `${cat}'ler`}
@@ -86,21 +90,25 @@ export function ResourcesPage() {
                   initial={{ opacity: 0, scale: 0.95 }} 
                   animate={{ opacity: 1, scale: 1 }} 
                   exit={{ opacity: 0, scale: 0.95 }}
-                  className="bg-slate-900/40 backdrop-blur-xl rounded-[2.5rem] p-8 border border-white/5 flex flex-col h-full hover:bg-slate-900/60 transition-all group shadow-xl"
+                  // bg-slate-900/40 -> bg-card | border-white/5 -> border-border
+                  className="bg-card backdrop-blur-xl rounded-[2.5rem] p-8 border border-border flex flex-col h-full hover:bg-card/80 transition-all group shadow-xl"
                 >
                   <div className="flex items-start justify-between mb-8">
                     <div className="p-4 rounded-2xl bg-teal-500/10 text-teal-400 group-hover:scale-110 transition-transform duration-500 shadow-inner">
                       <Icon className="w-7 h-7" />
                     </div>
-                    <Badge variant="outline" className="text-[10px] uppercase font-black border-slate-800 text-slate-500 bg-black/20 px-3 py-1">
+                    {/* border-slate-800 -> border-border | text-slate-500 -> text-muted-foreground */}
+                    <Badge variant="outline" className="text-[10px] uppercase font-black border-border text-muted-foreground bg-muted px-3 py-1">
                       {res.category}
                     </Badge>
                   </div>
                   
-                  <h3 className="text-xl font-bold text-white mb-3 tracking-tight group-hover:text-teal-400 transition-colors leading-tight">
+                  {/* text-white -> text-foreground */}
+                  <h3 className="text-xl font-bold text-foreground mb-3 tracking-tight group-hover:text-teal-500 transition-colors leading-tight">
                     {res.title}
                   </h3>
-                  <p className="text-slate-400 text-sm leading-relaxed mb-8 flex-1">
+                  {/* text-slate-400 -> text-muted-foreground */}
+                  <p className="text-muted-foreground text-sm leading-relaxed mb-8 flex-1 transition-colors">
                     {res.description}
                   </p>
                   
@@ -112,7 +120,7 @@ export function ResourcesPage() {
                       "w-full h-14 rounded-2xl font-black text-xs uppercase tracking-widest border-none transition-all active:scale-95 shadow-xl",
                       res.type === 'Video' 
                         ? "bg-teal-600 hover:bg-teal-500 text-white shadow-teal-900/20" 
-                        : "bg-slate-800 hover:bg-slate-700 text-white shadow-black/40" // Buradaki text-white sorunu çözer
+                        : "bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-black/10"
                     )}
                   >
                     {processingId === res.id ? (
@@ -132,10 +140,10 @@ export function ResourcesPage() {
 
         {/* BOŞ SONUÇ DURUMU */}
         {filteredResources.length === 0 && (
-          <div className="py-24 text-center border-2 border-dashed border-slate-800 rounded-[3rem]">
-            <FileWarning className="w-16 h-16 text-slate-700 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-white mb-2">Kaynak bulunamadı</h3>
-            <p className="text-slate-500 text-sm">Farklı anahtar kelimelerle aramayı deneyebilirsiniz.</p>
+          <div className="py-24 text-center border-2 border-dashed border-border rounded-[3rem] transition-colors">
+            <FileWarning className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-foreground mb-2">Kaynak bulunamadı</h3>
+            <p className="text-muted-foreground text-sm">Farklı anahtar kelimelerle aramayı deneyebilirsiniz.</p>
           </div>
         )}
       </div>
