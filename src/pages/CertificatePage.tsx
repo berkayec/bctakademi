@@ -42,7 +42,7 @@ export function CertificatePage() {
                 <ChevronLeft className="w-4 h-4 mr-1" /> Panele Dön
               </Link>
               <h1 className="text-4xl font-display font-bold text-slate-900 tracking-tight">Başarı Belgelerim</h1>
-              <p className="text-slate-500">Tamamladığınız kurslar için kazandığınız resmi akademik sertifikalar.</p>
+              <p className="text-slate-500">Tamamladığınız kurslar için kazandığınız sertifikalar.</p>
             </div>
           </header>
           {earnedCertificates.length > 0 ? (
@@ -65,7 +65,7 @@ export function CertificatePage() {
                             </div>
                           </div>
                           <div className="space-y-2">
-                            <p className="text-xs font-bold tracking-[0.2em] text-teal-600 uppercase">Resmi Başarı Sertifikası</p>
+                            <p className="text-xs font-bold tracking-[0.2em] text-teal-600 uppercase">Başarı Sertifikası</p>
                             <h2 className="text-3xl md:text-5xl font-display font-bold text-slate-900">{cert.title}</h2>
                           </div>
                           <div className="h-px w-24 bg-slate-200 mx-auto" />
