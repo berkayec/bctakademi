@@ -40,7 +40,7 @@ export function MaintenancePage() {
             <Clock className="w-5 h-5 sm:w-6 h-6 text-teal-500 shrink-0" />
             <div className="min-w-0">
               <p className="text-[9px] sm:text-[10px] font-black uppercase text-muted-foreground tracking-widest">Tahmini Süre</p>
-              <p className="text-sm sm:text-base font-bold text-foreground">~2 Saat</p>
+              <p className="text-sm sm:text-base font-bold text-foreground">~24 Saat</p>
             </div>
           </div>
 
