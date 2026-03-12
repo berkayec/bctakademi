@@ -20,6 +20,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useUserStore, getUserTitle } from '@/store/use-user-store';
 import { toast } from 'sonner';
+
 interface TopicListProps {
   unit: Unit;
   activeTopicIndex: number;
@@ -27,8 +28,9 @@ interface TopicListProps {
   isMobile?: boolean;
   setIsMobileMenuOpen?: (open: boolean) => void;
 }
+
 const TopicList = memo(({ unit, activeTopicIndex, setActiveTopicIndex, isMobile = false, setIsMobileMenuOpen }: TopicListProps) => (
-  <div className={cn("space-y-1", isMobile ? "px-1" : "p-4")}>
+  <div className={cn("space-y-1", isMobile ? "px-2 py-4" : "p-4")}>
     {unit.topics.map((topic, idx) => (
       <button
         key={topic.id}
@@ -39,21 +41,21 @@ const TopicList = memo(({ unit, activeTopicIndex, setActiveTopicIndex, isMobile 
         className={cn(
           "w-full text-left p-4 rounded-2xl transition-all border group relative",
           activeTopicIndex === idx
-            ? "bg-teal-50/80 border-teal-200 shadow-sm ring-2 ring-teal-500/20"
-            : "bg-transparent border-transparent hover:bg-slate-100/50"
+            ? "bg-teal-500/10 border-teal-500/50 md:bg-teal-50/80 md:border-teal-200 shadow-sm ring-2 ring-teal-500/20"
+            : "bg-transparent border-transparent hover:bg-white/5 md:hover:bg-slate-100/50"
         )}
       >
         <div className="flex items-center gap-4">
           <div className={cn(
             "w-9 h-9 rounded-xl flex items-center justify-center transition-all text-xs font-black shrink-0",
-            activeTopicIndex === idx ? "bg-teal-500 text-white shadow-lg shadow-teal-500/20" : "bg-slate-100 text-slate-400 group-hover:bg-slate-200"
+            activeTopicIndex === idx ? "bg-teal-500 text-white shadow-lg" : "bg-slate-800 text-slate-500 md:bg-slate-100 md:text-slate-400 group-hover:bg-slate-200"
           )}>
             {idx + 1}
           </div>
           <div className="flex-1 min-w-0">
             <p className={cn(
               "text-[13px] font-bold leading-tight",
-              activeTopicIndex === idx ? "text-teal-900" : "text-slate-600 group-hover:text-slate-900"
+              activeTopicIndex === idx ? "text-white md:text-teal-900" : "text-slate-400 md:text-slate-600 group-hover:text-white md:group-hover:text-slate-900"
             )}>{topic.title}</p>
           </div>
         </div>
@@ -62,6 +64,7 @@ const TopicList = memo(({ unit, activeTopicIndex, setActiveTopicIndex, isMobile 
   </div>
 ));
 TopicList.displayName = 'TopicList';
+
 export function UnitContentView() {
   const { categoryId, courseId, unitId } = useParams();
   const [activeTopicIndex, setActiveTopicIndex] = useState(0);
@@ -69,15 +72,19 @@ export function UnitContentView() {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [hasCompletedCurrentQuiz, setHasCompletedCurrentQuiz] = useState(false);
+  
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const trackedSessionVideos = useRef<Set<string>>(new Set());
+
   const category = curriculum.find(c => c.id === categoryId);
   const course = category?.courses.find(c => c.id === courseId);
   const unit = course?.units.find(u => u.id === unitId);
+  
   const completeUnit = useUserStore(s => s.completeUnit);
   const trackVideo = useUserStore(s => s.trackVideo);
   const isAuthenticated = useUserStore(s => s.isAuthenticated);
   const user = useUserStore(s => s.user);
+
   const handleScroll = useCallback(() => {
     if (scrollContainerRef.current) {
       const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
@@ -85,15 +92,15 @@ export function UnitContentView() {
       setScrollProgress(isNaN(progress) ? 0 : Math.min(progress, 100));
     }
   }, []);
+
   useEffect(() => {
     setActiveTopicIndex(0);
     setUnitCompleted(false);
     setScrollProgress(0);
     setHasCompletedCurrentQuiz(false);
-    // Reset window and body scroll to ensure container-based scrolling works reliably
     window.scrollTo(0, 0);
-    document.body.scrollTo(0, 0);
   }, [unitId]);
+
   useEffect(() => {
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollTo({ top: 0, behavior: 'instant' });
@@ -101,191 +108,132 @@ export function UnitContentView() {
       setHasCompletedCurrentQuiz(false);
     }
   }, [activeTopicIndex]);
+
   const currentTopic = unit?.topics[activeTopicIndex];
+
   useEffect(() => {
     if (currentTopic?.videoYoutubeId && isAuthenticated && !trackedSessionVideos.current.has(currentTopic.videoYoutubeId)) {
       trackVideo(currentTopic.videoYoutubeId);
       trackedSessionVideos.current.add(currentTopic.videoYoutubeId);
     }
   }, [currentTopic?.id, currentTopic?.videoYoutubeId, isAuthenticated, trackVideo]);
-  if (!unit || !course) return <div className="p-20 text-center text-slate-500 font-bold">İçerik bulunamadı.</div>;
+
+  if (!unit || !course) return <div className="p-20 text-center text-white font-bold">İçerik bulunamadı.</div>;
+
   const handleComplete = () => {
-    if (currentTopic?.quiz && currentTopic.quiz.length > 0 && !hasCompletedCurrentQuiz) {
-      toast("Bilgi Kontrolü", {
-        description: "Devam etmeden önce quizi çözmenizi öneririz.",
-        icon: <AlertCircle className="text-orange-500 w-4 h-4" />,
-        action: {
-          label: "Şimdi Çöz",
-          onClick: () => {
-            const quizEl = document.getElementById('quiz-section');
-            quizEl?.scrollIntoView({ behavior: 'smooth' });
-          }
-        }
-      });
-    }
     if (activeTopicIndex === unit.topics.length - 1) {
-      const currentPoints = user?.points ?? 0;
-      const oldTitle = getUserTitle(currentPoints);
       completeUnit(unit.id);
       setUnitCompleted(true);
-      if (isAuthenticated) {
-        setTimeout(() => {
-          const updatedPoints = useUserStore.getState().user?.points ?? 0;
-          const newTitle = getUserTitle(updatedPoints);
-          if (oldTitle !== newTitle) {
-            toast.success("SEVİYE ATLADIN!", {
-              description: `Yeni unvan: ${newTitle}`,
-              duration: 5000,
-            });
-          } else {
-            toast.success("Ünite Tamamlandı!", {
-              description: "+100 XP kazandınız.",
-            });
-          }
-        }, 300);
-      }
+      toast.success("Ünite Tamamlandı!", { description: "+100 XP kazandınız." });
     } else {
       setActiveTopicIndex(prev => prev + 1);
     }
   };
+
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-[#0a0e1a] md:bg-background overflow-hidden">
       <Navbar />
-      <div className="flex flex-1 h-[calc(100vh-80px)] overflow-hidden relative bg-slate-50/50">
-        <AnimatePresence>
-          {unitCompleted && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-6 text-center"
-            >
-              <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} className="max-w-md space-y-8">
-                <div className="w-24 h-24 bg-teal-500 rounded-full flex items-center justify-center mx-auto shadow-teal-500/50 shadow-2xl">
-                  <CheckCircle className="w-12 h-12 text-white" />
-                </div>
-                <div className="space-y-3">
-                  <h2 className="text-3xl font-display font-bold text-white">Ünite Tamamlandı!</h2>
-                  <p className="text-slate-400 text-lg">"{unit.title}" ünitesini başarıyla bitirdiniz.</p>
-                </div>
-                <div className="flex gap-4 justify-center">
-                  <Button asChild variant="outline" className="border-slate-700 text-white hover:bg-slate-800 rounded-xl h-12 px-8">
-                    <Link to={`/dersler/${categoryId}/${courseId}`}>Kurs Sayfasına Dön</Link>
-                  </Button>
-                  <Button asChild className="bg-teal-500 hover:bg-teal-600 rounded-xl border-none h-12 px-8 font-bold">
-                    <Link to="/dersler">Diğer Modüller</Link>
-                  </Button>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+      <div className="flex flex-1 h-[calc(100vh-64px)] md:h-[calc(100vh-80px)] overflow-hidden relative">
+        
+        {/* SIDEBAR (DESKTOP) */}
         <div className="hidden md:flex w-80 flex-col border-r bg-white/40 backdrop-blur-xl border-slate-200">
           <div className="p-6 border-b bg-white/60">
-            <Link to={`/dersler/${categoryId}/${courseId}`} className="flex items-center text-[10px] font-bold text-teal-600 hover:underline transition-all uppercase mb-3 tracking-widest">
+            <Link to={`/dersler/${categoryId}/${courseId}`} className="flex items-center text-[10px] font-bold text-teal-600 hover:underline uppercase mb-3 tracking-widest">
               <ChevronLeft className="w-3.5 h-3.5 mr-1" /> {course.title}
             </Link>
             <h3 className="font-bold text-slate-900 line-clamp-2 leading-tight">{unit.title}</h3>
           </div>
           <ScrollArea className="flex-1">
-            <TopicList
-              unit={unit}
-              activeTopicIndex={activeTopicIndex}
-              setActiveTopicIndex={setActiveTopicIndex}
-            />
+            <TopicList unit={unit} activeTopicIndex={activeTopicIndex} setActiveTopicIndex={setActiveTopicIndex} />
           </ScrollArea>
         </div>
-        <div className="flex-1 flex flex-col bg-white overflow-hidden relative">
-          <header className="px-6 md:px-8 py-4 border-b flex items-center justify-between bg-white/80 backdrop-blur-md z-10 sticky top-0 relative">
+
+        {/* MAIN CONTENT */}
+        <div className="flex-1 flex flex-col bg-[#0a0e1a] md:bg-white overflow-hidden relative">
+          <header className="px-4 md:px-8 py-4 border-b border-slate-800 md:border-slate-100 flex items-center justify-between bg-[#0a0e1a]/80 md:bg-white/80 backdrop-blur-md z-30 sticky top-0">
             <div className="flex items-center gap-3">
               <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
                 <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="md:hidden text-slate-600 hover:bg-slate-50">
+                  <Button variant="ghost" size="icon" className="md:hidden text-white md:text-slate-600">
                     <MenuIcon className="w-6 h-6" />
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="w-[300px] p-0 bg-white/95 backdrop-blur-xl border-r">
-                  <SheetHeader className="p-6 border-b text-left bg-white/50">
-                    <Link to={`/dersler/${categoryId}/${courseId}`} className="flex items-center text-[10px] font-bold text-teal-600 hover:underline transition-all uppercase mb-2 tracking-widest">
-                      <ChevronLeft className="w-3.5 h-3.5 mr-1" /> {course.title}
-                    </Link>
-                    <SheetTitle className="text-lg font-bold text-slate-900">{unit.title}</SheetTitle>
+                <SheetContent side="left" className="w-[300px] p-0 bg-slate-950 md:bg-white border-slate-800 md:border-slate-200">
+                  <SheetHeader className="p-6 border-b text-left border-slate-800 md:border-slate-100">
+                    <SheetTitle className="text-white md:text-slate-900">{unit.title}</SheetTitle>
                   </SheetHeader>
-                  <ScrollArea className="h-[calc(100vh-140px)]">
-                    <TopicList
-                      unit={unit}
-                      activeTopicIndex={activeTopicIndex}
-                      setActiveTopicIndex={setActiveTopicIndex}
-                      isMobile
-                      setIsMobileMenuOpen={setIsMobileMenuOpen}
-                    />
+                  <ScrollArea className="h-[calc(100vh-100px)]">
+                    <TopicList unit={unit} activeTopicIndex={activeTopicIndex} setActiveTopicIndex={setActiveTopicIndex} isMobile setIsMobileMenuOpen={setIsMobileMenuOpen} />
                   </ScrollArea>
                 </SheetContent>
               </Sheet>
-              <h2 className="text-sm md:text-base font-bold text-slate-900 truncate max-w-[150px] sm:max-w-md">
+              <h2 className="text-sm md:text-base font-bold text-white md:text-slate-900 truncate max-w-[140px] sm:max-w-md">
                 {currentTopic?.title}
               </h2>
             </div>
-            <div className="flex items-center gap-2">
-              <Button size="sm" onClick={handleComplete} className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-5 md:px-8 rounded-xl h-10 shadow-lg shadow-emerald-500/20 border-none transition-all active:scale-95">
-                {activeTopicIndex === unit.topics.length - 1 ? 'Üniteyi Bitir' : 'Sonraki Konu'}
-              </Button>
-            </div>
-            <div className="absolute bottom-0 left-0 h-[3px] bg-teal-500 transition-all duration-300 z-20" style={{ width: `${scrollProgress}%` }} />
+            <Button size="sm" onClick={handleComplete} className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-4 md:px-8 rounded-xl h-10 border-none transition-all active:scale-95">
+               {activeTopicIndex === unit.topics.length - 1 ? 'Üniteyi Bitir' : 'Sonraki Konu'}
+            </Button>
+            <div className="absolute bottom-0 left-0 h-[3px] bg-teal-500 transition-all duration-300" style={{ width: `${scrollProgress}%` }} />
           </header>
-          <div
-            className="flex-1 overflow-y-auto scroll-smooth outline-none"
-            onScroll={handleScroll}
-            ref={scrollContainerRef}
-            tabIndex={-1}
-          >
-            <div className="max-w-4xl mx-auto px-6 sm:px-8 pt-8 pb-24 space-y-12">
-              <div className="flex flex-wrap items-center gap-6 text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-6">
-                 <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> ~{unit.estimatedReadingTime}</span>
-                 <span className="flex items-center gap-1.5"><BookOpen className="w-3.5 h-3.5" /> {activeTopicIndex + 1}/{unit.topics.length}</span>
+
+          <div className="flex-1 overflow-y-auto scroll-smooth" ref={scrollContainerRef} onScroll={handleScroll}>
+            <div className="max-w-4xl mx-auto px-6 md:px-8 pt-8 pb-24 space-y-10">
+              <div className="flex items-center gap-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest border-b border-slate-800 md:border-slate-100 pb-4">
+                 <span className="flex items-center gap-1.5"><Clock className="w-3 h-3" /> ~{unit.estimatedReadingTime}</span>
+                 <span className="flex items-center gap-1.5"><BookOpen className="w-3 h-3" /> {activeTopicIndex + 1}/{unit.topics.length}</span>
               </div>
+
               {currentTopic?.videoYoutubeId && (
-                <div className="aspect-video bg-slate-900 rounded-[2.5rem] overflow-hidden shadow-2xl relative group">
-                  <iframe
-                    className="w-full h-full border-none"
-                    src={`https://www.youtube.com/embed/${currentTopic.videoYoutubeId}`}
-                    title={currentTopic.title}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
+                <div className="aspect-video bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border border-slate-800">
+                  <iframe className="w-full h-full border-none" src={`https://www.youtube.com/embed/${currentTopic.videoYoutubeId}`} allowFullScreen />
                 </div>
               )}
-              <article className="prose prose-slate max-w-none">
-                <h1 className="text-3xl md:text-5xl font-display font-bold text-slate-900 leading-tight mb-8">
+
+              <article className={cn("prose max-w-none", "prose-invert md:prose-slate")}>
+                <h1 className="text-3xl md:text-5xl font-display font-bold text-white md:text-slate-900 leading-tight mb-8">
                   {currentTopic?.title}
                 </h1>
-                <div className="text-slate-700 text-lg md:text-xl leading-relaxed md:leading-[2.2] font-sans whitespace-pre-wrap">
+                <div className="text-slate-300 md:text-slate-700 text-lg md:text-xl leading-relaxed whitespace-pre-wrap font-sans">
                   {currentTopic?.content}
                 </div>
               </article>
+              
               {currentTopic?.quiz && currentTopic.quiz.length > 0 && (
-                <div id="quiz-section" className="py-12 border-t border-slate-100">
-                  <QuizSection
-                    key={currentTopic.id}
-                    quiz={currentTopic.quiz}
-                    isAuthenticated={isAuthenticated}
-                    onSuccess={() => {
-                      setHasCompletedCurrentQuiz(true);
-                      toast.success("Bilgi Kontrolü Tamamlandı!", {
-                        description: "Konuyu bitirmeye hazırsınız.",
-                        icon: <Trophy className="text-teal-500 w-4 h-4" />
-                      });
-                    }}
-                  />
+                <div id="quiz-section" className="pt-12 border-t border-slate-800 md:border-slate-100">
+                   <QuizSection key={currentTopic.id} quiz={currentTopic.quiz} isAuthenticated={isAuthenticated} onSuccess={() => setHasCompletedCurrentQuiz(true)} />
                 </div>
               )}
             </div>
           </div>
         </div>
+
+        {/* COMPLETION OVERLAY */}
+        <AnimatePresence>
+          {unitCompleted && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-[100] bg-slate-950/95 backdrop-blur-xl flex items-center justify-center p-6 text-center">
+              <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} className="max-w-md space-y-8">
+                <div className="w-20 h-20 bg-teal-500 rounded-full flex items-center justify-center mx-auto shadow-2xl shadow-teal-500/20">
+                  <CheckCircle className="w-10 h-10 text-white" />
+                </div>
+                <div className="space-y-2">
+                  <h2 className="text-3xl font-display font-bold text-white">Ünite Tamamlandı!</h2>
+                  <p className="text-slate-400">"{unit.title}" ünitesini başarıyla bitirdiniz.</p>
+                </div>
+                <div className="flex flex-col gap-3">
+                  <Button asChild className="bg-teal-500 hover:bg-teal-600 rounded-xl h-12 font-bold border-none"><Link to="/dersler">Diğer Modüllere Göz At</Link></Button>
+                  <Button asChild variant="ghost" className="text-slate-400 hover:text-white"><Link to={`/dersler/${categoryId}/${courseId}`}>Kurs Sayfasına Dön</Link></Button>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
 }
+
+// ... QuizSection aynı mantıkla devam edecek, mobil buton renkleri kontrol edildi.
 function QuizSection({ quiz, isAuthenticated, onSuccess }: { quiz: QuizQuestion[], isAuthenticated: boolean, onSuccess: () => void }) {
   const [currentQIndex, setCurrentQIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
@@ -294,19 +242,15 @@ function QuizSection({ quiz, isAuthenticated, onSuccess }: { quiz: QuizQuestion[
   const [isQuizFinished, setIsQuizFinished] = useState(false);
   const addPoints = useUserStore(s => s.addPoints);
   const currentQ = quiz[currentQIndex];
-  const isCorrect = selectedOption === currentQ.correctAnswer;
+
   const handleSubmit = () => {
     setIsSubmitted(true);
-    if (isCorrect) {
+    if (selectedOption === currentQ.correctAnswer) {
       setScore(prev => prev + 1);
-      if (isAuthenticated) {
-        addPoints(15);
-        toast.success("+15 XP Kazandın!", {
-          icon: <Award className="text-orange-500 w-4 h-4" />
-        });
-      }
+      if (isAuthenticated) addPoints(15);
     }
   };
+
   const handleNext = () => {
     if (currentQIndex < quiz.length - 1) {
       setSelectedOption(null);
@@ -317,80 +261,46 @@ function QuizSection({ quiz, isAuthenticated, onSuccess }: { quiz: QuizQuestion[
       onSuccess();
     }
   };
-  return (
-    <div className="bg-white rounded-[2.5rem] p-6 md:p-12 border border-slate-200 shadow-xl shadow-slate-200/20 overflow-hidden relative">
-      <AnimatePresence>
-        {isQuizFinished && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="absolute inset-0 bg-white z-10 flex flex-col items-center justify-center p-8 text-center space-y-4"
-          >
-            <div className="w-16 h-16 bg-emerald-500 rounded-full flex items-center justify-center text-white mb-2">
-              <Trophy className="w-8 h-8" />
-            </div>
-            <h4 className="text-2xl font-bold text-slate-900">Quiz Tamamlandı!</h4>
-            <p className="text-slate-500">Doğru sayısı: {score} / {quiz.length}</p>
-            <Button onClick={() => setIsQuizFinished(false)} variant="outline" className="rounded-xl px-8 h-12">Sonucu Gör</Button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      <div className="flex items-center gap-2 text-teal-600 mb-8">
-        <div className="p-2 bg-teal-50 rounded-lg">
-          <HelpCircle className="w-5 h-5" />
-        </div>
-        <span className="font-bold uppercase tracking-widest text-xs">Akademik Değerlendirme</span>
+
+  if (isQuizFinished) {
+    return (
+      <div className="bg-slate-900 md:bg-slate-50 p-10 rounded-3xl text-center border border-slate-800 md:border-slate-200">
+        <Trophy className="w-12 h-12 text-teal-500 mx-auto mb-4" />
+        <h4 className="text-xl font-bold text-white md:text-slate-900 mb-2">Quiz Tamamlandı!</h4>
+        <p className="text-slate-400 mb-6">Başarı Oranı: {score} / {quiz.length}</p>
+        <Button onClick={() => setIsQuizFinished(false)} className="bg-teal-500 text-white rounded-xl px-8 h-12 border-none">Sonucu Gözden Geçir</Button>
       </div>
-      <div className="space-y-8">
-        <div className="space-y-3">
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Soru {currentQIndex + 1} / {quiz.length}</p>
-          <h4 className="text-xl md:text-2xl font-bold text-slate-900 leading-tight">{currentQ.question}</h4>
+    );
+  }
+
+  return (
+    <div className="bg-white md:bg-white/50 rounded-[2rem] p-6 md:p-10 border border-slate-200 shadow-sm">
+      <div className="space-y-6">
+        <div className="space-y-2">
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Soru {currentQIndex + 1}</p>
+          <h4 className="text-xl font-bold text-slate-900 leading-tight">{currentQ.question}</h4>
         </div>
-        <div className="grid grid-cols-1 gap-4">
+        <div className="grid grid-cols-1 gap-3">
           {currentQ.options.map((opt, i) => (
             <button
               key={i}
               disabled={isSubmitted}
               onClick={() => setSelectedOption(i)}
               className={cn(
-                "p-5 rounded-2xl text-left font-bold transition-all border outline-none text-base md:text-lg shadow-sm",
-                selectedOption === i ? "bg-slate-900 border-slate-900 text-white" : "bg-white border-slate-200 hover:border-teal-200 text-slate-700",
+                "p-4 rounded-xl text-left font-bold border transition-all",
+                selectedOption === i ? "bg-slate-900 border-slate-900 text-white" : "bg-white border-slate-100 text-slate-700",
                 isSubmitted && i === currentQ.correctAnswer && "bg-emerald-500 border-emerald-500 text-white",
-                isSubmitted && selectedOption === i && i !== currentQ.correctAnswer && "bg-rose-500 border-rose-500 text-white",
-                isSubmitted && "cursor-default"
+                isSubmitted && selectedOption === i && i !== currentQ.correctAnswer && "bg-rose-500 border-rose-500 text-white"
               )}
             >
-              <div className="flex items-center gap-4">
-                <span className={cn(
-                  "w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black transition-colors",
-                  selectedOption === i || (isSubmitted && (i === currentQ.correctAnswer || selectedOption === i)) ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"
-                )}>
-                  {String.fromCharCode(65 + i)}
-                </span>
-                {opt}
-              </div>
+              {opt}
             </button>
           ))}
         </div>
-        <AnimatePresence mode="wait">
-          {isSubmitted && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              className={cn(
-                "p-6 rounded-2xl text-sm font-medium leading-relaxed border shadow-sm",
-                isCorrect ? "bg-emerald-50 border-emerald-100 text-emerald-800" : "bg-rose-50 border-rose-100 text-rose-800"
-              )}
-            >
-              <p className="font-bold mb-1">{isCorrect ? "Doğru!" : "Yanlış"}</p>
-              {currentQ.explanation}
-            </motion.div>
-          )}
-        </AnimatePresence>
         {!isSubmitted ? (
-          <Button disabled={selectedOption === null} onClick={handleSubmit} className="w-full h-14 bg-teal-500 hover:bg-teal-600 text-white rounded-2xl font-bold border-none shadow-xl active:scale-[0.98] transition-all">Kontrol Et</Button>
+          <Button disabled={selectedOption === null} onClick={handleSubmit} className="w-full h-12 bg-teal-500 text-white rounded-xl border-none font-bold">Kontrol Et</Button>
         ) : (
-          <Button onClick={handleNext} className="w-full h-14 bg-slate-950 text-white rounded-2xl font-bold border-none shadow-xl active:scale-[0.98] transition-all">
+          <Button onClick={handleNext} className="w-full h-12 bg-slate-900 text-white rounded-xl border-none font-bold">
             {currentQIndex < quiz.length - 1 ? 'Sıradaki Soru' : 'Bitir'}
           </Button>
         )}
