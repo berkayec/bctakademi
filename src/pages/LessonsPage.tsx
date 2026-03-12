@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { RootLayout } from '@/components/layout/RootLayout';
 import { curriculum, Course } from '@/lib/curriculum';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -53,80 +52,134 @@ export function LessonsPage() {
   }, []);
 
   return (
-    <RootLayout>
+    <div className="bg-[#0a0e1a] min-h-screen">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
         <div className="space-y-12">
+          {/* BAŞLIK VE ARAMA */}
           <header className="text-center max-w-3xl mx-auto space-y-6">
-            <h1 className="text-4xl md:text-5xl font-display font-bold text-white md:text-slate-900 tracking-tight">Akademik Bilgi Havuzu</h1>
-            <p className="text-slate-400 md:text-slate-600 text-lg leading-relaxed px-4">
+            <h1 className="text-4xl md:text-5xl font-display font-bold text-white tracking-tight leading-tight">
+              Akademik Bilgi Havuzu
+            </h1>
+            <p className="text-slate-400 text-lg leading-relaxed px-4">
               Temel teknik eğitimden ileri düzey klinik mühendisliğe kadar tüm modüllerimizle biyomedikal uzmanı olma yolculuğunuzu planlayın.
             </p>
             <div className="relative max-w-xl mx-auto pt-4 px-4">
               <div className="flex items-center relative group">
-                <Search className="absolute left-4 w-5 h-5 text-slate-400 z-10" />
+                <Search className="absolute left-7 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-orange-500 transition-colors" />
                 <Input
                   placeholder="Ders veya konu ara..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-12 h-14 rounded-2xl border-slate-200 bg-white text-slate-900 w-full"
+                  className="h-14 pl-14 pr-12 rounded-2xl border-slate-800 bg-slate-900/50 text-white placeholder:text-slate-500 focus-visible:ring-teal-500 w-full"
                 />
+                {searchQuery && (
+                  <button 
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-7 top-1/2 -translate-y-1/2 p-1 hover:bg-white/10 rounded-full transition-colors"
+                  >
+                    <X className="w-4 h-4 text-slate-400" />
+                  </button>
+                )}
               </div>
             </div>
           </header>
 
+          {/* KATEGORİ SEKMELERİ */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="flex justify-center mb-12">
-              <TabsList className="bg-slate-900/40 md:bg-slate-100/50 backdrop-blur-sm p-1.5 rounded-[2rem] h-auto border border-slate-800 md:border-slate-200/50 flex-wrap justify-center overflow-x-auto max-w-full">
-                <TabsTrigger value="all" className="rounded-full px-6 py-2 text-sm font-bold data-[state=active]:bg-teal-500 data-[state=active]:text-white md:data-[state=active]:bg-white md:data-[state=active]:text-slate-900 transition-all">Tümü</TabsTrigger>
+              <TabsList className="bg-slate-900/40 backdrop-blur-md p-1.5 rounded-[2rem] h-auto border border-slate-800 flex-wrap justify-center overflow-x-auto max-w-full">
+                <TabsTrigger 
+                  value="all" 
+                  className="rounded-full px-6 py-2.5 text-sm font-bold data-[state=active]:bg-teal-500 data-[state=active]:text-white text-slate-400 transition-all"
+                >
+                  Tümü
+                </TabsTrigger>
                 {curriculum.map(cat => (
-                  <TabsTrigger key={cat.id} value={cat.id} className="rounded-full px-6 py-2 text-sm font-bold data-[state=active]:bg-teal-500 data-[state=active]:text-white md:data-[state=active]:bg-white md:data-[state=active]:text-slate-900 transition-all">
+                  <TabsTrigger 
+                    key={cat.id} 
+                    value={cat.id} 
+                    className="rounded-full px-6 py-2.5 text-sm font-bold data-[state=active]:bg-teal-500 data-[state=active]:text-white text-slate-400 transition-all"
+                  >
                     {cat.title}
                   </TabsTrigger>
                 ))}
               </TabsList>
             </div>
+
             <AnimatePresence mode="wait">
-              <motion.div key={activeTab + searchQuery} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
+              <motion.div 
+                key={activeTab + searchQuery} 
+                initial={{ opacity: 0, y: 20 }} 
+                animate={{ opacity: 1, y: 0 }} 
+                exit={{ opacity: 0, y: -20 }} 
+                transition={{ duration: 0.3 }}
+              >
                 {activeTabResults.length > 0 ? (
                   <div className="space-y-20">
                     {activeTabResults.map(cat => (
                       <div key={cat.id} className="space-y-8">
                         <div className="flex items-center gap-6 px-4">
-                          <h2 className="text-2xl md:text-3xl font-display font-bold text-white md:text-slate-900 whitespace-nowrap">{cat.title}</h2>
-                          <div className="h-px flex-1 bg-slate-800 md:bg-slate-200" />
-                          <Badge variant="outline" className="rounded-lg border-slate-700 text-slate-400 font-bold hidden sm:inline-flex">{cat.courses.length} Ders</Badge>
+                          <h2 className="text-2xl md:text-3xl font-display font-bold text-white whitespace-nowrap">{cat.title}</h2>
+                          <div className="h-px flex-1 bg-slate-800" />
+                          <Badge variant="outline" className="rounded-lg border-slate-800 text-slate-500 font-bold hidden sm:inline-flex">
+                            {cat.courses.length} Ders
+                          </Badge>
                         </div>
                         <CourseGrid categoryId={cat.id} courses={cat.courses} />
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="py-24 text-center text-white">Sonuç bulunamadı.</div>
+                  <div className="py-24 text-center">
+                    <FileWarning className="w-16 h-16 text-slate-700 mx-auto mb-4" />
+                    <h3 className="text-xl font-bold text-white mb-2">Eşleşen Ders Bulunamadı</h3>
+                    <p className="text-slate-500 mb-8">Farklı anahtar kelimelerle aramayı deneyebilirsiniz.</p>
+                    <Button onClick={handleClear} className="bg-slate-800 hover:bg-slate-700 text-white rounded-xl h-12">
+                      Aramayı Temizle
+                    </Button>
+                  </div>
                 )}
               </motion.div>
             </AnimatePresence>
           </Tabs>
         </div>
       </div>
-    </RootLayout>
+    </div>
   );
+}
+
+// KURS KARTLARI
+interface CourseGridProps {
+  courses: Course[];
+  categoryId: string;
 }
 
 function CourseGrid({ courses, categoryId }: CourseGridProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-4">
       {courses.map((course) => (
-        <Card key={course.id} className="group flex flex-col h-full bg-white/60 backdrop-blur-sm border-slate-200 rounded-[2.5rem] overflow-hidden">
-          <div className="aspect-[16/10] overflow-hidden">
-            <img src={course.image} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+        <Card key={course.id} className="group flex flex-col h-full bg-slate-900/40 backdrop-blur-xl border-slate-800 rounded-[2.5rem] overflow-hidden hover:bg-slate-900/60 transition-all duration-500">
+          <div className="aspect-[16/10] overflow-hidden relative">
+            <img 
+              src={course.image} 
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-80" 
+              alt={course.title}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent" />
           </div>
           <CardHeader className="p-8 pb-4">
-            <CardTitle className="text-xl md:text-2xl font-bold group-hover:text-teal-600 transition-colors">{course.title}</CardTitle>
-            <CardDescription className="text-slate-500 text-sm line-clamp-2">{course.description}</CardDescription>
+            <CardTitle className="text-xl md:text-2xl font-bold text-white group-hover:text-teal-400 transition-colors leading-tight">
+              {course.title}
+            </CardTitle>
+            <CardDescription className="text-slate-400 text-sm leading-relaxed line-clamp-2 mt-2">
+              {course.description}
+            </CardDescription>
           </CardHeader>
           <CardFooter className="mt-auto p-8 pt-4">
-            <Button variant="outline" className="w-full border-slate-900 font-bold rounded-xl" asChild>
-              <Link to={`/dersler/${categoryId}/${course.id}`}>İncele <ArrowRight className="ml-2 w-4 h-4" /></Link>
+            <Button variant="outline" className="w-full h-12 border-slate-700 text-white hover:bg-teal-500 hover:border-teal-500 font-bold rounded-xl transition-all" asChild>
+              <Link to={`/dersler/${categoryId}/${course.id}`}>
+                İncele <ArrowRight className="ml-2 w-4 h-4" />
+              </Link>
             </Button>
           </CardFooter>
         </Card>
