@@ -69,7 +69,7 @@ export function HomePage() {
                   <span className="text-orange-500">Teknolojisini Keşfet</span>
                 </h1>
                 <p className="max-w-xl mx-auto text-2xs md:text-xs text-orange-500 font-black tracking-[0.6em] uppercase mb-10">
-                  BCT AKADEMİ
+                  BİYOMEDİKAL CİHAZ TEKNOLOJİLERİ EĞİTİM PLATFORMU
                 </p>
                 <p className="max-w-3xl mx-auto text-lg md:text-2xl text-slate-400 leading-relaxed font-normal px-4">
                   Türkiye'nin en kapsamlı biyomedikal eğitim platformu. Profesyonel teknik içerikler ve
