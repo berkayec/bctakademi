@@ -36,42 +36,32 @@ export function HomePage() {
       <div className="flex flex-col" onMouseMove={handleMouseMove}>
         <motion.div className="fixed top-0 left-0 right-0 h-1 bg-orange-500 origin-left z-[60]" style={{ scaleX }} />
         {/* Hero Section */}
-        <section className="relative bg-slate-950 pt-20 pb-36 md:pt-28 md:pb-48 overflow-hidden min-h-[95vh] flex items-center">
+        <section className="relative bg-slate-950 pt-0 pb-36 md:pb-48 overflow-hidden min-h-[95vh] flex flex-col">
           {/* Tech Grid & Node Interactive Background */}
           <div className="absolute inset-0 z-0">
             <HeroInteractiveCanvas />
           </div>
-          {/* Parallax Overlay Layer */}
+          {/* Full-Width Cinematic Banner - Positioned Top */}
           <motion.div
-            className="absolute inset-0 z-0 pointer-events-none opacity-30"
-            style={{ x: bgX, y: bgY }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1.5, ease: "easeOut" }}
+            className="relative w-full z-10 overflow-hidden"
           >
-            <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-transparent to-slate-950" />
+            <div className="relative aspect-[21/9] md:aspect-[21/7] w-full">
+              <img
+                src="https://images.unsplash.com/photo-1579154212624-b15132d8a961?auto=format&fit=crop&q=80&w=2000"
+                alt="Biomedical Technology Banner"
+                className="w-full h-full object-cover grayscale-[0.3] brightness-[0.6] scale-105"
+              />
+              {/* Deep Gradient Blending */}
+              <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-transparent to-slate-950 pointer-events-none" />
+              <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
+              <div className="absolute inset-0 bg-orange-500/5 mix-blend-overlay pointer-events-none" />
+            </div>
           </motion.div>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full mt-12 md:mt-16">
             <div className="text-center space-y-8 md:space-y-12">
-              {/* Client Feedback: High-fidelity biomedical image container inserted above heading */}
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1, ease: "easeOut" }}
-                className="relative w-full max-w-5xl mx-auto mb-4 md:mb-8 rounded-3xl overflow-hidden group shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-white/5"
-              >
-                {/* Horizontal Cinematic Image */}
-                <div className="relative aspect-[21/9] md:aspect-[32/9] w-full">
-                  <img 
-                    src="https://images.unsplash.com/photo-1579154212624-b15132d8a961?auto=format&fit=crop&q=80&w=2000" 
-                    alt="Biomedical Technology Visual" 
-                    className="w-full h-full object-cover grayscale-[0.2] brightness-[0.7] group-hover:scale-105 transition-transform duration-[10s] ease-linear"
-                  />
-                  {/* Advanced Gradient Masking for Seamless BG Blend */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-transparent to-slate-950 pointer-events-none" />
-                  <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-transparent to-slate-950 pointer-events-none" />
-                  <div className="absolute inset-0 bg-orange-500/10 mix-blend-overlay pointer-events-none" />
-                  {/* Internal Glow Effect */}
-                  <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-slate-950 to-transparent" />
-                </div>
-              </motion.div>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
