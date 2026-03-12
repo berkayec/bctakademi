@@ -1,116 +1,115 @@
-import React, { useEffect, useMemo } from 'react';
-import { RootLayout } from '@/components/layout/RootLayout';
-import { curriculum } from '@/lib/curriculum';
-import { Card, CardContent } from '@/components/ui/card';
+import React from 'react';
+import { blogPosts } from '@/lib/data';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Award, Download, Share2, ChevronLeft, ShieldCheck } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { ArrowRight, Calendar, Clock, User } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useUserStore } from '@/store/use-user-store';
 
-export function CertificatePage() {
-  const navigate = useNavigate();
-  const user = useUserStore(s => s.user);
-  const isAuthenticated = useUserStore(s => s.isAuthenticated);
-
-  useEffect(() => {
-    if (!isAuthenticated) navigate('/');
-  }, [isAuthenticated, navigate]);
-
-  const earnedCertificates = useMemo(() => {
-    if (!user) return [];
-    const completedUnits = user.completedUnits;
-    const allCourses = curriculum.flatMap(cat => cat.courses.map(course => ({ ...course, categoryPrefix: cat.id.split('-')[0].toUpperCase() })));
-    return allCourses.filter(course => course.units.every(unit => completedUnits.includes(unit.id))).map(course => ({
-      id: `cert-${course.id}`,
-      title: `${course.title}`,
-      date: new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' }),
-      prefix: course.categoryPrefix,
-      points: user.points
-    }));
-  }, [user]);
-
-  if (!isAuthenticated || !user) return null;
+export function BlogPage() {
+  const featuredPost = blogPosts.find(p => p.featured) || blogPosts[0];
+  const regularPosts = blogPosts.filter(p => p.id !== featuredPost.id);
 
   return (
-    <RootLayout>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-        <header className="mb-12">
-          <Link to="/portal" className="flex items-center text-xs font-bold text-slate-400 hover:text-teal-600 transition-colors uppercase mb-4">
-            <ChevronLeft className="w-4 h-4 mr-1" /> Panele Dön
-          </Link>
-          <h1 className="text-4xl font-display font-bold text-white md:text-slate-900 tracking-tight">Başarı Belgelerim</h1>
-          <p className="text-slate-400 md:text-slate-500">Tamamladığınız kurslar için kazandığınız sertifikalar.</p>
+    <div className="bg-[#0a0e1a] min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
+        
+        {/* BAŞLIK BÖLÜMÜ */}
+        <header className="mb-16 space-y-4 text-center md:text-left">
+          <Badge className="bg-orange-500/10 text-orange-500 border-orange-500/20 px-4 py-1">
+            Sektörden Haberler
+          </Badge>
+          {/* Mobilde beyaz görünmesi için text-white eklendi */}
+          <h1 className="text-4xl md:text-5xl font-display font-bold text-white tracking-tight">
+            BCT Güncel
+          </h1>
+          <p className="text-slate-400 text-lg max-w-2xl">
+            Tıbbi teknoloji dünyasındaki gelişmeleri, kariyer rehberlerini ve teknik derinlemesine incelemeleri keşfedin.
+          </p>
         </header>
 
-        {earnedCertificates.length > 0 ? (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-            <div className="lg:col-span-2 space-y-12">
-              {earnedCertificates.map((cert) => (
-                <motion.div key={cert.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-                  <Card className="overflow-hidden border-none shadow-2xl bg-white rounded-[2rem] md:rounded-[2.5rem] relative">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/5 rounded-full -mr-20 -mt-20 blur-3xl" />
-                    <CardContent className="p-6 md:p-16 border-4 md:border-8 border-double border-slate-100 m-2 rounded-[1.5rem] md:rounded-[2rem]">
-                      <div className="text-center space-y-6 md:space-y-8 relative z-10">
-                        <div className="w-16 h-16 md:w-20 md:h-20 bg-teal-500 rounded-full flex items-center justify-center text-white shadow-xl mx-auto">
-                          <Award className="w-8 h-8 md:w-10 md:h-10" />
-                        </div>
-                        <div className="space-y-2">
-                          <p className="text-[10px] md:text-xs font-bold tracking-[0.2em] text-teal-600 uppercase">Uzmanlık Sertifikası</p>
-                          <h2 className="text-2xl md:text-5xl font-display font-bold text-slate-900 leading-tight">{cert.title}</h2>
-                        </div>
-                        <div className="h-px w-24 bg-slate-200 mx-auto" />
-                        <div className="space-y-4">
-                          <p className="text-slate-500 italic text-sm md:text-base">Bu sertifika, ilgili eğitim modülünü başarıyla tamamlayan</p>
-                          <p className="text-2xl md:text-3xl font-display font-bold text-slate-900 underline decoration-teal-400 decoration-4 underline-offset-8">
-                            {user.username}
-                          </p>
-                          <p className="text-slate-500 italic text-sm md:text-base">adına BCT Akademi tarafından düzenlenmiştir.</p>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4 pt-8 md:pt-12 border-t border-slate-50">
-                          <div className="text-left">
-                            <p className="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest">Veriliş Tarihi</p>
-                            <p className="text-xs md:text-sm font-bold text-slate-900">{cert.date}</p>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-[8px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest">Sertifika No</p>
-                            <p className="text-xs md:text-sm font-bold text-slate-900">
-                              {cert.prefix}-{new Date().getFullYear()}-{(cert.points + 100).toString().padStart(4, '0')}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <div className="mt-4 flex flex-wrap gap-2 md:gap-4 justify-center md:justify-end px-4">
-                    <Button variant="ghost" size="sm" className="text-slate-400 md:text-slate-500 font-bold hover:text-white"><Download className="w-4 h-4 mr-2" /> PDF</Button>
-                    <Button variant="ghost" size="sm" className="text-slate-400 md:text-slate-500 font-bold hover:text-white"><Share2 className="w-4 h-4 mr-2" /> Paylaş</Button>
-                  </div>
-                </motion.div>
-              ))}
+        {/* ÖNE ÇIKAN HABER - MOBİLDE DAHA KOMPAKT */}
+        <section className="mb-20">
+          <motion.div
+            whileHover={{ y: -4 }}
+            className="relative grid grid-cols-1 lg:grid-cols-2 gap-0 lg:gap-8 bg-slate-900/40 border border-slate-800 rounded-[2.5rem] overflow-hidden shadow-2xl transition-all duration-300"
+          >
+            <div className="aspect-[16/10] lg:aspect-auto relative overflow-hidden">
+              <img 
+                src={featuredPost.image} 
+                alt={featuredPost.title} 
+                className="w-full h-full object-cover transition-transform duration-700 hover:scale-105 opacity-80" 
+              />
+              <div className="absolute top-6 left-6">
+                <Badge className="bg-teal-500 text-white border-none px-4 py-1">Öne Çıkan</Badge>
+              </div>
             </div>
-            <aside className="lg:sticky lg:top-28">
-              <div className="bg-slate-900 p-8 rounded-[2rem] border border-slate-800 space-y-4">
-                <h3 className="text-xl font-bold text-white">Akademik Durum</h3>
-                <p className="text-slate-400 text-sm">Her tamamladığınız kurs size kalıcı bir başarı belgesi kazandırır.</p>
-                <div className="p-4 bg-teal-500/10 rounded-2xl border border-teal-500/20 text-center">
-                   <p className="text-2xl font-black text-teal-400">{earnedCertificates.length}</p>
-                   <p className="text-[10px] font-bold text-teal-500 uppercase">Sertifika</p>
+            <div className="p-8 md:p-12 flex flex-col justify-center space-y-6">
+              <div className="flex items-center gap-4 text-xs font-semibold text-slate-500 uppercase tracking-widest">
+                <span>{featuredPost.category}</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-slate-700" />
+                <span>{featuredPost.readTime}</span>
+              </div>
+              <h2 className="text-3xl md:text-4xl font-display font-bold text-white leading-tight">
+                {featuredPost.title}
+              </h2>
+              <p className="text-slate-400 text-lg leading-relaxed">{featuredPost.excerpt}</p>
+              
+              <div className="flex items-center gap-3 py-4 border-y border-slate-800/50">
+                <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400">
+                  <User className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-white">{featuredPost.author}</p>
+                  <p className="text-xs text-slate-500">{featuredPost.date}</p>
                 </div>
               </div>
-            </aside>
-          </div>
-        ) : (
-          <div className="py-24 text-center bg-slate-900/50 rounded-[3rem] border-2 border-dashed border-slate-800 max-w-2xl mx-auto">
-            <Award className="w-16 h-16 text-slate-700 mx-auto mb-6" />
-            <h2 className="text-2xl font-bold text-white mb-2">Henüz Sertifikanız Yok</h2>
-            <p className="text-slate-400 mb-8 px-6">Bir kursun tüm ünitelerini tamamlayarak uzmanlık belgenizi alabilirsiniz.</p>
-            <Button asChild className="bg-orange-500 hover:bg-orange-600 text-white rounded-xl px-8 h-12 border-none">
-              <Link to="/dersler">Eğitimlere Göz At</Link>
-            </Button>
-          </div>
-        )}
+              
+              <Button className="w-full md:w-fit bg-white hover:bg-orange-500 text-slate-950 hover:text-white rounded-xl px-8 py-6 h-auto text-base font-bold group transition-all">
+                Haberi Oku <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" />
+              </Button>
+            </div>
+          </motion.div>
+        </section>
+
+        {/* HABER IZGARASI */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+          {regularPosts.map((post) => (
+            <motion.article key={post.id} whileHover={{ y: -6 }} className="group flex flex-col h-full">
+              <div className="aspect-[16/10] rounded-3xl overflow-hidden mb-6 border border-slate-800 shadow-xl bg-slate-900">
+                <img 
+                  src={post.image} 
+                  alt={post.title} 
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80" 
+                />
+              </div>
+              <div className="flex-1 flex flex-col space-y-4 px-2">
+                <div className="flex items-center justify-between">
+                  <Badge variant="outline" className="bg-white/5 text-teal-400 border-teal-500/20">
+                    {post.category}
+                  </Badge>
+                  <div className="flex items-center gap-2 text-xs text-slate-500 font-medium">
+                    <Clock className="w-3 h-3" /> {post.readTime}
+                  </div>
+                </div>
+                <h3 className="text-2xl font-display font-bold text-white group-hover:text-teal-400 transition-colors leading-tight">
+                  {post.title}
+                </h3>
+                <p className="text-slate-400 line-clamp-2 text-sm leading-relaxed">
+                  {post.excerpt}
+                </p>
+                <div className="mt-auto pt-6 flex items-center justify-between border-t border-slate-800/50">
+                   <span className="text-xs font-bold text-white uppercase group-hover:text-orange-500 transition-colors">
+                     Devamını Oku <ArrowRight className="inline-block w-3 h-3 ml-1" />
+                   </span>
+                   <span className="text-[10px] text-slate-500 font-bold uppercase flex items-center gap-1">
+                     <Calendar className="w-3 h-3" /> {post.date}
+                   </span>
+                </div>
+              </div>
+            </motion.article>
+          ))}
+        </div>
       </div>
-    </RootLayout>
+    </div>
   );
 }
