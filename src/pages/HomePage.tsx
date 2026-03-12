@@ -42,7 +42,7 @@ export function HomePage() {
             <HeroInteractiveCanvas />
           </div>
           {/* Parallax Overlay Layer */}
-          <motion.div
+          <motion.div 
             className="absolute inset-0 z-0 pointer-events-none opacity-30"
             style={{ x: bgX, y: bgY }}
           >
@@ -61,10 +61,10 @@ export function HomePage() {
                   <span className="text-orange-500">Teknolojisini Keşfet</span>
                 </h1>
                 <p className="max-w-xl mx-auto text-2xs md:text-xs text-orange-500 font-black tracking-[0.6em] uppercase mb-10">
-                  BCT Akademi
+                  BCT AKADEMİ
                 </p>
                 <p className="max-w-3xl mx-auto text-lg md:text-2xl text-slate-400 leading-relaxed font-normal">
-                  Türkiye'nin en kapsamlı biyomedikal eğitim platformu. Profesyonel teknik içerikler ve
+                  Türkiye'nin en kapsamlı biyomedikal eğitim platformu. Profesyonel teknik içerikler ve 
                   klinik mühendislik temelleri ile uzmanlığınızı şekillendirin.
                 </p>
               </motion.div>
@@ -107,7 +107,7 @@ export function HomePage() {
                 </Link>
                 <Link to="/blog">
                   <Button className="w-full sm:w-auto h-16 px-12 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-2xl text-xl transition-all hover:scale-105 border-none shadow-lg">
-                    <Newspaper className="mr-2 w-6 h-6" /> Güncel Haberler
+                    <Newspaper className="mr-2 w-6 h-6" /> BCT Güncel
                   </Button>
                 </Link>
               </motion.div>
