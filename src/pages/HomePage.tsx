@@ -48,7 +48,7 @@ export function HomePage() {
           >
             <div className="relative w-full">
               <img
-                src="https://i.ibb.co/gMn2f2H1/unnamed.jpg"
+                src="https://i.imgur.com/QesRWrO.jpg"
                 alt="Biomedical Technology Banner"
                 className="w-full h-[300px] object-cover"
               />
