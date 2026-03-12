@@ -1,24 +1,41 @@
-import { Moon, Sun } from "lucide-react";
+import { Sun, Moon } from 'lucide-react';
+import { useTheme } from '@/hooks/use-theme';
+import { Button } from '@/components/ui/button';
+import { motion, AnimatePresence } from 'framer-motion';
 
-import { Button } from "@/components/ui/button";
-import { useTheme } from "@/hooks/use-theme";
-
-interface ThemeToggleProps {
-  className?: string;
-}
-
-export function ThemeToggle({ className = "absolute top-4 right-4" }: ThemeToggleProps) {
+export function ThemeToggle() {
   const { isDark, toggleTheme } = useTheme();
 
   return (
     <Button
-      onClick={toggleTheme}
       variant="ghost"
       size="icon"
-      className={`${className} hover:scale-110 hover:rotate-12 transition-all duration-200 active:scale-90 z-50`}
-      aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
+      onClick={toggleTheme}
+      className="relative w-10 h-10 rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 hover:scale-105 transition-all"
     >
-      {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+      <AnimatePresence mode="wait">
+        {isDark ? (
+          <motion.div
+            key="moon"
+            initial={{ rotate: -90, opacity: 0, scale: 0.5 }}
+            animate={{ rotate: 0, opacity: 1, scale: 1 }}
+            exit={{ rotate: 90, opacity: 0, scale: 0.5 }}
+            transition={{ duration: 0.2 }}
+          >
+            <Moon className="w-5 h-5 text-teal-400" />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="sun"
+            initial={{ rotate: -90, opacity: 0, scale: 0.5 }}
+            animate={{ rotate: 0, opacity: 1, scale: 1 }}
+            exit={{ rotate: 90, opacity: 0, scale: 0.5 }}
+            transition={{ duration: 0.2 }}
+          >
+            <Sun className="w-5 h-5 text-orange-500" />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </Button>
   );
 }
