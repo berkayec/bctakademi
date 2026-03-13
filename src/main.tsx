@@ -20,8 +20,13 @@ import { BlogPage } from '@/pages/BlogPage'
 import { ContactPage } from '@/pages/ContactPage'
 import { CertificatePage } from '@/pages/CertificatePage'
 import { AppShell } from '@/components/layout/AppShell'
+
+// ADMIN SAYFASI IMPORTU BURAYA EKLENDİ
+import { AdminDashboard } from '@/pages/admin/AdminDashboard'
+
 // Enable Immer Map/Set support
 enableMapSet();
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -30,6 +35,7 @@ const queryClient = new QueryClient({
     },
   },
 });
+
 const router = createBrowserRouter([
   {
     element: <AppShell />,
@@ -71,6 +77,11 @@ const router = createBrowserRouter([
         path: "/sertifikalar",
         element: <CertificatePage />,
       },
+      // ADMIN ROTASI BURAYA EKLENDİ
+      {
+        path: "/admin",
+        element: <AdminDashboard />,
+      },
       {
         path: "*",
         element: <Navigate to="/" replace />,
@@ -78,8 +89,10 @@ const router = createBrowserRouter([
     ]
   }
 ]);
+
 const rootElement = document.getElementById('root');
 if (!rootElement) throw new Error('Failed to find the root element');
+
 createRoot(rootElement).render(
   <QueryClientProvider client={queryClient}>
     <ErrorBoundary>
