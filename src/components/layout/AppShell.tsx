@@ -1,24 +1,37 @@
-import React, { useEffect } from 'react';
+// src/components/layout/AppShell.tsx
+import React, { useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { Toaster } from '@/components/ui/sonner';
 import { useTheme } from '@/hooks/use-theme';
 import { ScrollToTop } from '@/components/layout/ScrollToTop';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
-import { MaintenancePage } from '@/pages/MaintenancePage'; // Import etmeyi unutma
+import { MaintenancePage } from '@/pages/MaintenancePage';
 
 export function AppShell() {
   const { pathname, search } = useLocation();
   const { isDark } = useTheme();
-
-  // --- BAKIM MODU KONTROLÜ ---
-  // Siteyi kapatmak istediğinde burayı 'true' yap.
+  
+  // 1. Bakım Modu Ayarı (Gerçekten kapatmak istediğinde true yap)
   const isMaintenanceMode = true; 
 
-  // Kendi girişin için gizli anahtar (bctakademi.com/?admin=true)
-  const isAdmin = new URLSearchParams(search).get('key') === 'shizi2510';
+  // 2. Admin Durumu Kontrolü (URL'den veya Hafızadan)
+  const urlParams = new URLSearchParams(search);
+  const keyInUrl = urlParams.get('key');
+  
+  // Başlangıçta hafızada kayıt var mı kontrol et
+  const [isAdmin, setIsAdmin] = useState(() => {
+    return localStorage.getItem('bct_admin_access') === 'true';
+  });
 
   useEffect(() => {
+    // URL'de doğru anahtar varsa hafızaya kaydet ve yetki ver
+    if (keyInUrl === 'shizi2510') {
+      localStorage.setItem('bct_admin_access', 'true');
+      setIsAdmin(true);
+    }
+
+    // Temel tema ve başlık ayarları
     const root = window.document.documentElement;
     if (isDark) {
       root.classList.add('dark');
@@ -32,15 +45,10 @@ export function AppShell() {
     
     if (metaThemeColor) {
       metaThemeColor.setAttribute('content', color);
-    } else {
-      const meta = document.createElement('meta');
-      meta.name = 'theme-color';
-      meta.content = color;
-      document.getElementsByTagName('head')[0].appendChild(meta);
     }
-  }, [pathname, isDark]);
+  }, [pathname, isDark, keyInUrl]);
 
-  // Eğer bakım modu aktifse ve admin parametresi yoksa sadece Bakım Sayfasını göster
+  // --- EĞER BAKIM MODUNDAYSAK VE ADMIN DEĞİLSEK ---
   if (isMaintenanceMode && !isAdmin) {
     return <MaintenancePage />;
   }
@@ -59,11 +67,9 @@ export function AppShell() {
       <Toaster
         position="top-right"
         richColors
-        expand={false}
         theme={isDark ? 'dark' : 'light'}
         className="font-sans"
         closeButton
-        duration={4000}
       />
     </div>
   );
