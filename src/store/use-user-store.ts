@@ -1,20 +1,26 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+
 export type UserTitle = 'BCT Çırağı' | 'BCT Teknisyeni' | 'Klinik Mühendis Adayı' | 'Uzman Biyomedikalci';
+
 interface User {
   username: string;
   email: string;
+  role: string;      // Yeni: Kullanıcı rolü
+  detail: string;    // Yeni: Okul veya Kurum detayı
   points: number;
   completedUnits: string[];
   accessedResources: string[];
   watchedVideos: string[];
 }
+
 interface UserState {
   user: User | null;
   isAuthenticated: boolean;
   hasSeenTutorial: boolean;
   login: (username: string, email: string) => void;
-  signup: (username: string, email: string) => void;
+  // Signup fonksiyonunu yeni metadata parametresini alacak şekilde güncelledik
+  signup: (username: string, email: string, metadata?: { role: string; detail: string }) => void;
   logout: () => void;
   addPoints: (amount: number) => void;
   completeUnit: (unitId: string) => void;
@@ -22,27 +28,34 @@ interface UserState {
   trackVideo: (videoId: string) => void;
   setHasSeenTutorial: (val: boolean) => void;
 }
+
 export const useUserStore = create<UserState>()(
   persist(
     (set) => ({
       user: null,
       isAuthenticated: false,
       hasSeenTutorial: false,
+      
       login: (username, email) => set({ 
         user: { 
           username, 
           email, 
-          points: 100, // Welcome points
+          role: 'other', // Login olan eski kullanıcılar için varsayılan
+          detail: '',
+          points: 100, 
           completedUnits: [], 
           accessedResources: [],
           watchedVideos: [] 
         }, 
         isAuthenticated: true 
       }),
-      signup: (username, email) => set({ 
+
+      signup: (username, email, metadata) => set({ 
         user: { 
           username, 
           email, 
+          role: metadata?.role || 'other', // Gelen rolü kaydet
+          detail: metadata?.detail || '',  // Gelen detayı kaydet
           points: 150, // Signup bonus
           completedUnits: [], 
           accessedResources: [],
@@ -50,11 +63,14 @@ export const useUserStore = create<UserState>()(
         }, 
         isAuthenticated: true 
       }),
+
       logout: () => set({ user: null, isAuthenticated: false }),
+      
       addPoints: (amount) => set((state) => {
         if (!state.user) return state;
         return { user: { ...state.user, points: state.user.points + amount } };
       }),
+
       completeUnit: (unitId) => set((state) => {
         if (!state.user || state.user.completedUnits.includes(unitId)) return state;
         return { 
@@ -65,6 +81,7 @@ export const useUserStore = create<UserState>()(
           } 
         };
       }),
+
       trackResource: (resourceId) => set((state) => {
         if (!state.user || state.user.accessedResources.includes(resourceId)) return state;
         return {
@@ -75,6 +92,7 @@ export const useUserStore = create<UserState>()(
           }
         };
       }),
+
       trackVideo: (videoId) => set((state) => {
         if (!state.user || state.user.watchedVideos.includes(videoId)) return state;
         return {
@@ -85,6 +103,7 @@ export const useUserStore = create<UserState>()(
           }
         };
       }),
+
       setHasSeenTutorial: (val) => set({ hasSeenTutorial: val }),
     }),
     {
@@ -93,6 +112,7 @@ export const useUserStore = create<UserState>()(
     }
   )
 );
+
 export const getUserTitle = (points: number): UserTitle => {
   if (points <= 500) return 'BCT Çırağı';
   if (points <= 1500) return 'BCT Teknisyeni';
