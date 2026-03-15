@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useUserStore, getUserTitle } from '@/store/use-user-store';
 import { AuthModal } from '@/components/auth/AuthModal';
 import { Logo } from '@/components/Logo';
-import { ThemeToggle } from '@/components/ThemeToggle'; // Yol @ ile güncellendi
+import { ThemeToggle } from '@/components/ui/ThemeToggle'; // DOĞRU YOL BURASI
 import { toast } from 'sonner';
 
 export function Navbar() {
@@ -67,6 +67,7 @@ export function Navbar() {
             <Logo size={32} className="sm:size-[40px] group-hover:rotate-1 transition-transform duration-300" />
           </Link>
 
+          {/* DESKTOP NAV LİNKLERİ */}
           <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => {
               const isActive = location.pathname === link.href;
@@ -92,6 +93,7 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-4">
+            {/* DESKTOP ARAMA */}
             <div className="relative hidden lg:flex items-center">
               <form onSubmit={handleSearch} className="flex items-center relative group">
                 <Search className="absolute left-3 w-4 h-4 text-muted-foreground group-focus-within:text-teal-500 transition-colors" />
@@ -104,9 +106,10 @@ export function Navbar() {
               </form>
             </div>
 
+            {/* XP PANELİ */}
             {isAuthenticated && user && (
               <div className="hidden sm:flex items-center gap-3 bg-muted p-1.5 pr-4 rounded-full border border-border">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center text-xs font-black text-slate-950 text-white">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center text-[10px] font-black text-white">
                   {user.username.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex flex-col">
@@ -116,8 +119,10 @@ export function Navbar() {
               </div>
             )}
 
+            {/* TEMA DEĞİŞTİRİCİ */}
             <ThemeToggle />
 
+            {/* ÇIKIŞ BUTONU */}
             {isAuthenticated && (
               <Button
                 variant="ghost"
@@ -141,10 +146,8 @@ export function Navbar() {
               )}
             </Button>
 
+            {/* MOBİL MENÜ BUTONU */}
             <div className="md:hidden flex items-center gap-1">
-              <button onClick={() => setIsSearchOpen(!isSearchOpen)} className="p-1.5 text-muted-foreground hover:text-foreground">
-                <Search className="w-5 h-5" />
-              </button>
               <button onClick={() => setIsOpen(!isOpen)} className="p-1.5 text-muted-foreground hover:text-foreground">
                 {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
               </button>
@@ -153,6 +156,7 @@ export function Navbar() {
         </div>
       </div>
 
+      {/* MOBİL MENÜ */}
       <AnimatePresence>
         {isOpen && (
           <motion.div 
@@ -163,20 +167,12 @@ export function Navbar() {
           >
             <div className="px-6 py-10 space-y-6">
               {navLinks.map((link) => (
-                <Link 
-                  key={link.name} 
-                  to={link.href} 
-                  className="block text-xl font-bold text-foreground hover:text-teal-500" 
-                  onClick={() => setIsOpen(false)}
-                >
+                <Link key={link.name} to={link.href} className="block text-xl font-bold text-foreground" onClick={() => setIsOpen(false)}>
                   {link.name}
                 </Link>
               ))}
               {isAuthenticated && (
-                <button 
-                  onClick={handleLogout} 
-                  className="flex items-center gap-2 text-xl font-bold text-rose-500 pt-4 border-t border-border w-full text-left"
-                >
+                <button onClick={handleLogout} className="flex items-center gap-2 text-xl font-bold text-rose-500 pt-4 border-t border-border w-full text-left">
                   <LogOut className="w-5 h-5" /> Çıkış Yap
                 </button>
               )}
