@@ -12,26 +12,35 @@ export function AppShell() {
   const { pathname, search } = useLocation();
   const { isDark } = useTheme();
   
-  // 1. Bakım Modu Ayarı (Gerçekten kapatmak istediğinde true yap)
+  // 1. Bakım Modu Ayarı (Aktif etmek için true, kapatmak için false yapabilirsin)
   const isMaintenanceMode = true; 
 
-  // 2. Admin Durumu Kontrolü (URL'den veya Hafızadan)
+  // 2. Admin Erişim Kontrolü
   const urlParams = new URLSearchParams(search);
   const keyInUrl = urlParams.get('key');
-  
-  // Başlangıçta hafızada kayıt var mı kontrol et
+  const validKey = 'shizi2510';
+
+  // State'i başlatırken hem hafızaya hem de URL'e anlık bakıyoruz.
+  // Bu sayede sayfa geçişlerinde veya yenilemelerde "admin" durumu kaybolmaz.
   const [isAdmin, setIsAdmin] = useState(() => {
-    return localStorage.getItem('bct_admin_access') === 'true';
+    const hasLocalAccess = localStorage.getItem('bct_admin_access') === 'true';
+    const hasUrlAccess = keyInUrl === validKey;
+    
+    if (hasUrlAccess) {
+      localStorage.setItem('bct_admin_access', 'true');
+    }
+    
+    return hasLocalAccess || hasUrlAccess;
   });
 
   useEffect(() => {
-    // URL'de doğru anahtar varsa hafızaya kaydet ve yetki ver
-    if (keyInUrl === 'shizi2510') {
-      localStorage.setItem('bct_admin_access', 'true');
+    // Navigasyon sırasında URL'de anahtar yakalanırsa yetkiyi güncelle
+    if (keyInUrl === validKey) {
       setIsAdmin(true);
+      localStorage.setItem('bct_admin_access', 'true');
     }
 
-    // Temel tema ve başlık ayarları
+    // Tema ve Stil Ayarları
     const root = window.document.documentElement;
     if (isDark) {
       root.classList.add('dark');
@@ -40,19 +49,21 @@ export function AppShell() {
     }
 
     document.title = 'BCT Akademi | Biyomedikal Eğitim Portalı';
+    
     const metaThemeColor = document.querySelector('meta[name="theme-color"]');
     const color = isDark ? '#020617' : '#ffffff';
-    
     if (metaThemeColor) {
       metaThemeColor.setAttribute('content', color);
     }
   }, [pathname, isDark, keyInUrl]);
 
-  // --- EĞER BAKIM MODUNDAYSAK VE ADMIN DEĞİLSEK ---
+  // --- BAKIM MODU KONTROLÜ ---
+  // Admin yetkisi yoksa ve bakım modu aktifse kullanıcıyı engelle
   if (isMaintenanceMode && !isAdmin) {
     return <MaintenancePage />;
   }
 
+  // Admin yetkisi varsa veya bakım modu kapalıysa normal siteyi göster
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300 font-sans">
       <ScrollToTop />
