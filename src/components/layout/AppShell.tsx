@@ -1,4 +1,3 @@
-// src/components/layout/AppShell.tsx
 import React, { useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { Toaster } from '@/components/ui/sonner';
@@ -7,18 +6,15 @@ import { ScrollToTop } from '@/components/layout/ScrollToTop';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { MaintenancePage } from '@/pages/MaintenancePage';
-// YENİ İTHALLER:
 import { useUserStore } from '@/store/use-user-store';
 import { PendingApproval } from '@/components/PendingApproval'; 
 
 export function AppShell() {
   const { pathname, search } = useLocation();
   const { isDark } = useTheme();
-  
-  // Store'dan kullanıcı bilgilerini alıyoruz
   const { user, isAuthenticated } = useUserStore();
 
-  const isMaintenanceMode = true; // Bakım modu
+  const isMaintenanceMode = true; // Bakım modu ayarı
 
   const urlParams = new URLSearchParams(search);
   const keyInUrl = urlParams.get('key');
@@ -39,7 +35,6 @@ export function AppShell() {
 
     const root = window.document.documentElement;
     isDark ? root.classList.add('dark') : root.classList.remove('dark');
-
     document.title = 'BCT Akademi | Biyomedikal Eğitim Portalı';
     
     const metaThemeColor = document.querySelector('meta[name="theme-color"]');
@@ -52,8 +47,8 @@ export function AppShell() {
     return <MaintenancePage />;
   }
 
-  // --- 2. ADMIN ONAY KONTROLÜ (YENİ) ---
-  // Eğer kullanıcı giriş yapmışsa, admin değilse ve onayı henüz 'active' değilse kilitle
+  // --- 2. ADMIN ONAY KONTROLÜ ---
+  // Eğer kullanıcı giriş yapmışsa, admin değilse ve durumu 'active' değilse kilitle
   if (isAuthenticated && user && !isAdmin) {
     if (user.status === 'pending_admin') {
       return <PendingApproval />;
@@ -64,7 +59,7 @@ export function AppShell() {
         <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6 text-center">
           <div className="max-w-md space-y-4">
             <h1 className="text-2xl font-bold text-red-600">Başvurunuz Onaylanmadı</h1>
-            <p className="text-slate-600">Maalesef kriterlerimize uygun bulunmadığınız için kaydınız reddedilmiştir. Detaylar için iletişime geçebilirsiniz.</p>
+            <p className="text-slate-600">Maalesef kriterlerimize uygun bulunmadığınız için kaydınız reddedilmiştir.</p>
             <button onClick={() => useUserStore.getState().logout()} className="text-blue-600 font-bold underline">Çıkış Yap</button>
           </div>
         </div>
@@ -76,6 +71,7 @@ export function AppShell() {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300 font-sans">
       <ScrollToTop />
+      {/* Admin sayfasındayken Navbar/Footer göstermek istemezsen buraya !pathname.includes('admin') kontrolü ekleyebilirsin */}
       <Navbar /> 
       
       <main className="flex-1">
