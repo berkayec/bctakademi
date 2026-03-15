@@ -9,8 +9,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useUserStore, getUserTitle } from '@/store/use-user-store';
 import { AuthModal } from '@/components/auth/AuthModal';
 import { Logo } from '@/components/Logo';
-// GÜNCELLEME: Yolu '../ui/ThemeToggle.tsx' olarak kesinleştirdik
-import { ThemeToggle } from '../ui/ThemeToggle.tsx'; 
+// UZANTIYI KALDIRDIK VE YOLU KESİNLEŞTİRDİK
+import { ThemeToggle } from '../ui/ThemeToggle'; 
 import { toast } from 'sonner';
 
 export function Navbar() {
