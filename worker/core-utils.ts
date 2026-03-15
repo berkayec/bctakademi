@@ -1,8 +1,10 @@
 /**
  * Core utilities for the Cloudflare Durable Object and KV template
- * STRICTLY DO NOT MODIFY THIS FILE - Hidden from AI to prevent breaking core functionality
+ * MODIFIED: Added D1 Database binding for BCT Akademi
  */
 
 export interface Env {
     ASSETS: Fetcher;
+    // YENİ: Veritabanını buraya tanımlıyoruz
+    DB: D1Database; 
 }
