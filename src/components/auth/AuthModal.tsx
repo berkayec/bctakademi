@@ -21,12 +21,11 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const signup = useUserStore((s) => s.signup);
   const [loading, setLoading] = useState(false);
   
-  // Form verilerini genişlettik
   const [formData, setFormData] = useState({ 
     username: '', 
     email: '', 
     role: '' as UserRole,
-    extraDetail: '' // Okul seviyesi veya Kurum adı için ortak alan
+    extraDetail: '' 
   });
 
   const validateEmail = (email: string) => {
@@ -43,7 +42,6 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
       return;
     }
 
-    // Kayıt için ekstra kontroller
     if (type === 'signup') {
       if (!formData.role) {
         toast.error("Lütfen bir rol seçin.");
@@ -62,7 +60,6 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
       login(formData.username, formData.email);
       toast.success(`Tekrar hoş geldin, ${formData.username}!`);
     } else {
-      // signup fonksiyonuna rol ve ekstra detayları da gönderiyoruz
       signup(formData.username, formData.email, { role: formData.role, detail: formData.extraDetail });
       toast.success(`Aramıza hoş geldin! Kayıt bonusu (+150 XP) tanımlandı.`);
     }
@@ -111,7 +108,8 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="l-user" className="ml-1 font-bold text-slate-700 text-sm">Kullanıcı Adı veya E-posta</Label>
-                    <Input id="l-user" placeholder="kullanici@mail.com" className="rounded-xl h-12 border-slate-200" value={formData.username} onChange={e => setFormData({...formData, username: e.target.value})} />
+                    {/* Yazı rengi düzeltildi: text-slate-950 */}
+                    <Input id="l-user" placeholder="kullanici@mail.com" className="rounded-xl h-12 border-slate-200 text-slate-950" value={formData.username} onChange={e => setFormData({...formData, username: e.target.value})} />
                   </div>
                 </div>
                 <Button disabled={loading} className="w-full bg-slate-950 hover:bg-slate-900 h-14 rounded-xl font-bold text-white mt-4" onClick={() => handleAuth('login')}>
@@ -119,20 +117,21 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 </Button>
               </TabsContent>
 
-              {/* KAYIT FORMU (DİNAMİK) */}
+              {/* KAYIT FORMU */}
               <TabsContent value="signup" className="space-y-4 outline-none">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="s-user" className="ml-1 font-bold text-slate-700 text-sm">Ad Soyad</Label>
-                    <Input id="s-user" placeholder="Ad Soyad" className="rounded-xl h-11 border-slate-200" value={formData.username} onChange={e => setFormData({...formData, username: e.target.value})} />
+                    {/* Yazı rengi düzeltildi: text-slate-950 */}
+                    <Input id="s-user" placeholder="Ad Soyad" className="rounded-xl h-11 border-slate-200 text-slate-950" value={formData.username} onChange={e => setFormData({...formData, username: e.target.value})} />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="s-email" className="ml-1 font-bold text-slate-700 text-sm">E-posta</Label>
-                    <Input id="s-email" type="email" placeholder="ornek@bct.com" className="rounded-xl h-11 border-slate-200" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
+                    {/* Yazı rengi düzeltildi: text-slate-950 */}
+                    <Input id="s-email" type="email" placeholder="ornek@bct.com" className="rounded-xl h-11 border-slate-200 text-slate-950" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
                   </div>
                 </div>
 
-                {/* ROL SEÇİMİ */}
                 <div className="space-y-2">
                   <Label className="ml-1 font-bold text-slate-700 text-sm text-orange-600">Sizi Tanıyalım: Mevcut Rolünüz?</Label>
                   <div className="grid grid-cols-2 gap-2">
@@ -159,12 +158,12 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   </div>
                 </div>
 
-                {/* DİNAMİK ALANLAR */}
                 {formData.role === 'student' && (
                   <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
                     <Label className="ml-1 font-bold text-slate-700 text-sm">Eğitim Seviyesi</Label>
+                    {/* Select yazı rengi düzeltildi: text-slate-950 */}
                     <select 
-                      className="w-full h-11 rounded-xl border-2 border-slate-100 px-3 text-sm font-medium focus:border-orange-500 outline-none"
+                      className="w-full h-11 rounded-xl border-2 border-slate-100 px-3 text-sm font-medium focus:border-orange-500 outline-none text-slate-950"
                       value={formData.extraDetail}
                       onChange={e => setFormData({...formData, extraDetail: e.target.value})}
                     >
@@ -181,9 +180,10 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                     <Label className="ml-1 font-bold text-slate-700 text-sm">
                       {formData.role === 'teacher' ? 'Görev Yaptığınız Kurum' : 'Çalıştığınız Şirket/Hastane'}
                     </Label>
+                    {/* Dinamik input yazı rengi düzeltildi: text-slate-950 */}
                     <Input 
                       placeholder="Kurum adını yazınız..." 
-                      className="rounded-xl h-11 border-slate-200" 
+                      className="rounded-xl h-11 border-slate-200 text-slate-950" 
                       value={formData.extraDetail} 
                       onChange={e => setFormData({...formData, extraDetail: e.target.value})} 
                     />
