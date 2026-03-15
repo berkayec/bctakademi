@@ -9,7 +9,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useUserStore, getUserTitle } from '@/store/use-user-store';
 import { AuthModal } from '@/components/auth/AuthModal';
 import { Logo } from '@/components/Logo';
-import { ThemeToggle } from '../ThemeToggle'; // Toggle bileşenini import ettik
+import { ThemeToggle } from '../ThemeToggle';
+import { toast } from 'sonner';
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -38,6 +39,13 @@ export function Navbar() {
     }
   };
 
+  const handleLogout = () => {
+    logout();
+    toast.success("Başarıyla çıkış yapıldı.");
+    navigate('/');
+    setIsOpen(false);
+  };
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -52,7 +60,6 @@ export function Navbar() {
   }, [location.pathname]);
 
   return (
-    // bg-slate-950 kaldırıldı, bg-background/80 (temaya duyarlı) eklendi
     <nav className="bg-background/80 text-foreground sticky top-0 z-50 border-b border-border shadow-xl backdrop-blur-md transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 sm:h-20 items-center">
@@ -112,8 +119,20 @@ export function Navbar() {
               </div>
             )}
 
-            {/* --- THEME TOGGLE BURAYA EKLENDİ --- */}
             <ThemeToggle />
+
+            {/* DESKTOP LOGOUT (Sadece Giriş Yapılmışsa) */}
+            {isAuthenticated && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleLogout}
+                className="hidden sm:flex rounded-xl text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 transition-colors"
+                title="Çıkış Yap"
+              >
+                <LogOut className="w-5 h-5" />
+              </Button>
+            )}
 
             {/* PORTAL BUTONU */}
             <Button
@@ -162,7 +181,7 @@ export function Navbar() {
               ))}
               {isAuthenticated && (
                 <button 
-                  onClick={() => { logout(); setIsOpen(false); }} 
+                  onClick={handleLogout} 
                   className="flex items-center gap-2 text-xl font-bold text-rose-500 pt-4 border-t border-border w-full"
                 >
                   <LogOut className="w-5 h-5" /> Çıkış Yap
