@@ -21,10 +21,9 @@ import { ContactPage } from '@/pages/ContactPage'
 import { CertificatePage } from '@/pages/CertificatePage'
 import { AppShell } from '@/components/layout/AppShell'
 
-// ADMIN SAYFASI IMPORTU BURAYA EKLENDİ
+// ADMIN SAYFASI IMPORTU
 import { AdminDashboard } from '@/pages/admin/AdminDashboard'
 
-// Enable Immer Map/Set support
 enableMapSet();
 
 const queryClient = new QueryClient({
@@ -41,51 +40,23 @@ const router = createBrowserRouter([
     element: <AppShell />,
     errorElement: <RouteErrorBoundary />,
     children: [
+      { path: "/", element: <HomePage /> },
+      { path: "/portal", element: <PortalPage /> },
+      { path: "/dersler", element: <LessonsPage /> },
+      { path: "/dersler/:categoryId/:courseId", element: <CourseDetailPage /> },
+      { path: "/dersler/:categoryId/:courseId/:unitId", element: <UnitContentView /> },
+      { path: "/kaynaklar", element: <ResourcesPage /> },
+      { path: "/blog", element: <BlogPage /> },
+      { path: "/iletisim", element: <ContactPage /> },
+      { path: "/sertifikalar", element: <CertificatePage /> },
+      
+      // GÜNCELLENMİŞ ADMIN ROTASI
       {
-        path: "/",
-        element: <HomePage />,
-      },
-      {
-        path: "/portal",
-        element: <PortalPage />,
-      },
-      {
-        path: "/dersler",
-        element: <LessonsPage />,
-      },
-      {
-        path: "/dersler/:categoryId/:courseId",
-        element: <CourseDetailPage />,
-      },
-      {
-        path: "/dersler/:categoryId/:courseId/:unitId",
-        element: <UnitContentView />,
-      },
-      {
-        path: "/kaynaklar",
-        element: <ResourcesPage />,
-      },
-      {
-        path: "/blog",
-        element: <BlogPage />,
-      },
-      {
-        path: "/iletisim",
-        element: <ContactPage />,
-      },
-      {
-        path: "/sertifikalar",
-        element: <CertificatePage />,
-      },
-      // ADMIN ROTASI BURAYA EKLENDİ
-      {
-        path: "/admin",
+        path: "/admin-control-portal",
         element: <AdminDashboard />,
       },
-      {
-        path: "*",
-        element: <Navigate to="/" replace />,
-      }
+      
+      { path: "*", element: <Navigate to="/" replace /> }
     ]
   }
 ]);
