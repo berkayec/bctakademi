@@ -1,8 +1,4 @@
-/**
- * Wrangler config for the Cloudflare Durable Object template
- * STRICTLY DO NOT MODIFY THIS FILE - Hidden from AI to prevent breaking core functionality
- */
- {
+{
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "biomed-tech-hub-b_kwvedxzqodh42y7pqeb",
 	"main": "worker/index.ts",
@@ -13,5 +9,12 @@
 	},
 	"observability": {
 		"enabled": true
-	}
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "bctakademi-db",
+			"database_id": "5d669293-c53e-4ba7-83ec-49b74d547ee0"
+		}
+	]
 }
