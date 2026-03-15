@@ -1,14 +1,22 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
+// Kullanıcı durumları: 
+// pending_email: Mail kodu bekleniyor
+// pending_admin: Kod onaylandı, senin (admin) onayın bekleniyor
+// active: Tam erişim
+// rejected: Reddedildi
+export type UserStatus = 'pending_email' | 'pending_admin' | 'active' | 'rejected';
+
 export type UserTitle = 'BCT Çırağı' | 'BCT Teknisyeni' | 'Klinik Mühendis Adayı' | 'Uzman Biyomedikalci';
 
 interface User {
   username: string;
   email: string;
-  role: string;      // Yeni: Kullanıcı rolü
-  detail: string;    // Yeni: Okul veya Kurum detayı
+  role: string;
+  detail: string;
   points: number;
+  status: UserStatus; // YENİ: Onay durumu
   completedUnits: string[];
   accessedResources: string[];
   watchedVideos: string[];
@@ -18,9 +26,9 @@ interface UserState {
   user: User | null;
   isAuthenticated: boolean;
   hasSeenTutorial: boolean;
-  login: (username: string, email: string) => void;
-  // Signup fonksiyonunu yeni metadata parametresini alacak şekilde güncelledik
-  signup: (username: string, email: string, metadata?: { role: string; detail: string }) => void;
+  login: (userData: Partial<User>) => void; // Güncellendi: Tüm veriyi alabilir
+  signup: (username: string, email: string, metadata: { role: string; detail: string; status: UserStatus }) => void;
+  setStatus: (status: UserStatus) => void; // YENİ: Durum güncelleme (onaylandığında kullanmak için)
   logout: () => void;
   addPoints: (amount: number) => void;
   completeUnit: (unitId: string) => void;
@@ -36,13 +44,14 @@ export const useUserStore = create<UserState>()(
       isAuthenticated: false,
       hasSeenTutorial: false,
       
-      login: (username, email) => set({ 
+      login: (userData) => set({ 
         user: { 
-          username, 
-          email, 
-          role: 'other', // Login olan eski kullanıcılar için varsayılan
-          detail: '',
-          points: 100, 
+          username: userData.username || '', 
+          email: userData.email || '', 
+          role: userData.role || 'other',
+          detail: userData.detail || '',
+          points: userData.points || 100,
+          status: userData.status || 'active', // Eski kullanıcılara varsayılan aktif
           completedUnits: [], 
           accessedResources: [],
           watchedVideos: [] 
@@ -54,15 +63,20 @@ export const useUserStore = create<UserState>()(
         user: { 
           username, 
           email, 
-          role: metadata?.role || 'other', // Gelen rolü kaydet
-          detail: metadata?.detail || '',  // Gelen detayı kaydet
-          points: 150, // Signup bonus
+          role: metadata.role, 
+          detail: metadata.detail, 
+          status: metadata.status, // API'den gelen durum (örn: pending_admin)
+          points: 150, 
           completedUnits: [], 
           accessedResources: [],
           watchedVideos: [] 
         }, 
-        isAuthenticated: true 
+        isAuthenticated: true // Session başladı ama status kısıtlı
       }),
+
+      setStatus: (newStatus) => set((state) => ({
+        user: state.user ? { ...state.user, status: newStatus } : null
+      })),
 
       logout: () => set({ user: null, isAuthenticated: false }),
       
