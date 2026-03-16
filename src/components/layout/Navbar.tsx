@@ -10,7 +10,7 @@ import { useUserStore, getUserTitle } from '@/store/use-user-store';
 import { AuthModal } from '@/components/auth/AuthModal';
 import { Logo } from '@/components/Logo';
 // UZANTIYI KALDIRDIK VE YOLU KESİNLEŞTİRDİK
-import { ThemeToggle } from '@/components/ui/ThemeToggle'; 
+import { ThemeToggle } from '@/components/ui/ThemeToggle.tsx';
 import { toast } from 'sonner';
 
 export function Navbar() {
