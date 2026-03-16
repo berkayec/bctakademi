@@ -10,68 +10,76 @@ export type UserStatus = 'pending_email' | 'pending_admin' | 'active' | 'rejecte
 
 export type UserTitle = 'BCT Çırağı' | 'BCT Teknisyeni' | 'Klinik Mühendis Adayı' | 'Uzman Biyomedikalci';
 
+// Session süresi: 7 gün (milisaniye cinsinden)
+// Değiştirmek istersen: 1 gün = 1 * 24 * 60 * 60 * 1000
+const SESSION_DURATION_MS = 7 * 24 * 60 * 60 * 1000;
+
 interface User {
   username: string;
   email: string;
   role: string;
   detail: string;
   points: number;
-  status: UserStatus; // YENİ: Onay durumu
+  status: UserStatus;
   completedUnits: string[];
   accessedResources: string[];
   watchedVideos: string[];
+  loginTime: number; // Session başlangıç zamanı (timestamp)
 }
 
 interface UserState {
   user: User | null;
   isAuthenticated: boolean;
   hasSeenTutorial: boolean;
-  login: (userData: Partial<User>) => void; // Güncellendi: Tüm veriyi alabilir
+  login: (userData: Partial<User>) => void;
   signup: (username: string, email: string, metadata: { role: string; detail: string; status: UserStatus }) => void;
-  setStatus: (status: UserStatus) => void; // YENİ: Durum güncelleme (onaylandığında kullanmak için)
+  setStatus: (status: UserStatus) => void;
   logout: () => void;
   addPoints: (amount: number) => void;
   completeUnit: (unitId: string) => void;
   trackResource: (resourceId: string) => void;
   trackVideo: (videoId: string) => void;
   setHasSeenTutorial: (val: boolean) => void;
+  checkSessionExpiry: () => void; // Session kontrolü
 }
 
 export const useUserStore = create<UserState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       isAuthenticated: false,
       hasSeenTutorial: false,
-      
-      login: (userData) => set({ 
-        user: { 
-          username: userData.username || '', 
-          email: userData.email || '', 
+
+      login: (userData) => set({
+        user: {
+          username: userData.username || '',
+          email: userData.email || '',
           role: userData.role || 'other',
           detail: userData.detail || '',
           points: userData.points || 100,
-          status: userData.status || 'active', // Eski kullanıcılara varsayılan aktif
-          completedUnits: [], 
+          status: userData.status || 'active',
+          completedUnits: [],
           accessedResources: [],
-          watchedVideos: [] 
-        }, 
-        isAuthenticated: true 
+          watchedVideos: [],
+          loginTime: Date.now(), // Giriş zamanını kaydet
+        },
+        isAuthenticated: true
       }),
 
-      signup: (username, email, metadata) => set({ 
-        user: { 
-          username, 
-          email, 
-          role: metadata.role, 
-          detail: metadata.detail, 
-          status: metadata.status, // API'den gelen durum (örn: pending_admin)
-          points: 150, 
-          completedUnits: [], 
+      signup: (username, email, metadata) => set({
+        user: {
+          username,
+          email,
+          role: metadata.role,
+          detail: metadata.detail,
+          status: metadata.status,
+          points: 150,
+          completedUnits: [],
           accessedResources: [],
-          watchedVideos: [] 
-        }, 
-        isAuthenticated: true // Session başladı ama status kısıtlı
+          watchedVideos: [],
+          loginTime: Date.now(), // Giriş zamanını kaydet
+        },
+        isAuthenticated: true
       }),
 
       setStatus: (newStatus) => set((state) => ({
@@ -79,7 +87,17 @@ export const useUserStore = create<UserState>()(
       })),
 
       logout: () => set({ user: null, isAuthenticated: false }),
-      
+
+      // Manuel session kontrolü — AppShell içinde çağrılabilir
+      checkSessionExpiry: () => {
+        const { user, logout } = get();
+        if (!user?.loginTime) return;
+        const elapsed = Date.now() - user.loginTime;
+        if (elapsed > SESSION_DURATION_MS) {
+          logout();
+        }
+      },
+
       addPoints: (amount) => set((state) => {
         if (!state.user) return state;
         return { user: { ...state.user, points: state.user.points + amount } };
@@ -87,12 +105,12 @@ export const useUserStore = create<UserState>()(
 
       completeUnit: (unitId) => set((state) => {
         if (!state.user || state.user.completedUnits.includes(unitId)) return state;
-        return { 
-          user: { 
-            ...state.user, 
+        return {
+          user: {
+            ...state.user,
             completedUnits: [...state.user.completedUnits, unitId],
-            points: state.user.points + 100 
-          } 
+            points: state.user.points + 100
+          }
         };
       }),
 
@@ -123,6 +141,16 @@ export const useUserStore = create<UserState>()(
     {
       name: 'bct-user-storage',
       storage: createJSONStorage(() => localStorage),
+
+      // Sayfa açılışında (localStorage'dan yüklenince) session süresi kontrol edilir
+      onRehydrateStorage: () => (state) => {
+        if (!state?.user?.loginTime) return;
+        const elapsed = Date.now() - state.user.loginTime;
+        if (elapsed > SESSION_DURATION_MS) {
+          // Session süresi dolmuş — otomatik çıkış
+          state.logout();
+        }
+      },
     }
   )
 );
