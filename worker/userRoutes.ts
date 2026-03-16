@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { Env } from './core-utils';
 
 // ─── Kullanıcıya doğrulama kodu gönder ─────────────────────────────────────
-async function sendVerificationEmail(
+async function sendVerificationEmail( 
   env: Env,
   to: string,
   username: string,
