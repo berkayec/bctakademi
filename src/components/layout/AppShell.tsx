@@ -8,7 +8,7 @@ import { Footer } from '@/components/layout/Footer';
 import { MaintenancePage } from '@/pages/MaintenancePage';
 import { useUserStore } from '@/store/use-user-store';
 import { PendingApproval } from '@/components/PendingApproval';
-
+ 
 export function AppShell() {
   const { pathname, search } = useLocation();
   const { isDark } = useTheme();
