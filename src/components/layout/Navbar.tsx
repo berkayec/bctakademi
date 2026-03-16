@@ -4,7 +4,7 @@ import { Menu, X, LayoutDashboard, Search, LogOut } from 'lucide-react';
 import { navLinks } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils'; 
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUserStore, getUserTitle } from '@/store/use-user-store';
 import { AuthModal } from '@/components/auth/AuthModal';
