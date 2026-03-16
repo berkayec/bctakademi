@@ -7,12 +7,12 @@ import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { MaintenancePage } from '@/pages/MaintenancePage';
 import { useUserStore } from '@/store/use-user-store';
-import { PendingApproval } from '@/components/PendingApproval'; 
+import { PendingApproval } from '@/components/PendingApproval';
 
 export function AppShell() {
   const { pathname, search } = useLocation();
   const { isDark } = useTheme();
-  const { user, isAuthenticated } = useUserStore();
+  const { user, isAuthenticated, checkSessionExpiry } = useUserStore();
 
   const isMaintenanceMode = true; // Bakım modu ayarı
 
@@ -27,6 +27,11 @@ export function AppShell() {
     return hasLocalAccess || hasUrlAccess;
   });
 
+  // Uygulama ilk açıldığında session süresini kontrol et
+  useEffect(() => {
+    checkSessionExpiry();
+  }, []);
+
   useEffect(() => {
     if (keyInUrl === validKey) {
       setIsAdmin(true);
@@ -36,7 +41,7 @@ export function AppShell() {
     const root = window.document.documentElement;
     isDark ? root.classList.add('dark') : root.classList.remove('dark');
     document.title = 'BCT Akademi | Biyomedikal Eğitim Portalı';
-    
+
     const metaThemeColor = document.querySelector('meta[name="theme-color"]');
     const color = isDark ? '#020617' : '#ffffff';
     if (metaThemeColor) metaThemeColor.setAttribute('content', color);
@@ -48,12 +53,11 @@ export function AppShell() {
   }
 
   // --- 2. ADMIN ONAY KONTROLÜ ---
-  // Eğer kullanıcı giriş yapmışsa, admin değilse ve durumu 'active' değilse kilitle
   if (isAuthenticated && user && !isAdmin) {
     if (user.status === 'pending_admin') {
       return <PendingApproval />;
     }
-    
+
     if (user.status === 'rejected') {
       return (
         <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6 text-center">
@@ -71,11 +75,10 @@ export function AppShell() {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300 font-sans">
       <ScrollToTop />
-      {/* Admin sayfasındayken Navbar/Footer göstermek istemezsen buraya !pathname.includes('admin') kontrolü ekleyebilirsin */}
-      <Navbar /> 
-      
+      <Navbar />
+
       <main className="flex-1">
-        <Outlet /> 
+        <Outlet />
       </main>
 
       <Footer />
