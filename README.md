@@ -12,7 +12,7 @@ A modern full-stack web application powered by Cloudflare Workers for the backen
 - **Developer Experience**: Hot reload, TypeScript, Vite bundling, ESLint, error reporting.
 - **Responsive Design**: Mobile-first, sidebar layout, animations, and glassmorphism effects.
 - **Deployment Optimized**: One-command deploy to Cloudflare with Workers Sites for static assets.
-- **Production Ready**: CORS, logging, error boundaries, client error reporting, health checks.
+- **Production Ready**: CORS, logging, error boundaries, client error reporting, health checks. 
 
 ## Tech Stack
 
