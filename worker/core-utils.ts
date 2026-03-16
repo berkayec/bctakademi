@@ -1,10 +1,17 @@
 /**
- * Core utilities for the Cloudflare Durable Object and KV template
- * MODIFIED: Added D1 Database binding for BCT Akademi
+ * Core utilities for Cloudflare Workers — BCT Akademi
+ *
+ * Cloudflare Dashboard'da şu Secret'ları tanımla:
+ *   Workers & Pages → bctakademi → Settings → Variables and Secrets
+ *
+ *   ADMIN_KEY    → güçlü bir değer (ör: openssl rand -hex 32)
+ *   RESEND_API_KEY → resend.com'dan alınan API key
  */
-
+ 
 export interface Env {
-    ASSETS: Fetcher;
-    // YENİ: Veritabanını buraya tanımlıyoruz
-    DB: D1Database; 
+  ASSETS: Fetcher;
+  DB: D1Database;
+  ADMIN_KEY: string;       // Cloudflare Secret — kodda asla hardcode etme
+  RESEND_API_KEY: string;  // Cloudflare Secret — resend.com API key
 }
+ 
