@@ -8,51 +8,70 @@ import { Footer } from '@/components/layout/Footer';
 import { MaintenancePage } from '@/pages/MaintenancePage';
 import { useUserStore } from '@/store/use-user-store';
 import { PendingApproval } from '@/components/PendingApproval';
- 
+
+/**
+ * Admin erişimi:
+ *   URL'de ?key=... parametresi varsa backend'e doğrulama isteği atılır.
+ *   Key doğrulanırsa sessionStorage'a "erişim var" flag'i yazılır (değil, key kendisi).
+ *   Sayfa kapanınca flag sıfırlanır (sessionStorage).
+ */
+
+const MAINTENANCE_MODE = true; // Bakım modunu kapatmak için false yap
+
+async function verifyAdminKey(key: string): Promise<boolean> {
+  try {
+    const res = await fetch(`/api/admin/users?key=${encodeURIComponent(key)}`);
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
 export function AppShell() {
   const { pathname, search } = useLocation();
   const { isDark } = useTheme();
   const { user, isAuthenticated, checkSessionExpiry } = useUserStore();
 
-  const isMaintenanceMode = true; // Bakım modu ayarı
-
   const urlParams = new URLSearchParams(search);
-  const keyInUrl = urlParams.get('key');
-  const validKey = 'shizi2510';
+  const keyInUrl  = urlParams.get('key');
 
-  const [isAdmin, setIsAdmin] = useState(() => {
-    const hasLocalAccess = localStorage.getItem('bct_admin_access') === 'true';
-    const hasUrlAccess = keyInUrl === validKey;
-    if (hasUrlAccess) localStorage.setItem('bct_admin_access', 'true');
-    return hasLocalAccess || hasUrlAccess;
-  });
+  const [isAdmin, setIsAdmin] = useState<boolean>(
+    () => sessionStorage.getItem('bct_admin_verified') === 'true'
+  );
 
-  // Uygulama ilk açıldığında session süresini kontrol et
+  // Session expiry kontrolü — sayfa açılışında bir kez çalışır
   useEffect(() => {
     checkSessionExpiry();
   }, []);
 
+  // Admin key doğrulama
   useEffect(() => {
-    if (keyInUrl === validKey) {
-      setIsAdmin(true);
-      localStorage.setItem('bct_admin_access', 'true');
-    }
+    if (!keyInUrl) return;
+    verifyAdminKey(keyInUrl).then(valid => {
+      if (valid) {
+        setIsAdmin(true);
+        sessionStorage.setItem('bct_admin_verified', 'true');
+      }
+    });
+  }, [keyInUrl]);
 
+  // Tema ve meta güncellemeleri
+  useEffect(() => {
     const root = window.document.documentElement;
     isDark ? root.classList.add('dark') : root.classList.remove('dark');
+
     document.title = 'BCT Akademi | Biyomedikal Eğitim Portalı';
 
-    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-    const color = isDark ? '#020617' : '#ffffff';
-    if (metaThemeColor) metaThemeColor.setAttribute('content', color);
-  }, [pathname, isDark, keyInUrl]);
+    const metaTheme = document.querySelector('meta[name="theme-color"]');
+    if (metaTheme) metaTheme.setAttribute('content', isDark ? '#020617' : '#ffffff');
+  }, [pathname, isDark]);
 
-  // --- 1. BAKIM MODU KONTROLÜ ---
-  if (isMaintenanceMode && !isAdmin) {
+  // ── 1. Bakım modu ────────────────────────────────────────────────────────
+  if (MAINTENANCE_MODE && !isAdmin) {
     return <MaintenancePage />;
   }
 
-  // --- 2. ADMIN ONAY KONTROLÜ ---
+  // ── 2. Kullanıcı durum kontrolü ──────────────────────────────────────────
   if (isAuthenticated && user && !isAdmin) {
     if (user.status === 'pending_admin') {
       return <PendingApproval />;
@@ -60,18 +79,25 @@ export function AppShell() {
 
     if (user.status === 'rejected') {
       return (
-        <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6 text-center">
+        <div className="min-h-screen flex items-center justify-center bg-background p-6 text-center transition-colors">
           <div className="max-w-md space-y-4">
-            <h1 className="text-2xl font-bold text-red-600">Başvurunuz Onaylanmadı</h1>
-            <p className="text-slate-600">Maalesef kriterlerimize uygun bulunmadığınız için kaydınız reddedilmiştir.</p>
-            <button onClick={() => useUserStore.getState().logout()} className="text-blue-600 font-bold underline">Çıkış Yap</button>
+            <h1 className="text-2xl font-bold text-destructive">Başvurunuz Onaylanmadı</h1>
+            <p className="text-muted-foreground">
+              Maalesef kriterlerimize uygun bulunmadığınız için kaydınız reddedilmiştir.
+            </p>
+            <button
+              onClick={() => useUserStore.getState().logout()}
+              className="text-primary font-bold underline underline-offset-4 hover:text-primary/80 transition-colors"
+            >
+              Çıkış Yap
+            </button>
           </div>
         </div>
       );
     }
   }
 
-  // --- 3. NORMAL SİTE AKIŞI ---
+  // ── 3. Normal akış ───────────────────────────────────────────────────────
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300 font-sans">
       <ScrollToTop />
