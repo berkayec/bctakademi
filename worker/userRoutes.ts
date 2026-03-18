@@ -361,6 +361,28 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     }
   });
 
+// POST /api/profile
+app.post('/api/profile', async (c) => {
+  try {
+    const body     = await c.req.json();
+    const email    = sanitize(body.email).toLowerCase();
+    const username = sanitize(body.username);
+    const detail   = sanitize(body.detail);
+
+    if (!email || !username) return c.json({ success: false, error: 'Geçersiz veri.' }, 400);
+
+    await c.env.DB.prepare(
+      'UPDATE users SET username = ?, detail = ? WHERE email = ?'
+    ).bind(username, detail, email).run();
+
+    return c.json({ success: true });
+  } catch (error: any) {
+    return c.json({ success: false, error: error.message }, 500);
+  }
+});
+
+
+  
   // POST /api/client-errors
   app.post('/api/client-errors', async (c) => {
     try {
