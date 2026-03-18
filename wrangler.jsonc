@@ -16,5 +16,11 @@
 			"database_name": "bctakademi-db",
 			"database_id": "5d669293-c53e-4ba7-83ec-49b74d547ee0"
 		}
+	],
+	"r2_buckets": [
+		{
+			"binding": "BUCKET",
+			"bucket_name": "bctakademi-files"
+		}
 	]
 }
