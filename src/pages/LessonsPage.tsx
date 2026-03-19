@@ -1,20 +1,24 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { curriculum, Course } from '@/lib/curriculum';
+import { Course } from '@/lib/curriculum';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Search, ArrowRight, FileWarning, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useCurriculum } from '@/hooks/use-curriculum';
 
 export function LessonsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const queryFromUrl = searchParams.get('q') || '';
+  const queryFromUrl    = searchParams.get('q') || '';
   const categoryFromUrl = searchParams.get('cat') || 'all';
   const [searchQuery, setSearchQuery] = useState(queryFromUrl);
-  const [activeTab, setActiveTab] = useState(categoryFromUrl);
+  const [activeTab, setActiveTab]     = useState(categoryFromUrl);
+
+  const { data: curriculum, loading } = useCurriculum();
 
   useEffect(() => {
     setSearchQuery(queryFromUrl);
@@ -39,7 +43,7 @@ export function LessonsPage() {
         course.description.toLowerCase().includes(searchQuery.toLowerCase())
       )
     })).filter(cat => cat.courses.length > 0);
-  }, [searchQuery]);
+  }, [searchQuery, curriculum]);
 
   const activeTabResults = useMemo(() => {
     if (activeTab === 'all') return filteredCategories;
@@ -52,11 +56,10 @@ export function LessonsPage() {
   }, []);
 
   return (
-    // bg-[#0a0e1a] -> bg-background | text-foreground eklendi
     <div className="bg-background min-h-screen transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
         <div className="space-y-12">
-          
+
           {/* BAŞLIK VE ARAMA */}
           <header className="text-center max-w-3xl mx-auto space-y-6">
             <h1 className="text-4xl md:text-5xl font-display font-bold text-foreground tracking-tight leading-tight transition-colors">
@@ -72,11 +75,10 @@ export function LessonsPage() {
                   placeholder="Ders veya konu ara..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  // bg-slate-900/50 -> bg-muted/50 | border-slate-800 -> border-border
                   className="h-14 pl-14 pr-12 rounded-2xl border-border bg-muted/50 text-foreground placeholder:text-muted-foreground focus-visible:ring-teal-500 w-full transition-all"
                 />
                 {searchQuery && (
-                  <button 
+                  <button
                     onClick={() => setSearchQuery('')}
                     className="absolute right-7 top-1/2 -translate-y-1/2 p-1 hover:bg-foreground/10 rounded-full transition-colors"
                   >
@@ -87,72 +89,88 @@ export function LessonsPage() {
             </div>
           </header>
 
-          {/* KATEGORİ SEKMELERİ */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="flex justify-center mb-12">
-              <TabsList className="bg-muted/40 backdrop-blur-md p-1.5 rounded-[2rem] h-auto border border-border flex-wrap justify-center overflow-x-auto max-w-full transition-colors">
-                <TabsTrigger 
-                  value="all" 
-                  className="rounded-full px-6 py-2.5 text-sm font-bold data-[state=active]:bg-teal-500 data-[state=active]:text-white text-muted-foreground transition-all"
-                >
-                  Tümü
-                </TabsTrigger>
-                {curriculum.map(cat => (
-                  <TabsTrigger 
-                    key={cat.id} 
-                    value={cat.id} 
-                    className="rounded-full px-6 py-2.5 text-sm font-bold data-[state=active]:bg-teal-500 data-[state=active]:text-white text-muted-foreground transition-all"
-                  >
-                    {cat.title}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-            </div>
-
-            <AnimatePresence mode="wait">
-              <motion.div 
-                key={activeTab + searchQuery} 
-                initial={{ opacity: 0, y: 20 }} 
-                animate={{ opacity: 1, y: 0 }} 
-                exit={{ opacity: 0, y: -20 }} 
-                transition={{ duration: 0.3 }}
-              >
-                {activeTabResults.length > 0 ? (
-                  <div className="space-y-20">
-                    {activeTabResults.map(cat => (
-                      <div key={cat.id} className="space-y-8">
-                        <div className="flex items-center gap-6 px-4">
-                          <h2 className="text-2xl md:text-3xl font-display font-bold text-foreground whitespace-nowrap transition-colors">{cat.title}</h2>
-                          {/* bg-slate-800 -> bg-border */}
-                          <div className="h-px flex-1 bg-border" />
-                          <Badge variant="outline" className="rounded-lg border-border text-muted-foreground font-bold hidden sm:inline-flex">
-                            {cat.courses.length} Ders
-                          </Badge>
-                        </div>
-                        <CourseGrid categoryId={cat.id} courses={cat.courses} />
-                      </div>
+          {/* YÜKLEME İSKELETİ */}
+          {loading && (
+            <div className="space-y-8">
+              {[1, 2].map(i => (
+                <div key={i} className="space-y-4">
+                  <Skeleton className="h-8 w-48 rounded-xl" />
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-4">
+                    {[1, 2, 3].map(j => (
+                      <Skeleton key={j} className="h-72 rounded-[2.5rem]" />
                     ))}
                   </div>
-                ) : (
-                  <div className="py-24 text-center">
-                    <FileWarning className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
-                    <h3 className="text-xl font-bold text-foreground mb-2">Eşleşen Ders Bulunamadı</h3>
-                    <p className="text-muted-foreground mb-8">Farklı anahtar kelimelerle aramayı deneyebilirsiniz.</p>
-                    <Button onClick={handleClear} className="bg-muted hover:bg-muted/80 text-foreground rounded-xl h-12 transition-all">
-                      Aramayı Temizle
-                    </Button>
-                  </div>
-                )}
-              </motion.div>
-            </AnimatePresence>
-          </Tabs>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* KATEGORİ SEKMELERİ */}
+          {!loading && (
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <div className="flex justify-center mb-12">
+                <TabsList className="bg-muted/40 backdrop-blur-md p-1.5 rounded-[2rem] h-auto border border-border flex-wrap justify-center overflow-x-auto max-w-full transition-colors">
+                  <TabsTrigger
+                    value="all"
+                    className="rounded-full px-6 py-2.5 text-sm font-bold data-[state=active]:bg-teal-500 data-[state=active]:text-white text-muted-foreground transition-all"
+                  >
+                    Tümü
+                  </TabsTrigger>
+                  {curriculum.map(cat => (
+                    <TabsTrigger
+                      key={cat.id}
+                      value={cat.id}
+                      className="rounded-full px-6 py-2.5 text-sm font-bold data-[state=active]:bg-teal-500 data-[state=active]:text-white text-muted-foreground transition-all"
+                    >
+                      {cat.title}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </div>
+
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeTab + searchQuery}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {activeTabResults.length > 0 ? (
+                    <div className="space-y-20">
+                      {activeTabResults.map(cat => (
+                        <div key={cat.id} className="space-y-8">
+                          <div className="flex items-center gap-6 px-4">
+                            <h2 className="text-2xl md:text-3xl font-display font-bold text-foreground whitespace-nowrap transition-colors">{cat.title}</h2>
+                            <div className="h-px flex-1 bg-border" />
+                            <Badge variant="outline" className="rounded-lg border-border text-muted-foreground font-bold hidden sm:inline-flex">
+                              {cat.courses.length} Ders
+                            </Badge>
+                          </div>
+                          <CourseGrid categoryId={cat.id} courses={cat.courses} />
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="py-24 text-center">
+                      <FileWarning className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
+                      <h3 className="text-xl font-bold text-foreground mb-2">Eşleşen Ders Bulunamadı</h3>
+                      <p className="text-muted-foreground mb-8">Farklı anahtar kelimelerle aramayı deneyebilirsiniz.</p>
+                      <Button onClick={handleClear} className="bg-muted hover:bg-muted/80 text-foreground rounded-xl h-12 transition-all">
+                        Aramayı Temizle
+                      </Button>
+                    </div>
+                  )}
+                </motion.div>
+              </AnimatePresence>
+            </Tabs>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
-// KURS KARTLARI
 interface CourseGridProps {
   courses: Course[];
   categoryId: string;
@@ -162,15 +180,13 @@ function CourseGrid({ courses, categoryId }: CourseGridProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-4">
       {courses.map((course) => (
-        // bg-slate-900/40 -> bg-card | border-slate-800 -> border-border
         <Card key={course.id} className="group flex flex-col h-full bg-card backdrop-blur-xl border-border rounded-[2.5rem] overflow-hidden hover:bg-card/80 transition-all duration-500 shadow-sm">
           <div className="aspect-[16/10] overflow-hidden relative">
-            <img 
-              src={course.image} 
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-90 dark:opacity-80" 
+            <img
+              src={course.image}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-90 dark:opacity-80"
               alt={course.title}
             />
-            {/* Alt gradyan temaya uyumlu hale getirildi */}
             <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
           </div>
           <CardHeader className="p-8 pb-4">
