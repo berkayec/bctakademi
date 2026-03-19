@@ -1,24 +1,35 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { curriculum } from '@/lib/curriculum';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge'; 
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ChevronRight, PlayCircle, BookOpen, ArrowRight, Award } from 'lucide-react';
+import { useCurriculum } from '@/hooks/use-curriculum';
 
 export function CourseDetailPage() {
   const { categoryId, courseId } = useParams();
+  const { data: curriculum_data, loading: currLoading } = useCurriculum();
 
-  // Veriyi bulma
-  const category = curriculum.find(c => c.id === categoryId);
-  const course = category?.courses.find(c => c.id === courseId);
+  useEffect(() => { window.scrollTo(0, 0); }, []);
 
-  // Sayfa açıldığında en üste kaydır
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
+  const category = curriculum_data.find(c => c.id === categoryId);
+  const course   = category?.courses.find(c => c.id === courseId);
 
-  // HATA ÖNLEYİCİ: Eğer kurs bulunamazsa
+  if (currLoading) {
+    return (
+      <div className="bg-background min-h-screen p-8 space-y-8">
+        <Skeleton className="h-12 w-1/3 rounded-2xl" />
+        <Skeleton className="aspect-video rounded-[2.5rem]" />
+        <div className="space-y-4">
+          <Skeleton className="h-32 rounded-3xl" />
+          <Skeleton className="h-32 rounded-3xl" />
+        </div>
+      </div>
+    );
+  }
+
   if (!course) {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center text-center p-6 bg-background">
@@ -36,10 +47,9 @@ export function CourseDetailPage() {
   const firstUnitId = course.units?.[0]?.id;
 
   return (
-    // bg-[#0a0e1a] -> bg-background | Transition eklendi
     <div className="bg-background min-h-screen transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16">
-        
+
         {/* BREADCRUMB */}
         <nav className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground mb-8 overflow-x-auto whitespace-nowrap pb-2 no-scrollbar uppercase tracking-widest">
           <Link to="/dersler" className="hover:text-teal-500 transition-colors">Müfredat</Link>
@@ -52,22 +62,19 @@ export function CourseDetailPage() {
         </nav>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
-          
+
           {/* SOL TARAF: ANA İÇERİK */}
           <div className="lg:col-span-2 space-y-12">
             <section className="space-y-6">
-              {/* text-white -> text-foreground */}
               <h1 className="text-3xl md:text-6xl font-display font-bold text-foreground leading-tight tracking-tight">
                 {course.title}
               </h1>
-              
-              {/* KURS GÖRSELİ / VIDEO KAPAĞI */}
-              {/* bg-slate-900 -> bg-muted | border-slate-800 -> border-border */}
+
               <div className="aspect-video relative rounded-[2.5rem] overflow-hidden shadow-2xl bg-muted border border-border group">
-                <img 
-                  src={course.image} 
-                  className="w-full h-full object-cover opacity-80 dark:opacity-60 group-hover:scale-105 transition-transform duration-700" 
-                  alt={course.title} 
+                <img
+                  src={course.image}
+                  className="w-full h-full object-cover opacity-80 dark:opacity-60 group-hover:scale-105 transition-transform duration-700"
+                  alt={course.title}
                 />
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="w-16 h-16 md:w-20 md:h-20 bg-background/20 dark:bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-foreground dark:text-white border border-border/20 shadow-2xl">
@@ -75,8 +82,7 @@ export function CourseDetailPage() {
                   </div>
                 </div>
               </div>
-              
-              {/* text-slate-300 -> text-muted-foreground */}
+
               <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-3xl">
                 {course.description}
               </p>
@@ -90,13 +96,12 @@ export function CourseDetailPage() {
                   {course.units?.length || 0} Ünite
                 </Badge>
               </div>
-              
+
               <Accordion type="single" collapsible className="space-y-4">
                 {course.units?.map((unit, idx) => (
-                  <AccordionItem 
-                    key={unit.id} 
-                    value={unit.id} 
-                    // bg-slate-900/40 -> bg-card | border-white/5 -> border-border
+                  <AccordionItem
+                    key={unit.id}
+                    value={unit.id}
                     className="border-none bg-card/50 backdrop-blur-md rounded-3xl overflow-hidden border border-border hover:bg-card/80 transition-all shadow-sm"
                   >
                     <AccordionTrigger className="px-6 py-7 hover:no-underline text-left group">
@@ -126,19 +131,18 @@ export function CourseDetailPage() {
 
           {/* SAĞ TARAF: BİLGİ PANELİ */}
           <aside className="lg:sticky lg:top-28 space-y-6">
-            {/* bg-gradient-to-br from-slate-900 to-slate-950 -> bg-card */}
             <div className="bg-card p-8 rounded-[2.5rem] border border-border shadow-2xl relative overflow-hidden transition-colors">
               <div className="relative z-10 space-y-8">
                 <div className="space-y-2">
-                   <h4 className="text-2xl font-bold text-foreground tracking-tight">Kurs Paneli</h4>
-                   <p className="text-muted-foreground text-sm leading-relaxed font-medium">Bu eğitim modülünü tamamlayarak uzmanlık sertifikası ve XP kazanabilirsiniz.</p>
+                  <h4 className="text-2xl font-bold text-foreground tracking-tight">Kurs Paneli</h4>
+                  <p className="text-muted-foreground text-sm leading-relaxed font-medium">Bu eğitim modülünü tamamlayarak uzmanlık sertifikası ve XP kazanabilirsiniz.</p>
                 </div>
-                
+
                 <ul className="space-y-5">
                   {[
-                    { text: "Başarı Sertifikası", icon: Award },
+                    { text: "Başarı Sertifikası",   icon: Award },
                     { text: "Teknik Dokümantasyon", icon: BookOpen },
-                    { text: "Uygulamalı Quizler", icon: ArrowRight }
+                    { text: "Uygulamalı Quizler",   icon: ArrowRight }
                   ].map((item, i) => (
                     <li key={i} className="flex items-center gap-3 text-sm text-foreground/80 font-bold">
                       <div className="w-2 h-2 rounded-full bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.5)]" />
@@ -155,12 +159,9 @@ export function CourseDetailPage() {
                   </Button>
                 )}
               </div>
-              {/* Dekoratif Işık - Koyu modda daha belirgin */}
               <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-orange-500/5 rounded-full blur-3xl" />
             </div>
 
-            {/* DESTEK KARTI */}
-            {/* bg-slate-900/30 -> bg-muted/30 */}
             <div className="bg-muted/30 border border-border p-6 rounded-[2rem] text-center transition-colors">
               <p className="text-xs text-muted-foreground leading-relaxed font-medium">
                 Eğitim içeriğiyle ilgili bir sorunuz mu var? <br />
@@ -168,7 +169,6 @@ export function CourseDetailPage() {
               </p>
             </div>
           </aside>
-          
         </div>
       </div>
     </div>
