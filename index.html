@@ -5,6 +5,22 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <!-- Tema flash önleyici: React yüklenmeden önce doğru temayı uygula -->
+    <script>
+      (function() {
+        try {
+          var saved = localStorage.getItem('bct-theme');
+          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var isDark = saved ? saved === 'dark' : prefersDark;
+          if (isDark) {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        } catch(e) {}
+      })();
+    </script>
+
     <!-- Primary Meta -->
     <title>BCT Akademi | Biyomedikal Cihaz Teknolojileri Eğitim Platformu</title>
     <meta name="description" content="Türkiye'nin öncü Biyomedikal Cihaz Teknolojileri eğitim portalı. Profesyonel teknik içerikler, sertifikalar ve müfredat uyumlu derslerle kariyerini şekillendir." />

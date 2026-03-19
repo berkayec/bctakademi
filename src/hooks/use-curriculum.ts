@@ -5,7 +5,7 @@
  * Her category: { id, title, courses: [{ id, title, description, image_url, units: [...] }] }
  */
 import { useState, useEffect } from 'react';
-import { curriculum as staticCurriculum } from '@/lib/curriculum';
+import { curriculum as staticCurriculum } from '@/lib/curriculum'; 
 import type { Category } from '@/lib/curriculum';
 
 export interface ApiCategory {

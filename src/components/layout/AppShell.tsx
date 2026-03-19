@@ -9,14 +9,7 @@ import { MaintenancePage } from '@/pages/MaintenancePage';
 import { useUserStore } from '@/store/use-user-store';
 import { PendingApproval } from '@/components/PendingApproval';
 
-/**
- * Admin erişimi:
- *   URL'de ?key=... parametresi varsa backend'e doğrulama isteği atılır.
- *   Key doğrulanırsa sessionStorage'a "erişim var" flag'i yazılır (değil, key kendisi).
- *   Sayfa kapanınca flag sıfırlanır (sessionStorage).
- */
-
-const MAINTENANCE_MODE = true; // Bakım modunu kapatmak için false yap
+const MAINTENANCE_MODE = true;
 
 async function verifyAdminKey(key: string): Promise<boolean> {
   try {
@@ -39,12 +32,10 @@ export function AppShell() {
     () => sessionStorage.getItem('bct_admin_verified') === 'true'
   );
 
-  // Session expiry kontrolü — sayfa açılışında bir kez çalışır
   useEffect(() => {
     checkSessionExpiry();
-  }, []);
+  }, [checkSessionExpiry]);
 
-  // Admin key doğrulama
   useEffect(() => {
     if (!keyInUrl) return;
     verifyAdminKey(keyInUrl).then(valid => {
@@ -55,28 +46,21 @@ export function AppShell() {
     });
   }, [keyInUrl]);
 
-  // Tema ve meta güncellemeleri
+  // Meta güncellemeleri — tema DOM uygulaması use-theme hook'unda yapılıyor
   useEffect(() => {
-    const root = window.document.documentElement;
-    isDark ? root.classList.add('dark') : root.classList.remove('dark');
-
     document.title = 'BCT Akademi | Biyomedikal Eğitim Portalı';
-
     const metaTheme = document.querySelector('meta[name="theme-color"]');
     if (metaTheme) metaTheme.setAttribute('content', isDark ? '#020617' : '#ffffff');
   }, [pathname, isDark]);
 
-  // ── 1. Bakım modu ────────────────────────────────────────────────────────
   if (MAINTENANCE_MODE && !isAdmin) {
     return <MaintenancePage />;
   }
 
-  // ── 2. Kullanıcı durum kontrolü ──────────────────────────────────────────
   if (isAuthenticated && user && !isAdmin) {
     if (user.status === 'pending_admin') {
       return <PendingApproval />;
     }
-
     if (user.status === 'rejected') {
       return (
         <div className="min-h-screen flex items-center justify-center bg-background p-6 text-center transition-colors">
@@ -97,18 +81,14 @@ export function AppShell() {
     }
   }
 
-  // ── 3. Normal akış ───────────────────────────────────────────────────────
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300 font-sans">
       <ScrollToTop />
       <Navbar />
-
       <main className="flex-1">
         <Outlet />
       </main>
-
       <Footer />
-
       <Toaster
         position="top-right"
         richColors
