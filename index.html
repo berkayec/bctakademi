@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Primary Meta -->
+    <title>BCT Akademi | Biyomedikal Cihaz Teknolojileri Eğitim Platformu</title>
+    <meta name="description" content="Türkiye'nin öncü Biyomedikal Cihaz Teknolojileri eğitim portalı. Profesyonel teknik içerikler, sertifikalar ve müfredat uyumlu derslerle kariyerini şekillendir." />
+    <meta name="keywords" content="biyomedikal, cihaz teknolojileri, BCT, tıbbi cihaz, biyomedikal eğitim, klinik mühendis, defibrilatör, ventilatör" />
+    <meta name="author" content="BCT Akademi" />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#ffffff" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://bctakademi.com/" />
+    <meta property="og:title" content="BCT Akademi | Biyomedikal Eğitim Platformu" />
+    <meta property="og:description" content="Türkiye'nin öncü Biyomedikal Cihaz Teknolojileri eğitim portalı. Profesyonel müfredat ve modern öğrenme araçlarıyla uzmanlaş." />
+    <meta property="og:image" content="https://bctakademi.com/og-image.jpg" />
+    <meta property="og:locale" content="tr_TR" />
+    <meta property="og:site_name" content="BCT Akademi" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="BCT Akademi | Biyomedikal Eğitim Platformu" />
+    <meta name="twitter:description" content="Türkiye'nin öncü Biyomedikal Cihaz Teknolojileri eğitim portalı." />
+    <meta name="twitter:image" content="https://bctakademi.com/og-image.jpg" />
+
+    <!-- Canonical -->
+    <link rel="canonical" href="https://bctakademi.com/" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      window.addEventListener('error', (event) => {
+        const isOurAppError = event.filename && event.filename.startsWith(window.location.origin);
+        if (isOurAppError) {
+          navigator.sendBeacon('/api/client-errors', JSON.stringify({
+            message: event.message,
+            url: window.location.href,
+            userAgent: navigator.userAgent,
+            source: event.filename,
+            lineno: event.lineno,
+            colno: event.colno,
+            stack: event.error ? event.error.stack : null,
+            timestamp: new Date().toISOString()
+          }));
+        }
+      }, true);
+    </script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
