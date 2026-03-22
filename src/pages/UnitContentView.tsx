@@ -247,6 +247,52 @@ export function UnitContentView() {
               </div>
             </article>
 
+            {/* Ek Materyal — PDF / Sunum / Belge */}
+            {currentTopic?.attachment_url && (
+              <div className="mt-10 space-y-3">
+                <div className="flex items-center gap-2 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">
+                  <span>📎 Ek Materyal</span>
+                </div>
+                {/\.(pdf)$/i.test(currentTopic.attachment_url) ? (
+                  /* PDF — iframe embed */
+                  <div className="rounded-[2rem] overflow-hidden border border-border shadow-xl">
+                    <iframe
+                      src={currentTopic.attachment_url}
+                      className="w-full"
+                      style={{ height: '680px' }}
+                      title="Ek Materyal"
+                    />
+                  </div>
+                ) : /\.(ppt|pptx)$/i.test(currentTopic.attachment_url) ? (
+                  /* PowerPoint — Google Docs Viewer ile embed */
+                  <div className="rounded-[2rem] overflow-hidden border border-border shadow-xl">
+                    <iframe
+                      src={`https://docs.google.com/viewer?url=${encodeURIComponent(currentTopic.attachment_url)}&embedded=true`}
+                      className="w-full"
+                      style={{ height: '680px' }}
+                      title="Sunum"
+                    />
+                  </div>
+                ) : (
+                  /* Diğer — indirme linki */
+                  <a
+                    href={currentTopic.attachment_url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-3 p-5 bg-muted/40 border border-border rounded-2xl hover:bg-muted/70 transition-all group"
+                  >
+                    <div className="w-10 h-10 bg-teal-500/10 text-teal-500 rounded-xl flex items-center justify-center shrink-0">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" /></svg>
+                    </div>
+                    <div>
+                      <p className="font-bold text-foreground text-sm group-hover:text-teal-500 transition-colors">Ek Materyali İndir / Görüntüle</p>
+                      <p className="text-xs text-muted-foreground truncate max-w-xs">{currentTopic.attachment_url.split('/').pop()}</p>
+                    </div>
+                  </a>
+                )}
+              </div>
+            )}
+
             {currentTopic?.quiz && currentTopic.quiz.length > 0 && (
               <div id="quiz-section" className="pt-16 border-t border-border">
                 <QuizSection
