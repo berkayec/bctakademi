@@ -1154,4 +1154,43 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
       return c.json({ error: (e as Error).message }, 500);
     }
   });
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // R2 DOSYA YÜKLEME — POST /api/upload
+  // ══════════════════════════════════════════════════════════════════════════
+
+  app.post('/api/upload', async (c) => {
+    // Sadece admin erişebilir
+    const authHeader = c.req.header('Authorization');
+    if (!authHeader || authHeader !== `Bearer ${c.env.ADMIN_KEY}`) {
+      return c.json({ error: 'Yetkisiz.' }, 401);
+    }
+
+    if (!c.env.BUCKET) {
+      return c.json({ error: 'R2 bucket bağlı değil. wrangler.jsonc\'yi kontrol edin.' }, 500);
+    }
+
+    try {
+      const formData = await c.req.formData();
+      const file = formData.get('file') as File | null;
+      if (!file) return c.json({ error: 'Dosya bulunamadı.' }, 400);
+
+      // Güvenli dosya adı oluştur
+      const ext = (file.name.split('.').pop() || 'bin').toLowerCase().replace(/[^a-z0-9]/g, '');
+      const safeExt = ['pdf', 'ppt', 'pptx', 'doc', 'docx', 'png', 'jpg', 'jpeg', 'webp', 'gif', 'mp4', 'webm'].includes(ext)
+        ? ext : 'bin';
+      const key = `uploads/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${safeExt}`;
+
+      await c.env.BUCKET.put(key, file.stream(), {
+        httpMetadata: { contentType: file.type || 'application/octet-stream' },
+      });
+
+      // R2 public URL — pub-5921cdf12f744e97a1a20e32a9d1bfae.r2.dev
+      const url = `https://pub-5921cdf12f744e97a1a20e32a9d1bfae.r2.dev/${key}`;
+      return c.json({ success: true, url, key });
+    } catch (e: unknown) {
+      console.error('[upload]', e);
+      return c.json({ error: (e as Error).message }, 500);
+    }
+  });
 }
