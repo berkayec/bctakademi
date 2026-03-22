@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, memo } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { curriculum } from '@/lib/curriculum';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
@@ -15,7 +14,6 @@ import { useUserStore } from '@/store/use-user-store';
 import { useCurriculum, useUnitTopics } from '@/hooks/use-curriculum';
 import { toast } from 'sonner';
 
-// ─── TopicList (aynı) ─────────────────────────────────────────────────────
 const TopicList = memo(({
   topics, activeTopicIndex, setActiveTopicIndex, isMobile = false, setIsMobileMenuOpen
 }: {
@@ -43,7 +41,9 @@ const TopicList = memo(({
         <div className="flex items-center gap-4">
           <div className={cn(
             "w-9 h-9 rounded-xl flex items-center justify-center transition-all text-xs font-black shrink-0",
-            activeTopicIndex === idx ? "bg-teal-500 text-white shadow-lg shadow-teal-500/20" : "bg-muted text-muted-foreground group-hover:bg-muted/80"
+            activeTopicIndex === idx
+              ? "bg-teal-500 text-white shadow-lg shadow-teal-500/20"
+              : "bg-muted text-muted-foreground group-hover:bg-muted/80"
           )}>
             {idx + 1}
           </div>
@@ -60,14 +60,13 @@ const TopicList = memo(({
 ));
 TopicList.displayName = 'TopicList';
 
-// ─── Ana Bileşen ──────────────────────────────────────────────────────────
 export function UnitContentView() {
   const { categoryId, courseId, unitId } = useParams();
 
-  const [activeTopicIndex, setActiveTopicIndex]   = useState(0);
-  const [unitCompleted, setUnitCompleted]         = useState(false);
-  const [scrollProgress, setScrollProgress]       = useState(0);
-  const [isMobileMenuOpen, setIsMobileMenuOpen]   = useState(false);
+  const [activeTopicIndex, setActiveTopicIndex] = useState(0);
+  const [unitCompleted, setUnitCompleted]       = useState(false);
+  const [scrollProgress, setScrollProgress]     = useState(0);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const trackedSessionVideos = useRef<Set<string>>(new Set());
 
@@ -79,10 +78,8 @@ export function UnitContentView() {
   const isAuthenticated = useUserStore(s => s.isAuthenticated);
   const user            = useUserStore(s => s.user);
 
-  // Ünitenin course/category bilgisini curriculum'dan bul
   const category = curriculum_data.find(c => c.id === categoryId);
   const course   = category?.courses.find(c => c.id === courseId);
-  // Unit meta bilgisi: API'den topic geliyorsa ünite bilgisini curriculum'dan alıyoruz
   const unitMeta = course?.units.find(u => u.id === unitId);
 
   const handleScroll = useCallback(() => {
@@ -110,15 +107,22 @@ export function UnitContentView() {
   const currentTopic = topics[activeTopicIndex];
 
   useEffect(() => {
-    if (currentTopic?.videoYoutubeId && isAuthenticated && !trackedSessionVideos.current.has(currentTopic.videoYoutubeId)) {
+    if (
+      currentTopic?.videoYoutubeId &&
+      isAuthenticated &&
+      !trackedSessionVideos.current.has(currentTopic.videoYoutubeId)
+    ) {
       trackVideo(currentTopic.videoYoutubeId);
       trackedSessionVideos.current.add(currentTopic.videoYoutubeId);
-      // D1'e de kaydet
       if (user?.email) {
         fetch('/api/progress', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: user.email, entity_type: 'video', entity_id: currentTopic.videoYoutubeId }),
+          body: JSON.stringify({
+            email: user.email,
+            entity_type: 'video',
+            entity_id: currentTopic.videoYoutubeId,
+          }),
         }).catch(() => {});
       }
     }
@@ -132,7 +136,7 @@ export function UnitContentView() {
         <Skeleton className="w-72 h-full rounded-3xl hidden md:block" />
         <div className="flex-1 space-y-6">
           <Skeleton className="h-12 w-64 rounded-2xl" />
-          <Skeleton className="aspect-video rounded-[2.5rem]" />
+          <Skeleton className="h-64 rounded-[2.5rem]" />
           <Skeleton className="h-48 rounded-2xl" />
         </div>
       </div>
@@ -151,7 +155,6 @@ export function UnitContentView() {
   const handleComplete = () => {
     if (activeTopicIndex === topics.length - 1) {
       completeUnit(unitMeta.id);
-      // D1'e de kaydet
       if (user?.email) {
         fetch('/api/progress', {
           method: 'POST',
@@ -160,9 +163,9 @@ export function UnitContentView() {
         }).catch(() => {});
       }
       setUnitCompleted(true);
-      toast.success("Ünite Tamamlandı!", {
-        description: "+100 XP kazandınız.",
-        icon: <Trophy className="text-teal-500 w-4 h-4" />
+      toast.success('Ünite Tamamlandı!', {
+        description: '+100 XP kazandınız.',
+        icon: <Trophy className="text-teal-500 w-4 h-4" />,
       });
     } else {
       setActiveTopicIndex(prev => prev + 1);
@@ -172,10 +175,13 @@ export function UnitContentView() {
   return (
     <div className="flex flex-1 h-[calc(100vh-64px)] md:h-[calc(100vh-80px)] overflow-hidden relative bg-background transition-colors duration-300">
 
-      {/* SIDEBAR (DESKTOP) */}
+      {/* SIDEBAR */}
       <div className="hidden md:flex w-80 flex-col border-r border-border bg-card/50 backdrop-blur-xl">
         <div className="p-6 border-b border-border bg-muted/30">
-          <Link to={`/dersler/${categoryId}/${courseId}`} className="flex items-center text-[10px] font-bold text-teal-500 hover:text-teal-400 transition-colors uppercase mb-3 tracking-widest">
+          <Link
+            to={`/dersler/${categoryId}/${courseId}`}
+            className="flex items-center text-[10px] font-bold text-teal-500 hover:text-teal-400 transition-colors uppercase mb-3 tracking-widest"
+          >
             <ChevronLeft className="w-3.5 h-3.5 mr-1" /> {course?.title}
           </Link>
           <h3 className="font-bold text-foreground line-clamp-2 leading-tight tracking-tight">{unitMeta.title}</h3>
@@ -185,8 +191,9 @@ export function UnitContentView() {
         </ScrollArea>
       </div>
 
-      {/* ANA İÇERİK ALANI */}
+      {/* ANA İÇERİK */}
       <div className="flex-1 flex flex-col bg-background overflow-hidden relative">
+        {/* Üst bar */}
         <header className="px-4 md:px-8 py-4 border-b border-border flex items-center justify-between bg-background/80 backdrop-blur-md z-30 sticky top-0">
           <div className="flex items-center gap-3">
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
@@ -197,13 +204,22 @@ export function UnitContentView() {
               </SheetTrigger>
               <SheetContent side="left" className="w-[300px] p-0 bg-background border-border">
                 <SheetHeader className="p-6 border-b border-border text-left bg-muted/30">
-                  <Link to={`/dersler/${categoryId}/${courseId}`} className="flex items-center text-[10px] font-bold text-teal-500 uppercase mb-2 tracking-widest">
+                  <Link
+                    to={`/dersler/${categoryId}/${courseId}`}
+                    className="flex items-center text-[10px] font-bold text-teal-500 uppercase mb-2 tracking-widest"
+                  >
                     <ChevronLeft className="w-3 h-3 mr-1" /> Geri Dön
                   </Link>
                   <SheetTitle className="text-foreground text-lg font-bold leading-tight">{unitMeta.title}</SheetTitle>
                 </SheetHeader>
                 <ScrollArea className="h-[calc(100vh-120px)]">
-                  <TopicList topics={topics} activeTopicIndex={activeTopicIndex} setActiveTopicIndex={setActiveTopicIndex} isMobile setIsMobileMenuOpen={setIsMobileMenuOpen} />
+                  <TopicList
+                    topics={topics}
+                    activeTopicIndex={activeTopicIndex}
+                    setActiveTopicIndex={setActiveTopicIndex}
+                    isMobile
+                    setIsMobileMenuOpen={setIsMobileMenuOpen}
+                  />
                 </ScrollArea>
               </SheetContent>
             </Sheet>
@@ -212,69 +228,106 @@ export function UnitContentView() {
             </h2>
           </div>
 
-          <Button size="sm" onClick={handleComplete} className="bg-teal-500 hover:bg-teal-600 text-white font-black px-5 md:px-8 rounded-xl h-10 border-none transition-all active:scale-95 shadow-lg shadow-teal-500/20">
+          <Button
+            size="sm"
+            onClick={handleComplete}
+            className="bg-teal-500 hover:bg-teal-600 text-white font-black px-5 md:px-8 rounded-xl h-10 border-none transition-all active:scale-95 shadow-lg shadow-teal-500/20"
+          >
             {activeTopicIndex === topics.length - 1 ? 'ÜNİTEYİ BİTİR' : 'SONRAKİ KONU'}
           </Button>
 
-          <div className="absolute bottom-0 left-0 h-[3px] bg-teal-500 transition-all duration-300 z-40" style={{ width: `${scrollProgress}%` }} />
+          {/* Scroll progress bar */}
+          <div
+            className="absolute bottom-0 left-0 h-[3px] bg-teal-500 transition-all duration-300 z-40"
+            style={{ width: `${scrollProgress}%` }}
+          />
         </header>
 
-        <div className="flex-1 overflow-y-auto scroll-smooth no-scrollbar" ref={scrollContainerRef} onScroll={handleScroll}>
-          <div className="max-w-4xl mx-auto px-6 md:px-12 pt-8 pb-24 space-y-12">
+        {/* Sayfa içeriği */}
+        <div
+          className="flex-1 overflow-y-auto scroll-smooth no-scrollbar"
+          ref={scrollContainerRef}
+          onScroll={handleScroll}
+        >
+          <div className="max-w-4xl mx-auto px-6 md:px-12 pt-8 pb-24 space-y-10">
 
-            <div className="flex items-center gap-6 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] border-b border-border pb-6">
+            {/* Meta bilgi */}
+            <div className="flex items-center gap-6 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] border-b border-border pb-5">
               <span className="flex items-center gap-2"><Clock className="w-3.5 h-3.5" /> ~{unitMeta.estimatedReadingTime}</span>
               <span className="flex items-center gap-2"><BookOpen className="w-3.5 h-3.5" /> KONU {activeTopicIndex + 1}/{topics.length}</span>
             </div>
 
-            {currentTopic?.videoYoutubeId && (
-              <div className="aspect-video bg-black rounded-[2.5rem] overflow-hidden shadow-2xl border border-border ring-1 ring-border/5">
-                <iframe
-                  className="w-full h-full"
-                  src={`https://www.youtube.com/embed/${currentTopic.videoYoutubeId}`}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
+            {/* ── YENİ LAYOUT: Video + İçerik yan yana ── */}
+            {currentTopic?.videoYoutubeId ? (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                {/* Video — sol, kompakt */}
+                <div className="w-full">
+                  <div className="aspect-video bg-black rounded-2xl overflow-hidden shadow-xl border border-border">
+                    <iframe
+                      className="w-full h-full"
+                      src={`https://www.youtube.com/embed/${currentTopic.videoYoutubeId}`}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  </div>
+                </div>
+
+                {/* İçerik — sağ, video ile aynı hizada başlar */}
+                <div className="space-y-4">
+                  <h1 className="text-2xl md:text-3xl font-bold text-foreground leading-tight tracking-tight">
+                    {currentTopic?.title}
+                  </h1>
+                  <div className="whitespace-pre-wrap font-sans text-foreground/80 text-base leading-relaxed">
+                    {currentTopic?.content}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* Video yoksa — tam genişlik içerik */
+              <article>
+                <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-8 tracking-tight">
+                  {currentTopic?.title}
+                </h1>
+                <div className="whitespace-pre-wrap font-sans text-foreground/90 text-lg leading-relaxed">
+                  {currentTopic?.content}
+                </div>
+              </article>
+            )}
+
+            {/* Video varsa altında tam genişlik içerik devamı (uzun içerikler için) */}
+            {currentTopic?.videoYoutubeId && currentTopic?.content && currentTopic.content.length > 600 && (
+              <div className="pt-4 border-t border-border/50">
+                <div className="whitespace-pre-wrap font-sans text-foreground/80 text-base leading-relaxed">
+                  {/* İlk 600 karakter sağ sütunda gösterildi, geri kalanı burada */}
+                </div>
               </div>
             )}
 
-            <article className="prose dark:prose-invert max-w-none prose-h1:font-display prose-h1:tracking-tight prose-p:text-muted-foreground prose-p:leading-[1.8] prose-p:text-lg transition-colors">
-              <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-10">
-                {currentTopic?.title}
-              </h1>
-              <div className="whitespace-pre-wrap font-sans text-foreground/90">
-                {currentTopic?.content}
-              </div>
-            </article>
-
-            {/* Ek Materyal — PDF / Sunum / Belge */}
+            {/* Ek Materyal — PDF / Sunum */}
             {currentTopic?.attachment_url && (
-              <div className="mt-10 space-y-3">
+              <div className="space-y-3">
                 <div className="flex items-center gap-2 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">
                   <span>📎 Ek Materyal</span>
                 </div>
                 {/\.(pdf)$/i.test(currentTopic.attachment_url) ? (
-                  /* PDF — iframe embed */
-                  <div className="rounded-[2rem] overflow-hidden border border-border shadow-xl">
+                  <div className="rounded-2xl overflow-hidden border border-border shadow-xl">
                     <iframe
                       src={currentTopic.attachment_url}
                       className="w-full"
-                      style={{ height: '680px' }}
-                      title="Ek Materyal"
+                      style={{ height: '700px' }}
+                      title="Ek Materyal — PDF"
                     />
                   </div>
                 ) : /\.(ppt|pptx)$/i.test(currentTopic.attachment_url) ? (
-                  /* PowerPoint — Google Docs Viewer ile embed */
-                  <div className="rounded-[2rem] overflow-hidden border border-border shadow-xl">
+                  <div className="rounded-2xl overflow-hidden border border-border shadow-xl">
                     <iframe
                       src={`https://docs.google.com/viewer?url=${encodeURIComponent(currentTopic.attachment_url)}&embedded=true`}
                       className="w-full"
-                      style={{ height: '680px' }}
-                      title="Sunum"
+                      style={{ height: '700px' }}
+                      title="Ek Materyal — Sunum"
                     />
                   </div>
                 ) : (
-                  /* Diğer — indirme linki */
                   <a
                     href={currentTopic.attachment_url}
                     target="_blank"
@@ -282,19 +335,26 @@ export function UnitContentView() {
                     className="flex items-center gap-3 p-5 bg-muted/40 border border-border rounded-2xl hover:bg-muted/70 transition-all group"
                   >
                     <div className="w-10 h-10 bg-teal-500/10 text-teal-500 rounded-xl flex items-center justify-center shrink-0">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" /></svg>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                      </svg>
                     </div>
                     <div>
-                      <p className="font-bold text-foreground text-sm group-hover:text-teal-500 transition-colors">Ek Materyali İndir / Görüntüle</p>
-                      <p className="text-xs text-muted-foreground truncate max-w-xs">{currentTopic.attachment_url.split('/').pop()}</p>
+                      <p className="font-bold text-foreground text-sm group-hover:text-teal-500 transition-colors">
+                        Ek Materyali İndir / Görüntüle
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate max-w-xs">
+                        {currentTopic.attachment_url.split('/').pop()}
+                      </p>
                     </div>
                   </a>
                 )}
               </div>
             )}
 
+            {/* Quiz */}
             {currentTopic?.quiz && currentTopic.quiz.length > 0 && (
-              <div id="quiz-section" className="pt-16 border-t border-border">
+              <div id="quiz-section" className="pt-10 border-t border-border">
                 <QuizSection
                   key={currentTopic.id}
                   quiz={currentTopic.quiz}
@@ -308,7 +368,7 @@ export function UnitContentView() {
         </div>
       </div>
 
-      {/* ÜNİTE TAMAMLANDI OVERLAY */}
+      {/* Ünite tamamlandı overlay */}
       <AnimatePresence>
         {unitCompleted && (
           <motion.div
@@ -341,16 +401,15 @@ export function UnitContentView() {
   );
 }
 
-// ─── Quiz Bileşeni ─────────────────────────────────────────────────────────
 function QuizSection({
-  quiz, isAuthenticated, topicId, userEmail
+  quiz, isAuthenticated, topicId, userEmail,
 }: {
   quiz: any[];
   isAuthenticated: boolean;
   topicId: string;
   userEmail?: string;
 }) {
-  const [currentQIndex, setCurrentQIndex] = useState(0);
+  const [currentQIndex, setCurrentQIndex]   = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isSubmitted, setIsSubmitted]       = useState(false);
   const [score, setScore]                   = useState(0);
@@ -364,16 +423,19 @@ function QuizSection({
       setScore(prev => prev + 1);
       if (isAuthenticated) {
         addPoints(15);
-        // D1'e kaydet
         if (userEmail) {
           fetch('/api/progress', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: userEmail, entity_type: 'quiz', entity_id: `${topicId}-q${currentQIndex}` }),
+            body: JSON.stringify({
+              email: userEmail,
+              entity_type: 'quiz',
+              entity_id: `${topicId}-q${currentQIndex}`,
+            }),
           }).catch(() => {});
         }
       }
-      toast.success("+15 XP!", { icon: <Trophy className="w-4 h-4 text-orange-500" /> });
+      toast.success('+15 XP!', { icon: <Trophy className="w-4 h-4 text-orange-500" /> });
     }
   };
 
@@ -392,8 +454,13 @@ function QuizSection({
       <div className="bg-card backdrop-blur-xl p-10 rounded-[2.5rem] text-center border border-border shadow-2xl transition-colors">
         <Trophy className="w-16 h-16 text-teal-500 mx-auto mb-6" />
         <h4 className="text-2xl font-bold text-foreground mb-2">Bilgi Kontrolü Tamamlandı!</h4>
-        <p className="text-muted-foreground mb-8">Başarı Oranı: <span className="text-foreground font-bold">{score} / {quiz.length}</span></p>
-        <Button onClick={() => setIsQuizFinished(false)} className="bg-primary text-primary-foreground hover:opacity-90 rounded-2xl px-10 h-14 font-black text-xs uppercase tracking-widest border-none">
+        <p className="text-muted-foreground mb-8">
+          Başarı Oranı: <span className="text-foreground font-bold">{score} / {quiz.length}</span>
+        </p>
+        <Button
+          onClick={() => setIsQuizFinished(false)}
+          className="bg-primary text-primary-foreground hover:opacity-90 rounded-2xl px-10 h-14 font-black text-xs uppercase tracking-widest border-none"
+        >
           SONUCU GÖZDEN GEÇİR
         </Button>
       </div>
@@ -404,10 +471,12 @@ function QuizSection({
     <div className="bg-card/50 backdrop-blur-xl rounded-[2.5rem] p-6 md:p-12 border border-border shadow-2xl transition-colors">
       <div className="space-y-10">
         <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <span className="px-3 py-1 bg-teal-500/10 text-teal-500 text-[10px] font-black uppercase tracking-widest rounded-lg border border-teal-500/20">Soru {currentQIndex + 1}</span>
-          </div>
-          <h4 className="text-xl md:text-2xl font-bold text-foreground leading-snug tracking-tight transition-colors">{currentQ.question}</h4>
+          <span className="px-3 py-1 bg-teal-500/10 text-teal-500 text-[10px] font-black uppercase tracking-widest rounded-lg border border-teal-500/20">
+            Soru {currentQIndex + 1}
+          </span>
+          <h4 className="text-xl md:text-2xl font-bold text-foreground leading-snug tracking-tight transition-colors">
+            {currentQ.question}
+          </h4>
         </div>
 
         <div className="grid grid-cols-1 gap-4">
@@ -417,16 +486,18 @@ function QuizSection({
               disabled={isSubmitted}
               onClick={() => setSelectedOption(i)}
               className={cn(
-                "p-5 rounded-2xl text-left font-bold border transition-all duration-300 text-base shadow-sm",
+                'p-5 rounded-2xl text-left font-bold border transition-all duration-300 text-base shadow-sm',
                 selectedOption === i
-                  ? "bg-teal-500 border-teal-500 text-white shadow-lg shadow-teal-500/20"
-                  : "bg-muted/50 border-border text-muted-foreground hover:bg-muted",
-                isSubmitted && i === currentQ.correctAnswer && "bg-emerald-500 border-emerald-500 text-white",
-                isSubmitted && selectedOption === i && i !== currentQ.correctAnswer && "bg-rose-500 border-rose-500 text-white"
+                  ? 'bg-teal-500 border-teal-500 text-white shadow-lg shadow-teal-500/20'
+                  : 'bg-muted/50 border-border text-muted-foreground hover:bg-muted',
+                isSubmitted && i === currentQ.correctAnswer && 'bg-emerald-500 border-emerald-500 text-white',
+                isSubmitted && selectedOption === i && i !== currentQ.correctAnswer && 'bg-rose-500 border-rose-500 text-white',
               )}
             >
               <div className="flex items-center gap-4">
-                <span className="w-8 h-8 rounded-lg bg-black/10 dark:bg-black/20 flex items-center justify-center text-xs font-black">{String.fromCharCode(65 + i)}</span>
+                <span className="w-8 h-8 rounded-lg bg-black/10 dark:bg-black/20 flex items-center justify-center text-xs font-black">
+                  {String.fromCharCode(65 + i)}
+                </span>
                 {opt}
               </div>
             </button>
@@ -435,20 +506,30 @@ function QuizSection({
 
         <div className="pt-4">
           {!isSubmitted ? (
-            <Button disabled={selectedOption === null} onClick={handleSubmit} className="w-full h-16 bg-foreground text-background hover:opacity-90 rounded-2xl border-none font-black text-sm uppercase tracking-[0.2em] shadow-xl transition-all active:scale-95">
+            <Button
+              disabled={selectedOption === null}
+              onClick={handleSubmit}
+              className="w-full h-16 bg-foreground text-background hover:opacity-90 rounded-2xl border-none font-black text-sm uppercase tracking-[0.2em] shadow-xl transition-all active:scale-95"
+            >
               KONTROL ET
             </Button>
           ) : (
             <div className="space-y-6">
-              <div className={cn("p-6 rounded-2xl text-sm font-medium leading-relaxed border transition-colors",
+              <div className={cn(
+                'p-6 rounded-2xl text-sm font-medium leading-relaxed border transition-colors',
                 selectedOption === currentQ.correctAnswer
-                  ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400"
-                  : "bg-rose-500/10 border-rose-500/20 text-rose-600 dark:text-rose-400"
+                  ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400'
+                  : 'bg-rose-500/10 border-rose-500/20 text-rose-600 dark:text-rose-400',
               )}>
-                <p className="font-black mb-2 uppercase tracking-widest">{selectedOption === currentQ.correctAnswer ? "Doğru!" : "Hatalı"}</p>
+                <p className="font-black mb-2 uppercase tracking-widest">
+                  {selectedOption === currentQ.correctAnswer ? 'Doğru!' : 'Hatalı'}
+                </p>
                 {currentQ.explanation}
               </div>
-              <Button onClick={handleNext} className="w-full h-16 bg-muted text-foreground hover:bg-muted/80 rounded-2xl font-black text-sm uppercase tracking-[0.2em] border-none shadow-xl transition-all">
+              <Button
+                onClick={handleNext}
+                className="w-full h-16 bg-muted text-foreground hover:bg-muted/80 rounded-2xl font-black text-sm uppercase tracking-[0.2em] border-none shadow-xl transition-all"
+              >
                 {currentQIndex < quiz.length - 1 ? 'SIRADAKİ SORU' : 'QUIZI BİTİR'}
               </Button>
             </div>
