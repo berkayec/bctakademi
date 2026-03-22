@@ -114,7 +114,9 @@ async function sendVerificationEmail(
             <p style="color:#64748b;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">Doğrulama Kodun</p>
             <p style="font-size:40px;font-weight:900;letter-spacing:.3em;color:#0f172a;margin:0">${code}</p>
           </div>
-          <p style="color:#94a3b8;font-size:12px">Bu kod 15 dakika geçerlidir.</p>
+          <p style="color:#94a3b8;font-size:12px">Bu kod 15 dakika geçerlidir. Bu işlemi sen başlatmadıysan bu e-postayı görmezden gelebilirsin.</p>
+          <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0"/>
+          <p style="color:#cbd5e1;font-size:11px;text-align:center">Sorularınız için: <a href="mailto:destek@bctakademi.com" style="color:#f97316">destek@bctakademi.com</a></p>
         </div>
       `,
     }),
@@ -147,15 +149,32 @@ async function sendAdminNotification(
           <div style="background:#f97316;border-radius:12px;padding:16px 24px;margin-bottom:24px">
             <h2 style="color:#fff;margin:0">🔔 Yeni Üyelik Başvurusu</h2>
           </div>
+          <p style="color:#475569">E-postasını doğrulayan bir kullanıcı admin onayı bekliyor.</p>
           <table style="width:100%;border-collapse:collapse;margin-top:16px">
-            <tr style="background:#f8fafc"><td style="padding:12px 16px;font-weight:700;color:#64748b;width:120px">Ad Soyad</td><td style="padding:12px 16px;color:#0f172a;font-weight:600">${escapeHtml(username)}</td></tr>
-            <tr><td style="padding:12px 16px;font-weight:700;color:#64748b">E-posta</td><td style="padding:12px 16px;color:#0f172a">${escapeHtml(email)}</td></tr>
-            <tr style="background:#f8fafc"><td style="padding:12px 16px;font-weight:700;color:#64748b">Rol</td><td style="padding:12px 16px;color:#0f172a">${escapeHtml(role)}</td></tr>
-            <tr><td style="padding:12px 16px;font-weight:700;color:#64748b">Detay</td><td style="padding:12px 16px;color:#0f172a">${escapeHtml(detail || '—')}</td></tr>
+            <tr style="background:#f8fafc">
+              <td style="padding:12px 16px;font-weight:700;color:#64748b;width:120px">Ad Soyad</td>
+              <td style="padding:12px 16px;color:#0f172a;font-weight:600">${escapeHtml(username)}</td>
+            </tr>
+            <tr>
+              <td style="padding:12px 16px;font-weight:700;color:#64748b">E-posta</td>
+              <td style="padding:12px 16px;color:#0f172a">${escapeHtml(email)}</td>
+            </tr>
+            <tr style="background:#f8fafc">
+              <td style="padding:12px 16px;font-weight:700;color:#64748b">Rol</td>
+              <td style="padding:12px 16px;color:#0f172a">${escapeHtml(role)}</td>
+            </tr>
+            <tr>
+              <td style="padding:12px 16px;font-weight:700;color:#64748b">Detay</td>
+              <td style="padding:12px 16px;color:#0f172a">${escapeHtml(detail || '—')}</td>
+            </tr>
           </table>
           <div style="margin-top:32px;text-align:center">
-            <a href="https://bctakademi.com/admin-control-portal" style="background:#0f172a;color:#fff;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px">Admin Paneline Git →</a>
+            <a href="https://bctakademi.com/admin-control-portal"
+               style="background:#0f172a;color:#fff;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px">
+              Admin Paneline Git →
+            </a>
           </div>
+          <p style="color:#94a3b8;font-size:11px;margin-top:24px;text-align:center">Bu mail otomatik gönderilmiştir.</p>
         </div>
       `,
     }),
@@ -183,8 +202,29 @@ async function sendStatusEmail(
         ? 'BCT Akademi — Hesabınız Onaylandı! 🎉'
         : 'BCT Akademi — Başvurunuz Hakkında',
       html: isApproved
-        ? `<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px"><h2 style="color:#0f172a">Merhaba ${safeUsername} 🎉</h2><p style="color:#475569">BCT Akademi'ye hoş geldin! Hesabın onaylandı.</p><div style="text-align:center;margin:32px 0"><a href="https://bctakademi.com/portal" style="background:#f97316;color:#fff;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:700">Portala Git →</a></div></div>`
-        : `<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px"><h2 style="color:#0f172a">Merhaba ${safeUsername}</h2><p style="color:#475569">Maalesef başvurunuz onaylanamamıştır.</p></div>`,
+        ? `
+          <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px">
+            <h2 style="color:#0f172a">Merhaba ${safeUsername} 🎉</h2>
+            <p style="color:#475569">BCT Akademi'ye hoş geldin! Hesabın onaylandı, artık tüm içeriklere erişebilirsin.</p>
+            <div style="text-align:center;margin:32px 0">
+              <a href="https://bctakademi.com/portal"
+                 style="background:#f97316;color:#fff;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:700">
+                Portala Git →
+              </a>
+            </div>
+            <p style="color:#94a3b8;font-size:12px">Sorularınız için: <a href="mailto:destek@bctakademi.com" style="color:#f97316">destek@bctakademi.com</a></p>
+          </div>
+        `
+        : `
+          <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px">
+            <h2 style="color:#0f172a">Merhaba ${safeUsername}</h2>
+            <p style="color:#475569">Maalesef BCT Akademi'ye üyelik başvurunuz bu aşamada onaylanamamıştır.</p>
+            <p style="color:#475569">Daha fazla bilgi için bizimle iletişime geçebilirsiniz.</p>
+            <p style="color:#94a3b8;font-size:12px;margin-top:24px">
+              <a href="mailto:destek@bctakademi.com" style="color:#f97316">destek@bctakademi.com</a>
+            </p>
+          </div>
+        `,
     }),
   });
 }
@@ -256,7 +296,8 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
         ).bind(code, email).run();
       } else {
         await c.env.DB.prepare(
-          `INSERT INTO users (username, email, role, detail, verification_code, code_expires_at, status) VALUES (?, ?, ?, ?, ?, datetime('now', '+15 minutes'), 'pending_email')`
+          `INSERT INTO users (username, email, role, detail, verification_code, code_expires_at, status)
+           VALUES (?, ?, ?, ?, ?, datetime('now', '+15 minutes'), 'pending_email')`
         ).bind(username, email, role, detail, code).run();
       }
 
@@ -281,7 +322,8 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
       if (!allowed) return c.json({ success: false, error: 'Çok fazla deneme. 15 dakika bekleyin.' }, 429);
 
       const user = await c.env.DB.prepare(
-        `SELECT username, email, role, detail FROM users WHERE email = ? AND verification_code = ? AND code_expires_at > datetime('now')`
+        `SELECT username, email, role, detail FROM users
+         WHERE email = ? AND verification_code = ? AND code_expires_at > datetime('now')`
       ).bind(email, code).first<{ username: string; email: string; role: string; detail: string }>();
 
       if (!user) return c.json({ success: false, error: 'Kod geçersiz veya süresi dolmuş.' }, 400);
@@ -316,7 +358,10 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
 
       const user = await c.env.DB.prepare(
         'SELECT username, email, role, detail, status, avatar, points FROM users WHERE email = ?'
-      ).bind(email).first<{ username: string; email: string; role: string; detail: string; status: string; avatar: string; points: number }>();
+      ).bind(email).first<{
+        username: string; email: string; role: string; detail: string;
+        status: string; avatar: string; points: number;
+      }>();
 
       if (!user) return c.json({ success: false, error: 'Bu e-posta ile kayıtlı bir hesap bulunamadı.' }, 404);
 
@@ -442,8 +487,10 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
   app.get('/api/curriculum', async (c) => {
     try {
       const categories = await c.env.DB.prepare('SELECT * FROM categories ORDER BY sort_order ASC').all();
-      const courses    = await c.env.DB.prepare('SELECT * FROM courses WHERE is_published = 1 ORDER BY category_id, sort_order ASC').all();
-      const units      = await c.env.DB.prepare(
+      const courses    = await c.env.DB.prepare(
+        'SELECT * FROM courses WHERE is_published = 1 ORDER BY category_id, sort_order ASC'
+      ).all();
+      const units = await c.env.DB.prepare(
         'SELECT id, course_id, title, description, estimated_reading_time, sort_order FROM units WHERE is_published = 1 ORDER BY course_id, sort_order ASC'
       ).all();
 
@@ -472,14 +519,13 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     }
   });
 
-  // ─── Topics — attachment_url ve video_youtube_id dahil ────────────────
+  // ✅ DÜZELTİLDİ: video_youtube_id ve attachment_url dahil
   app.get('/api/units/:unitId/topics', async (c) => {
     try {
       const { unitId } = c.req.param();
 
       if (!/^[a-zA-Z0-9_-]+$/.test(unitId)) return c.json({ success: false, error: 'Geçersiz ünite ID.' }, 400);
 
-      // Tüm alanları seç: content, attachment_url, video_youtube_id dahil
       const topics = await c.env.DB.prepare(
         `SELECT id, unit_id, title, content, video_youtube_id, attachment_url, sort_order, is_published
          FROM topics
@@ -502,7 +548,6 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
 
       const result = (topics.results as any[]).map(t => ({
         ...t,
-        // null → boş string normalize et
         video_youtube_id: t.video_youtube_id || '',
         attachment_url:   t.attachment_url   || '',
         quiz: quizByTopic[t.id] ?? [],
@@ -679,7 +724,7 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     return c.json({ success: true });
   });
 
-  // ─── Admin Topics — attachment_url ve video_youtube_id dahil ─────────
+  // ✅ DÜZELTİLDİ: video_youtube_id ve attachment_url dahil
   app.get('/api/admin/topics', async (c) => {
     if (!checkAdminKey(getAdminKeyFromRequest(c.req.raw), c.env)) return c.json({ error: 'Yetkisiz.' }, 401);
     const unitId = c.req.query('unit_id');
@@ -693,18 +738,19 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     return c.json({ success: true, data: r.results });
   });
 
+  // ✅ DÜZELTİLDİ: INSERT'e video_youtube_id ve attachment_url eklendi
   app.post('/api/admin/topics', async (c) => {
     try {
       if (!checkAdminKey(getAdminKeyFromRequest(c.req.raw), c.env)) return c.json({ error: 'Yetkisiz.' }, 401);
-      const body            = await c.req.json();
-      const id              = sanitize(body.id) || nanoid();
-      const unitId          = sanitize(body.unit_id);
-      const title           = sanitize(body.title);
-      const content         = typeof body.content === 'string' ? body.content.slice(0, 50000) : '';
-      const videoYoutubeId  = sanitize(body.video_youtube_id || '');
-      const attachmentUrl   = typeof body.attachment_url === 'string' ? body.attachment_url.slice(0, 1000) : '';
-      const sort            = Number(body.sort_order) || 0;
-      const pub             = body.is_published !== false ? 1 : 0;
+      const body           = await c.req.json();
+      const id             = sanitize(body.id) || nanoid();
+      const unitId         = sanitize(body.unit_id);
+      const title          = sanitize(body.title);
+      const content        = typeof body.content === 'string' ? body.content.slice(0, 50000) : '';
+      const videoYoutubeId = sanitize(body.video_youtube_id || '');
+      const attachmentUrl  = typeof body.attachment_url === 'string' ? body.attachment_url.slice(0, 1000) : '';
+      const sort           = Number(body.sort_order) || 0;
+      const pub            = body.is_published !== false ? 1 : 0;
       if (!unitId || !title) return c.json({ error: 'Ünite ve başlık gerekli.' }, 400);
       await c.env.DB.prepare(
         'INSERT INTO topics (id, unit_id, title, content, video_youtube_id, attachment_url, sort_order, is_published) VALUES (?,?,?,?,?,?,?,?)'
@@ -713,6 +759,7 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     } catch (e: unknown) { return c.json({ error: (e as Error).message }, 500); }
   });
 
+  // ✅ DÜZELTİLDİ: UPDATE'e video_youtube_id ve attachment_url eklendi
   app.put('/api/admin/topics/:id', async (c) => {
     try {
       if (!checkAdminKey(getAdminKeyFromRequest(c.req.raw), c.env)) return c.json({ error: 'Yetkisiz.' }, 401);
@@ -760,7 +807,8 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
       const title = sanitize(body.title);
       if (!title) return c.json({ error: 'Başlık gerekli.' }, 400);
       await c.env.DB.prepare(
-        `INSERT INTO blog_posts (id, title, excerpt, content, author, category, image_url, read_time, featured, is_published, published_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)`
+        `INSERT INTO blog_posts (id, title, excerpt, content, author, category, image_url, read_time, featured, is_published, published_at)
+         VALUES (?,?,?,?,?,?,?,?,?,?,?)`
       ).bind(
         id, title,
         typeof body.excerpt === 'string' ? body.excerpt.slice(0, 500) : '',
@@ -1001,7 +1049,7 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     }
 
     if (!c.env.BUCKET) {
-      return c.json({ error: 'R2 bucket bağlı değil.' }, 500);
+      return c.json({ error: 'R2 bucket bağlı değil. wrangler.jsonc\'yi kontrol edin.' }, 500);
     }
 
     try {
