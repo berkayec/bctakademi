@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import {
   CheckCircle, XCircle, Users, Mail, GraduationCap, ShieldCheck,
   Loader2, BookOpen, FileText, Newspaper, Plus, Pencil, Trash2,
-  ChevronRight, ChevronDown, Eye, EyeOff, Video, Presentation,
+  ChevronRight, ChevronDown, Video, Presentation,
   Save, X
 } from 'lucide-react';
 
@@ -23,14 +23,20 @@ interface AdminUser {
   created_at: string;
 }
 
-// ─── API helper ────────────────────────────────────────────────────────────
+// ─── API helper — Authorization: Bearer header kullanır ───────────────────
 async function adminFetch(url: string, key: string, options?: RequestInit) {
-  const sep = url.includes('?') ? '&' : '?';
-  const res = await fetch(`${url}${sep}key=${encodeURIComponent(key)}`, options);
+  const res = await fetch(url, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(options?.headers || {}),
+      Authorization: `Bearer ${key}`,
+    },
+  });
   return res.json();
 }
 
-// ─── Modal bileşeni ─────────────────────────────────────────────────────────
+// ─── Modal ────────────────────────────────────────────────────────────────
 function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
@@ -58,11 +64,21 @@ function Field({ label, required, children }: { label: string; required?: boolea
   );
 }
 
-// ─── ANA COMPONENT ──────────────────────────────────────────────────────────
+// ─── ANA COMPONENT ────────────────────────────────────────────────────────
 export function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<'users' | 'lessons' | 'blog' | 'resources'>('users');
   const { search } = useLocation();
-  const key = new URLSearchParams(search).get('key') || '';
+
+  // Key sessionStorage'dan okunur — AppShell URL'den siler ama sessionStorage'a yazar
+  const keyFromUrl = new URLSearchParams(search).get('key') || '';
+  const key = keyFromUrl || sessionStorage.getItem('bct_admin_verified_key') || '';
+
+  // Key URL'den geldiyse sessionStorage'a kaydet (bu component yeniden mount olduğunda kaybolmasın)
+  useEffect(() => {
+    if (keyFromUrl) {
+      sessionStorage.setItem('bct_admin_verified_key', keyFromUrl);
+    }
+  }, [keyFromUrl]);
 
   if (!key) {
     return (
@@ -70,7 +86,7 @@ export function AdminDashboard() {
         <div className="text-center space-y-4 max-w-sm">
           <XCircle className="w-16 h-16 text-destructive mx-auto" />
           <h1 className="text-2xl font-bold text-foreground">Yetkisiz Erişim</h1>
-          <p className="text-muted-foreground">Bu sayfayı görüntülemek için URL''de geçerli bir anahtar gereklidir.</p>
+          <p className="text-muted-foreground">Admin paneline erişmek için geçerli URL ile girin.</p>
         </div>
       </div>
     );
@@ -86,7 +102,6 @@ export function AdminDashboard() {
   return (
     <div className="min-h-screen bg-background transition-colors duration-300">
       <div className="max-w-6xl mx-auto p-4 md:p-6 space-y-6 pt-8">
-        {/* Header */}
         <div className="bg-slate-900 dark:bg-card text-white p-6 md:p-8 rounded-[2rem] shadow-2xl border border-slate-800 flex items-center justify-between">
           <div>
             <h1 className="text-xl md:text-2xl font-bold flex items-center gap-3">
@@ -97,7 +112,6 @@ export function AdminDashboard() {
           <span className="bg-slate-800 px-3 py-1.5 rounded-xl border border-slate-700 font-mono text-orange-400 text-xs">ADMIN</span>
         </div>
 
-        {/* Tab bar */}
         <div className="flex gap-2 overflow-x-auto pb-1">
           {tabs.map(tab => (
             <button
@@ -115,7 +129,6 @@ export function AdminDashboard() {
           ))}
         </div>
 
-        {/* Tab içerikleri */}
         {activeTab === 'users'     && <UsersTab     adminKey={key} />}
         {activeTab === 'lessons'   && <LessonsTab   adminKey={key} />}
         {activeTab === 'blog'      && <BlogTab       adminKey={key} />}
@@ -125,7 +138,7 @@ export function AdminDashboard() {
   );
 }
 
-// ─── KULLANICILAR SEKMESİ ────────────────────────────────────────────────────
+// ─── KULLANICILAR ─────────────────────────────────────────────────────────
 function UsersTab({ adminKey }: { adminKey: string }) {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
@@ -145,11 +158,10 @@ function UsersTab({ adminKey }: { adminKey: string }) {
   const updateStatus = async (email: string, status: 'active' | 'rejected') => {
     setUpdatingEmail(email);
     try {
-      const r = await fetch('/api/admin/update-status', {
+      const r = await adminFetch('/api/admin/update-status', adminKey, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, status, key: adminKey }),
-      }).then(r => r.json());
+        body: JSON.stringify({ email, status }),
+      });
       if (r.success) {
         toast.success(status === 'active' ? '✅ Kullanıcı onaylandı!' : '❌ Kullanıcı reddedildi.');
         fetchUsers();
@@ -163,14 +175,13 @@ function UsersTab({ adminKey }: { adminKey: string }) {
 
   return (
     <div className="space-y-6">
-      {/* İstatistikler */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: 'Bekleyen',    value: pending.length,                                color: 'text-orange-500' },
-          { label: 'Aktif',       value: users.filter(u=>u.status==='active').length,    color: 'text-teal-500' },
-          { label: 'Reddedilen',  value: users.filter(u=>u.status==='rejected').length,  color: 'text-red-500' },
-          { label: 'Toplam',      value: users.length,                                   color: 'text-foreground' },
-        ].map((s,i) => (
+          { label: 'Bekleyen',   value: pending.length,                               color: 'text-orange-500' },
+          { label: 'Aktif',      value: users.filter(u=>u.status==='active').length,   color: 'text-teal-500' },
+          { label: 'Reddedilen', value: users.filter(u=>u.status==='rejected').length, color: 'text-red-500' },
+          { label: 'Toplam',     value: users.length,                                  color: 'text-foreground' },
+        ].map((s, i) => (
           <div key={i} className="bg-card border border-border rounded-2xl p-4 text-center">
             <p className={`text-2xl font-black ${s.color}`}>{s.value}</p>
             <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mt-1">{s.label}</p>
@@ -178,7 +189,6 @@ function UsersTab({ adminKey }: { adminKey: string }) {
         ))}
       </div>
 
-      {/* Onay bekleyenler */}
       <div className="space-y-3">
         <h2 className="font-bold text-foreground flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
@@ -206,7 +216,7 @@ function UsersTab({ adminKey }: { adminKey: string }) {
             <div className="flex gap-2 w-full sm:w-auto">
               <Button onClick={() => updateStatus(user.email, 'active')} disabled={!!updatingEmail}
                 className="flex-1 sm:flex-none bg-teal-500 hover:bg-teal-600 font-bold h-10 rounded-xl border-none gap-1.5 text-sm">
-                {updatingEmail===user.email ? <Loader2 className="w-3.5 h-3.5 animate-spin"/> : <CheckCircle className="w-3.5 h-3.5"/>} Onayla
+                {updatingEmail === user.email ? <Loader2 className="w-3.5 h-3.5 animate-spin"/> : <CheckCircle className="w-3.5 h-3.5"/>} Onayla
               </Button>
               <Button onClick={() => updateStatus(user.email, 'rejected')} disabled={!!updatingEmail}
                 variant="ghost" className="flex-1 sm:flex-none text-red-500 hover:bg-red-500/10 font-bold h-10 rounded-xl gap-1.5 text-sm">
@@ -217,7 +227,6 @@ function UsersTab({ adminKey }: { adminKey: string }) {
         ))}
       </div>
 
-      {/* Diğer kullanıcılar */}
       {others.length > 0 && (
         <div className="space-y-3">
           <h2 className="font-bold text-muted-foreground text-sm">Diğer Kullanıcılar ({others.length})</h2>
@@ -236,7 +245,7 @@ function UsersTab({ adminKey }: { adminKey: string }) {
   );
 }
 
-// ─── DERSLER SEKMESİ ─────────────────────────────────────────────────────────
+// ─── DERSLER ─────────────────────────────────────────────────────────────
 function LessonsTab({ adminKey }: { adminKey: string }) {
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -250,9 +259,7 @@ function LessonsTab({ adminKey }: { adminKey: string }) {
     try {
       const r = await adminFetch('/api/admin/categories', adminKey);
       if (r.success) {
-        // Kursları, üniteleri, konuları da çek
-        const cats = r.data;
-        const catsWithDetails = await Promise.all(cats.map(async (cat: any) => {
+        const catsWithDetails = await Promise.all(r.data.map(async (cat: any) => {
           const cr = await adminFetch(`/api/admin/courses?category_id=${cat.id}`, adminKey);
           const courses = cr.success ? await Promise.all(cr.data.map(async (course: any) => {
             const ur = await adminFetch(`/api/admin/units?course_id=${course.id}`, adminKey);
@@ -273,21 +280,19 @@ function LessonsTab({ adminKey }: { adminKey: string }) {
   useEffect(() => { load(); }, [load]);
 
   const handleSave = async (type: string, data: any, id?: string) => {
-    const isEdit = !!id;
     const urlMap: Record<string, string> = {
       category: '/api/admin/categories',
       course:   '/api/admin/courses',
       unit:     '/api/admin/units',
       topic:    '/api/admin/topics',
     };
-    const url = isEdit ? `${urlMap[type]}/${id}` : urlMap[type];
+    const url = id ? `${urlMap[type]}/${id}` : urlMap[type];
     try {
-      const r = await fetch(`${url}?key=${adminKey}`, {
-        method: isEdit ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const r = await adminFetch(url, adminKey, {
+        method: id ? 'PUT' : 'POST',
         body: JSON.stringify(data),
-      }).then(r => r.json());
-      if (r.success) { toast.success(isEdit ? 'Güncellendi!' : 'Oluşturuldu!'); setModal(null); load(); }
+      });
+      if (r.success) { toast.success(id ? 'Güncellendi!' : 'Oluşturuldu!'); setModal(null); load(); }
       else toast.error(r.error || 'Hata oluştu.');
     } catch { toast.error('Sunucuya bağlanılamadı.'); }
   };
@@ -301,7 +306,7 @@ function LessonsTab({ adminKey }: { adminKey: string }) {
       topic:    '/api/admin/topics',
     };
     try {
-      const r = await fetch(`${urlMap[type]}/${id}?key=${adminKey}`, { method: 'DELETE' }).then(r => r.json());
+      const r = await adminFetch(`${urlMap[type]}/${id}`, adminKey, { method: 'DELETE' });
       if (r.success) { toast.success('Silindi.'); load(); }
       else toast.error(r.error || 'Silinemedi.');
     } catch { toast.error('Sunucuya bağlanılamadı.'); }
@@ -321,14 +326,12 @@ function LessonsTab({ adminKey }: { adminKey: string }) {
 
       {categories.map(cat => (
         <div key={cat.id} className="bg-card border border-border rounded-2xl overflow-hidden">
-          {/* Kategori başlığı */}
           <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/30"
             onClick={() => setExpandedCat(expandedCat === cat.id ? null : cat.id)}>
             <div className="flex items-center gap-3">
               {expandedCat === cat.id ? <ChevronDown className="w-4 h-4 text-muted-foreground"/> : <ChevronRight className="w-4 h-4 text-muted-foreground"/>}
               <span className="font-bold text-foreground">{cat.title}</span>
               <span className="text-xs text-muted-foreground">({cat.courses?.length || 0} kurs)</span>
-              {!cat.is_published && <span className="text-[10px] bg-yellow-500/10 text-yellow-600 px-2 py-0.5 rounded-full font-bold">Taslak</span>}
             </div>
             <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
               <button onClick={() => setModal({ type: 'edit-category', data: cat })} className="p-1.5 text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted transition-colors">
@@ -427,10 +430,7 @@ function LessonsTab({ adminKey }: { adminKey: string }) {
         </div>
       ))}
 
-      {/* Modallar */}
-      {modal && (
-        <LessonsModal modal={modal} onClose={() => setModal(null)} onSave={handleSave}/>
-      )}
+      {modal && <LessonsModal modal={modal} onClose={() => setModal(null)} onSave={handleSave}/>}
     </div>
   );
 }
@@ -512,7 +512,7 @@ function LessonsModal({ modal, onClose, onSave }: { modal: any; onClose: () => v
   );
 }
 
-// ─── BLOG SEKMESİ ────────────────────────────────────────────────────────────
+// ─── BLOG ─────────────────────────────────────────────────────────────────
 function BlogTab({ adminKey }: { adminKey: string }) {
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -532,11 +532,10 @@ function BlogTab({ adminKey }: { adminKey: string }) {
   const handleSave = async (data: any, id?: string) => {
     const url = id ? `/api/admin/blog/${id}` : '/api/admin/blog';
     try {
-      const r = await fetch(`${url}?key=${adminKey}`, {
+      const r = await adminFetch(url, adminKey, {
         method: id ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
-      }).then(r => r.json());
+      });
       if (r.success) { toast.success(id ? 'Güncellendi!' : 'Yazı oluşturuldu!'); setModal(null); load(); }
       else toast.error(r.error || 'Hata.');
     } catch { toast.error('Sunucuya bağlanılamadı.'); }
@@ -545,7 +544,7 @@ function BlogTab({ adminKey }: { adminKey: string }) {
   const handleDelete = async (id: string) => {
     if (!confirm('Bu yazıyı silmek istediğinize emin misiniz?')) return;
     try {
-      const r = await fetch(`/api/admin/blog/${id}?key=${adminKey}`, { method: 'DELETE' }).then(r => r.json());
+      const r = await adminFetch(`/api/admin/blog/${id}`, adminKey, { method: 'DELETE' });
       if (r.success) { toast.success('Silindi.'); load(); }
     } catch { toast.error('Silinemedi.'); }
   };
@@ -560,7 +559,6 @@ function BlogTab({ adminKey }: { adminKey: string }) {
           <Plus className="w-4 h-4"/> Yazı Ekle
         </Button>
       </div>
-
       <div className="space-y-3">
         {posts.map(post => (
           <div key={post.id} className="bg-card border border-border rounded-2xl p-4 flex items-center gap-4">
@@ -586,7 +584,6 @@ function BlogTab({ adminKey }: { adminKey: string }) {
           </div>
         ))}
       </div>
-
       {modal && <BlogModal data={modal.data} onClose={() => setModal(null)} onSave={handleSave}/>}
     </div>
   );
@@ -630,7 +627,7 @@ function BlogModal({ data, onClose, onSave }: { data?: any; onClose: () => void;
   );
 }
 
-// ─── KAYNAKLAR SEKMESİ ───────────────────────────────────────────────────────
+// ─── KAYNAKLAR ────────────────────────────────────────────────────────────
 function ResourcesTab({ adminKey }: { adminKey: string }) {
   const [resources, setResources] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -650,11 +647,10 @@ function ResourcesTab({ adminKey }: { adminKey: string }) {
   const handleSave = async (data: any, id?: string) => {
     const url = id ? `/api/admin/resources/${id}` : '/api/admin/resources';
     try {
-      const r = await fetch(`${url}?key=${adminKey}`, {
+      const r = await adminFetch(url, adminKey, {
         method: id ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
-      }).then(r => r.json());
+      });
       if (r.success) { toast.success(id ? 'Güncellendi!' : 'Kaynak oluşturuldu!'); setModal(null); load(); }
       else toast.error(r.error || 'Hata.');
     } catch { toast.error('Sunucuya bağlanılamadı.'); }
@@ -663,14 +659,14 @@ function ResourcesTab({ adminKey }: { adminKey: string }) {
   const handleDelete = async (id: string) => {
     if (!confirm('Bu kaynağı silmek istediğinize emin misiniz?')) return;
     try {
-      const r = await fetch(`/api/admin/resources/${id}?key=${adminKey}`, { method: 'DELETE' }).then(r => r.json());
+      const r = await adminFetch(`/api/admin/resources/${id}`, adminKey, { method: 'DELETE' });
       if (r.success) { toast.success('Silindi.'); load(); }
     } catch { toast.error('Silinemedi.'); }
   };
 
   const typeIcon = (type: string) => {
-    if (type === 'Video')   return <Video className="w-4 h-4 text-teal-500"/>;
-    if (type === 'Sunum')   return <Presentation className="w-4 h-4 text-orange-500"/>;
+    if (type === 'Video') return <Video className="w-4 h-4 text-teal-500"/>;
+    if (type === 'Sunum') return <Presentation className="w-4 h-4 text-orange-500"/>;
     return <FileText className="w-4 h-4 text-blue-500"/>;
   };
 
@@ -723,7 +719,7 @@ function ResourceModal({ data, onClose, onSave }: { data?: any; onClose: () => v
     category: data?.category || '',
     file_size: data?.file_size || '',
     duration: data?.duration || '',
-    download_url: data?.download_url || '',
+    file_url: data?.file_url || '',
     is_published: data?.is_published ?? true,
   });
 
@@ -743,7 +739,7 @@ function ResourceModal({ data, onClose, onSave }: { data?: any; onClose: () => v
         <Field label="Dosya Boyutu"><Input value={form.file_size} onChange={e=>setForm({...form,file_size:e.target.value})} className="rounded-xl bg-muted/50 border-border" placeholder="4.2 MB"/></Field>
         <Field label="Süre (Video)"><Input value={form.duration} onChange={e=>setForm({...form,duration:e.target.value})} className="rounded-xl bg-muted/50 border-border" placeholder="15:20"/></Field>
       </div>
-      <Field label="İndirme URL"><Input value={form.download_url} onChange={e=>setForm({...form,download_url:e.target.value})} className="rounded-xl bg-muted/50 border-border" placeholder="https://..."/></Field>
+      <Field label="Dosya / İndirme URL"><Input value={form.file_url} onChange={e=>setForm({...form,file_url:e.target.value})} className="rounded-xl bg-muted/50 border-border" placeholder="https://..."/></Field>
       <label className="flex items-center gap-2 cursor-pointer text-sm"><input type="checkbox" checked={form.is_published} onChange={e=>setForm({...form,is_published:e.target.checked})} className="rounded"/> Yayında</label>
       <div className="flex gap-3 pt-2">
         <Button onClick={() => onSave(form, data?.id)} className="flex-1 bg-teal-500 hover:bg-teal-600 text-white rounded-xl border-none gap-1.5">
@@ -755,7 +751,7 @@ function ResourceModal({ data, onClose, onSave }: { data?: any; onClose: () => v
   );
 }
 
-// ─── YARDIMCI COMPONENT ──────────────────────────────────────────────────────
+// ─── YARDIMCI ─────────────────────────────────────────────────────────────
 function StatusBadge({ status }: { status: UserStatus }) {
   const map: Record<UserStatus, { label: string; cls: string }> = {
     active:        { label: 'Aktif',         cls: 'bg-teal-500/10 text-teal-600 dark:text-teal-400' },
