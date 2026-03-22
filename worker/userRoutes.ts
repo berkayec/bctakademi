@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { Env } from './core-utils'; 
+import { Env } from './core-utils';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // YARDIMCI FONKSİYONLAR
@@ -26,7 +26,7 @@ function nanoid(len = 12): string {
 
 /**
  * Timing-safe string karşılaştırması.
- * Basit === ile karşılaştırma timing attack'a (karakter karakter süre ölçümü) açıktır.
+ * Basit === ile karşılaştırma timing attack'a açıktır.
  */
 function timingSafeEqual(a: string, b: string): boolean {
   if (a.length !== b.length) return false;
@@ -40,7 +40,7 @@ function timingSafeEqual(a: string, b: string): boolean {
 /**
  * Admin anahtarını Authorization header'dan oku.
  * URL query param olarak taşımak; server loglarına, tarayıcı geçmişine
- * ve Referer header'larına sızmasına neden olur — bu yüzden header kullanıyoruz.
+ * ve Referer header'larına sızmasına neden olur.
  */
 function getAdminKeyFromRequest(req: Request): string | null {
   const auth = req.headers.get('Authorization');
@@ -55,8 +55,8 @@ function checkAdminKey(key: string | null, env: Env): boolean {
 }
 
 /**
- * HTML escape — e-posta şablonlarında kullanıcı verisi doğrudan interpolate edilmemeli.
- * Aksi halde saldırgan kendi adına HTML/JS inject edebilir (stored XSS).
+ * HTML escape — e-posta şablonlarında kullanıcı verisi doğrudan
+ * interpolate edilmemeli. Aksi halde XSS açığı oluşur.
  */
 function escapeHtml(str: string): string {
   return str
@@ -69,8 +69,7 @@ function escapeHtml(str: string): string {
 
 /**
  * D1 tabanlı rate limiter.
- * Belirli bir anahtar için maxAttempts/windowSeconds sınırını uygular.
- * Migrations'a 004_rate_limits.sql eklenmesi gerekir.
+ * migrations/004_rate_limits.sql çalıştırılmış olmalı.
  */
 async function checkRateLimit(
   db: D1Database,
@@ -78,7 +77,6 @@ async function checkRateLimit(
   maxAttempts: number,
   windowSeconds: number
 ): Promise<boolean> {
-  // Süresi dolmuş kayıtları temizle
   await db
     .prepare(`DELETE FROM rate_limits WHERE key = ? AND window_start < datetime('now', ? || ' seconds')`)
     .bind(key, `-${windowSeconds}`)
@@ -289,8 +287,7 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
   // AUTH
   // ─────────────────────────────────────────────────────────────────────────
 
-  // POST /api/signup
-  // Rate limit: IP başına 5 istek / 15 dakika
+  // POST /api/signup — Rate limit: IP başına 5 istek / 15 dakika
   app.post('/api/signup', async (c) => {
     try {
       const ip = c.req.header('CF-Connecting-IP') ?? 'unknown';
@@ -349,8 +346,7 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     }
   });
 
-  // POST /api/verify
-  // Rate limit: e-posta başına 10 yanlış deneme / 15 dakika
+  // POST /api/verify — Rate limit: e-posta başına 10 deneme / 15 dakika
   app.post('/api/verify', async (c) => {
     try {
       const body  = await c.req.json();
@@ -398,8 +394,7 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     }
   });
 
-  // POST /api/login
-  // Rate limit: IP başına 20 deneme / 15 dakika
+  // POST /api/login — Rate limit: IP başına 20 deneme / 15 dakika
   app.post('/api/login', async (c) => {
     try {
       const ip = c.req.header('CF-Connecting-IP') ?? 'unknown';
@@ -439,11 +434,11 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     }
   });
 
-  // POST /api/contact — İletişim formu
+  // POST /api/contact — İletişim formu, saatte 5 istek
   app.post('/api/contact', async (c) => {
     try {
       const ip = c.req.header('CF-Connecting-IP') ?? 'unknown';
-      const allowed = await checkRateLimit(c.env.DB, `contact:${ip}`, 5, 3600); // saatte 5
+      const allowed = await checkRateLimit(c.env.DB, `contact:${ip}`, 5, 3600);
       if (!allowed) {
         return c.json({ success: false, error: 'Çok fazla istek. Lütfen daha sonra tekrar deneyin.' }, 429);
       }
@@ -461,7 +456,7 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
       await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${env.RESEND_API_KEY}`,
+          Authorization: `Bearer ${c.env.RESEND_API_KEY}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -515,7 +510,6 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
   // POST /api/client-errors — Frontend hata raporlama
   app.post('/api/client-errors', async (c) => {
     try {
-      // Sessizce logla, frontend'e sadece başarı dön
       const body = await c.req.json().catch(() => ({}));
       console.error('[client-error]', JSON.stringify(body).slice(0, 2000));
       return c.json({ success: true });
@@ -525,8 +519,8 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
   });
 
   // ─────────────────────────────────────────────────────────────────────────
-  // ADMIN — Tüm admin rotalarında Authorization: Bearer <ADMIN_KEY> gerekli
-  // Frontend'de: fetch('/api/admin/...', { headers: { Authorization: `Bearer ${key}` } })
+  // ADMIN — Authorization: Bearer <ADMIN_KEY> header gerekli
+  // Giriş: https://bctakademi.com/admin-control-portal?key=ADMIN_KEY_DEĞERIN
   // ─────────────────────────────────────────────────────────────────────────
 
   // GET /api/admin/users
@@ -631,7 +625,6 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     try {
       const { unitId } = c.req.param();
 
-      // unitId path injection kontrolü
       if (!/^[a-zA-Z0-9_-]+$/.test(unitId)) {
         return c.json({ success: false, error: 'Geçersiz ünite ID.' }, 400);
       }
@@ -695,17 +688,14 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
 
   // ─────────────────────────────────────────────────────────────────────────
   // ADMIN CMS — Kategori / Kurs / Ünite / Konu
-  // Tüm mutasyon rotaları Authorization: Bearer header gerektirir
   // ─────────────────────────────────────────────────────────────────────────
 
-  // GET /api/admin/categories
   app.get('/api/admin/categories', async (c) => {
     if (!checkAdminKey(getAdminKeyFromRequest(c.req.raw), c.env)) return c.json({ error: 'Yetkisiz.' }, 401);
     const r = await c.env.DB.prepare('SELECT * FROM categories ORDER BY sort_order ASC').all();
     return c.json({ success: true, data: r.results });
   });
 
-  // POST /api/admin/categories
   app.post('/api/admin/categories', async (c) => {
     try {
       if (!checkAdminKey(getAdminKeyFromRequest(c.req.raw), c.env)) return c.json({ error: 'Yetkisiz.' }, 401);
@@ -720,7 +710,6 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     } catch (e: unknown) { return c.json({ error: (e as Error).message }, 500); }
   });
 
-  // PUT /api/admin/categories/:id
   app.put('/api/admin/categories/:id', async (c) => {
     try {
       if (!checkAdminKey(getAdminKeyFromRequest(c.req.raw), c.env)) return c.json({ error: 'Yetkisiz.' }, 401);
@@ -732,21 +721,18 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     } catch (e: unknown) { return c.json({ error: (e as Error).message }, 500); }
   });
 
-  // DELETE /api/admin/categories/:id
   app.delete('/api/admin/categories/:id', async (c) => {
     if (!checkAdminKey(getAdminKeyFromRequest(c.req.raw), c.env)) return c.json({ error: 'Yetkisiz.' }, 401);
     await c.env.DB.prepare('DELETE FROM categories WHERE id = ?').bind(c.req.param('id')).run();
     return c.json({ success: true });
   });
 
-  // GET /api/admin/courses
   app.get('/api/admin/courses', async (c) => {
     if (!checkAdminKey(getAdminKeyFromRequest(c.req.raw), c.env)) return c.json({ error: 'Yetkisiz.' }, 401);
     const r = await c.env.DB.prepare('SELECT * FROM courses ORDER BY category_id, sort_order ASC').all();
     return c.json({ success: true, data: r.results });
   });
 
-  // POST /api/admin/courses
   app.post('/api/admin/courses', async (c) => {
     try {
       if (!checkAdminKey(getAdminKeyFromRequest(c.req.raw), c.env)) return c.json({ error: 'Yetkisiz.' }, 401);
@@ -766,7 +752,6 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     } catch (e: unknown) { return c.json({ error: (e as Error).message }, 500); }
   });
 
-  // PUT /api/admin/courses/:id
   app.put('/api/admin/courses/:id', async (c) => {
     try {
       if (!checkAdminKey(getAdminKeyFromRequest(c.req.raw), c.env)) return c.json({ error: 'Yetkisiz.' }, 401);
@@ -784,14 +769,12 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     } catch (e: unknown) { return c.json({ error: (e as Error).message }, 500); }
   });
 
-  // DELETE /api/admin/courses/:id
   app.delete('/api/admin/courses/:id', async (c) => {
     if (!checkAdminKey(getAdminKeyFromRequest(c.req.raw), c.env)) return c.json({ error: 'Yetkisiz.' }, 401);
     await c.env.DB.prepare('DELETE FROM courses WHERE id = ?').bind(c.req.param('id')).run();
     return c.json({ success: true });
   });
 
-  // GET /api/admin/units
   app.get('/api/admin/units', async (c) => {
     if (!checkAdminKey(getAdminKeyFromRequest(c.req.raw), c.env)) return c.json({ error: 'Yetkisiz.' }, 401);
     const courseId = c.req.query('course_id');
@@ -801,7 +784,6 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     return c.json({ success: true, data: r.results });
   });
 
-  // POST /api/admin/units
   app.post('/api/admin/units', async (c) => {
     try {
       if (!checkAdminKey(getAdminKeyFromRequest(c.req.raw), c.env)) return c.json({ error: 'Yetkisiz.' }, 401);
@@ -821,7 +803,6 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     } catch (e: unknown) { return c.json({ error: (e as Error).message }, 500); }
   });
 
-  // PUT /api/admin/units/:id
   app.put('/api/admin/units/:id', async (c) => {
     try {
       if (!checkAdminKey(getAdminKeyFromRequest(c.req.raw), c.env)) return c.json({ error: 'Yetkisiz.' }, 401);
@@ -840,14 +821,12 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     } catch (e: unknown) { return c.json({ error: (e as Error).message }, 500); }
   });
 
-  // DELETE /api/admin/units/:id
   app.delete('/api/admin/units/:id', async (c) => {
     if (!checkAdminKey(getAdminKeyFromRequest(c.req.raw), c.env)) return c.json({ error: 'Yetkisiz.' }, 401);
     await c.env.DB.prepare('DELETE FROM units WHERE id = ?').bind(c.req.param('id')).run();
     return c.json({ success: true });
   });
 
-  // GET /api/admin/topics
   app.get('/api/admin/topics', async (c) => {
     if (!checkAdminKey(getAdminKeyFromRequest(c.req.raw), c.env)) return c.json({ error: 'Yetkisiz.' }, 401);
     const unitId = c.req.query('unit_id');
@@ -857,7 +836,6 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     return c.json({ success: true, data: r.results });
   });
 
-  // POST /api/admin/topics
   app.post('/api/admin/topics', async (c) => {
     try {
       if (!checkAdminKey(getAdminKeyFromRequest(c.req.raw), c.env)) return c.json({ error: 'Yetkisiz.' }, 401);
@@ -876,7 +854,6 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     } catch (e: unknown) { return c.json({ error: (e as Error).message }, 500); }
   });
 
-  // PUT /api/admin/topics/:id
   app.put('/api/admin/topics/:id', async (c) => {
     try {
       if (!checkAdminKey(getAdminKeyFromRequest(c.req.raw), c.env)) return c.json({ error: 'Yetkisiz.' }, 401);
@@ -894,7 +871,6 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     } catch (e: unknown) { return c.json({ error: (e as Error).message }, 500); }
   });
 
-  // DELETE /api/admin/topics/:id
   app.delete('/api/admin/topics/:id', async (c) => {
     if (!checkAdminKey(getAdminKeyFromRequest(c.req.raw), c.env)) return c.json({ error: 'Yetkisiz.' }, 401);
     await c.env.DB.prepare('DELETE FROM topics WHERE id = ?').bind(c.req.param('id')).run();
@@ -905,14 +881,12 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
   // ADMIN CMS — Blog
   // ─────────────────────────────────────────────────────────────────────────
 
-  // GET /api/admin/blog
   app.get('/api/admin/blog', async (c) => {
     if (!checkAdminKey(getAdminKeyFromRequest(c.req.raw), c.env)) return c.json({ error: 'Yetkisiz.' }, 401);
     const r = await c.env.DB.prepare('SELECT * FROM blog_posts ORDER BY published_at DESC').all();
     return c.json({ success: true, data: r.results });
   });
 
-  // POST /api/admin/blog
   app.post('/api/admin/blog', async (c) => {
     try {
       if (!checkAdminKey(getAdminKeyFromRequest(c.req.raw), c.env)) return c.json({ error: 'Yetkisiz.' }, 401);
@@ -936,7 +910,6 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     } catch (e: unknown) { return c.json({ error: (e as Error).message }, 500); }
   });
 
-  // PUT /api/admin/blog/:id
   app.put('/api/admin/blog/:id', async (c) => {
     try {
       if (!checkAdminKey(getAdminKeyFromRequest(c.req.raw), c.env)) return c.json({ error: 'Yetkisiz.' }, 401);
@@ -956,7 +929,6 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     } catch (e: unknown) { return c.json({ error: (e as Error).message }, 500); }
   });
 
-  // DELETE /api/admin/blog/:id
   app.delete('/api/admin/blog/:id', async (c) => {
     if (!checkAdminKey(getAdminKeyFromRequest(c.req.raw), c.env)) return c.json({ error: 'Yetkisiz.' }, 401);
     await c.env.DB.prepare('DELETE FROM blog_posts WHERE id = ?').bind(c.req.param('id')).run();
@@ -967,14 +939,12 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
   // ADMIN CMS — Kaynaklar
   // ─────────────────────────────────────────────────────────────────────────
 
-  // GET /api/admin/resources
   app.get('/api/admin/resources', async (c) => {
     if (!checkAdminKey(getAdminKeyFromRequest(c.req.raw), c.env)) return c.json({ error: 'Yetkisiz.' }, 401);
     const r = await c.env.DB.prepare('SELECT * FROM resources ORDER BY created_at DESC').all();
     return c.json({ success: true, data: r.results });
   });
 
-  // POST /api/admin/resources
   app.post('/api/admin/resources', async (c) => {
     try {
       if (!checkAdminKey(getAdminKeyFromRequest(c.req.raw), c.env)) return c.json({ error: 'Yetkisiz.' }, 401);
@@ -995,7 +965,6 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     } catch (e: unknown) { return c.json({ error: (e as Error).message }, 500); }
   });
 
-  // PUT /api/admin/resources/:id
   app.put('/api/admin/resources/:id', async (c) => {
     try {
       if (!checkAdminKey(getAdminKeyFromRequest(c.req.raw), c.env)) return c.json({ error: 'Yetkisiz.' }, 401);
@@ -1014,7 +983,6 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     } catch (e: unknown) { return c.json({ error: (e as Error).message }, 500); }
   });
 
-  // DELETE /api/admin/resources/:id
   app.delete('/api/admin/resources/:id', async (c) => {
     if (!checkAdminKey(getAdminKeyFromRequest(c.req.raw), c.env)) return c.json({ error: 'Yetkisiz.' }, 401);
     await c.env.DB.prepare('DELETE FROM resources WHERE id = ?').bind(c.req.param('id')).run();
@@ -1093,7 +1061,7 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
         const entityType = sanitize(item.entity_type);
         const entityId   = sanitize(item.entity_id);
         if (!entityType || !entityId) continue;
-        if (!xpMap[entityType]) continue; // bilinmeyen type'ları atla
+        if (!xpMap[entityType]) continue;
 
         const existing = await c.env.DB.prepare(
           'SELECT id FROM user_progress WHERE user_email = ? AND entity_type = ? AND entity_id = ?'
@@ -1126,7 +1094,6 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
       const period = c.req.query('period') || 'all';
       const limit  = Math.min(Number(c.req.query('limit')) || 50, 100);
 
-      // Whitelist — SQL injection'ı tamamen engellemek için string interpolasyon yerine whitelist
       const xpColMap: Record<string, string> = {
         weekly: 'weekly_xp', monthly: 'monthly_xp', all: 'total_xp',
       };
@@ -1141,7 +1108,6 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
         LIMIT ?
       `).bind(limit).all();
 
-      // Gizlilik: sadece "Ad S." formatında göster, e-posta hiç dönmüyor
       const data = (rows.results as any[]).map((row, i) => {
         const parts = (row.username || '').trim().split(' ');
         const display =
