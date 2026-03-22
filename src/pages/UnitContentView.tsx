@@ -193,7 +193,6 @@ export function UnitContentView() {
 
       {/* ANA İÇERİK */}
       <div className="flex-1 flex flex-col bg-background overflow-hidden relative">
-        {/* Üst bar */}
         <header className="px-4 md:px-8 py-4 border-b border-border flex items-center justify-between bg-background/80 backdrop-blur-md z-30 sticky top-0">
           <div className="flex items-center gap-3">
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
@@ -236,7 +235,6 @@ export function UnitContentView() {
             {activeTopicIndex === topics.length - 1 ? 'ÜNİTEYİ BİTİR' : 'SONRAKİ KONU'}
           </Button>
 
-          {/* Scroll progress bar */}
           <div
             className="absolute bottom-0 left-0 h-[3px] bg-teal-500 transition-all duration-300 z-40"
             style={{ width: `${scrollProgress}%` }}
@@ -257,12 +255,11 @@ export function UnitContentView() {
               <span className="flex items-center gap-2"><BookOpen className="w-3.5 h-3.5" /> KONU {activeTopicIndex + 1}/{topics.length}</span>
             </div>
 
-            {/* ── YENİ LAYOUT: Video + İçerik Yan Yana ── */}
-            {currentTopic?.videoYoutubeId ? (
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-                {/* Video — 12 birimin 7'sini alır */}
-                <div className="lg:col-span-7 w-full">
-                  <div className="aspect-video bg-black rounded-[2rem] overflow-hidden shadow-2xl border border-border">
+            {/* ── YENİ SARMALAYAN LAYOUT (Grid kaldırıldı, Float eklendi) ── */}
+            <div className="block overflow-hidden w-full"> 
+              {currentTopic?.videoYoutubeId && (
+                <div className="w-full lg:w-[55%] lg:float-left lg:mr-10 lg:mb-6">
+                  <div className="aspect-video bg-black rounded-[2.5rem] overflow-hidden shadow-2xl border border-border">
                     <iframe
                       className="w-full h-full"
                       src={`https://www.youtube.com/embed/${currentTopic.videoYoutubeId}?rel=0&modestbranding=1`}
@@ -271,32 +268,24 @@ export function UnitContentView() {
                     />
                   </div>
                 </div>
+              )}
 
-                {/* İçerik — 12 birimin 5'ini alır */}
-                <div className="lg:col-span-5 space-y-6">
-                  <h1 className="text-2xl md:text-4xl font-bold text-foreground leading-tight tracking-tight">
-                    {currentTopic?.title}
-                  </h1>
-                  <div className="whitespace-pre-wrap font-sans text-foreground/80 text-lg leading-relaxed">
-                    {currentTopic?.content}
-                  </div>
-                </div>
-              </div>
-            ) : (
-              /* Video yoksa — tam genişlik içerik */
-              <article>
-                <h1 className="text-3xl md:text-5xl font-bold text-foreground mb-8 tracking-tight">
+              <div className="space-y-6">
+                <h1 className="text-3xl md:text-5xl font-bold text-foreground leading-tight tracking-tight mb-6">
                   {currentTopic?.title}
                 </h1>
-                <div className="whitespace-pre-wrap font-sans text-foreground/90 text-lg leading-relaxed">
+                <div className="whitespace-pre-wrap font-sans text-foreground/80 text-lg leading-relaxed">
                   {currentTopic?.content}
                 </div>
-              </article>
-            )}
+              </div>
+              
+              {/* Float'ı temizlemek için */}
+              <div className="clear-both"></div>
+            </div>
 
-            {/* Ek Materyal — PDF / Sunum */}
+            {/* Ek Materyal */}
             {currentTopic?.attachment_url && (
-              <div className="space-y-3 pt-6">
+              <div className="space-y-3 pt-10 border-t border-border/50">
                 <div className="flex items-center gap-2 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">
                   <span>📎 Ek Materyal</span>
                 </div>
@@ -359,7 +348,6 @@ export function UnitContentView() {
         </div>
       </div>
 
-      {/* Ünite tamamlandı overlay */}
       <AnimatePresence>
         {unitCompleted && (
           <motion.div
