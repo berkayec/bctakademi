@@ -249,7 +249,7 @@ export function UnitContentView() {
           ref={scrollContainerRef}
           onScroll={handleScroll}
         >
-          <div className="max-w-4xl mx-auto px-6 md:px-12 pt-8 pb-24 space-y-10">
+          <div className="max-w-7xl mx-auto px-6 md:px-12 pt-8 pb-24 space-y-10">
 
             {/* Meta bilgi */}
             <div className="flex items-center gap-6 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] border-b border-border pb-5">
@@ -257,27 +257,27 @@ export function UnitContentView() {
               <span className="flex items-center gap-2"><BookOpen className="w-3.5 h-3.5" /> KONU {activeTopicIndex + 1}/{topics.length}</span>
             </div>
 
-            {/* ── YENİ LAYOUT: Video + İçerik yan yana ── */}
+            {/* ── YENİ LAYOUT: Video + İçerik Yan Yana ── */}
             {currentTopic?.videoYoutubeId ? (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-                {/* Video — sol, kompakt */}
-                <div className="w-full">
-                  <div className="aspect-video bg-black rounded-2xl overflow-hidden shadow-xl border border-border">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+                {/* Video — 12 birimin 7'sini alır */}
+                <div className="lg:col-span-7 w-full">
+                  <div className="aspect-video bg-black rounded-[2rem] overflow-hidden shadow-2xl border border-border">
                     <iframe
                       className="w-full h-full"
-                      src={`https://www.youtube.com/embed/${currentTopic.videoYoutubeId}`}
+                      src={`https://www.youtube.com/embed/${currentTopic.videoYoutubeId}?rel=0&modestbranding=1`}
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                       allowFullScreen
                     />
                   </div>
                 </div>
 
-                {/* İçerik — sağ, video ile aynı hizada başlar */}
-                <div className="space-y-4">
-                  <h1 className="text-2xl md:text-3xl font-bold text-foreground leading-tight tracking-tight">
+                {/* İçerik — 12 birimin 5'ini alır */}
+                <div className="lg:col-span-5 space-y-6">
+                  <h1 className="text-2xl md:text-4xl font-bold text-foreground leading-tight tracking-tight">
                     {currentTopic?.title}
                   </h1>
-                  <div className="whitespace-pre-wrap font-sans text-foreground/80 text-base leading-relaxed">
+                  <div className="whitespace-pre-wrap font-sans text-foreground/80 text-lg leading-relaxed">
                     {currentTopic?.content}
                   </div>
                 </div>
@@ -294,18 +294,9 @@ export function UnitContentView() {
               </article>
             )}
 
-            {/* Video varsa altında tam genişlik içerik devamı (uzun içerikler için) */}
-            {currentTopic?.videoYoutubeId && currentTopic?.content && currentTopic.content.length > 600 && (
-              <div className="pt-4 border-t border-border/50">
-                <div className="whitespace-pre-wrap font-sans text-foreground/80 text-base leading-relaxed">
-                  {/* İlk 600 karakter sağ sütunda gösterildi, geri kalanı burada */}
-                </div>
-              </div>
-            )}
-
             {/* Ek Materyal — PDF / Sunum */}
             {currentTopic?.attachment_url && (
-              <div className="space-y-3">
+              <div className="space-y-3 pt-6">
                 <div className="flex items-center gap-2 text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">
                   <span>📎 Ek Materyal</span>
                 </div>
@@ -314,7 +305,7 @@ export function UnitContentView() {
                     <iframe
                       src={currentTopic.attachment_url}
                       className="w-full"
-                      style={{ height: '700px' }}
+                      style={{ height: '800px' }}
                       title="Ek Materyal — PDF"
                     />
                   </div>
@@ -323,7 +314,7 @@ export function UnitContentView() {
                     <iframe
                       src={`https://docs.google.com/viewer?url=${encodeURIComponent(currentTopic.attachment_url)}&embedded=true`}
                       className="w-full"
-                      style={{ height: '700px' }}
+                      style={{ height: '800px' }}
                       title="Ek Materyal — Sunum"
                     />
                   </div>
@@ -411,8 +402,8 @@ function QuizSection({
 }) {
   const [currentQIndex, setCurrentQIndex]   = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
-  const [isSubmitted, setIsSubmitted]       = useState(false);
-  const [score, setScore]                   = useState(0);
+  const [isSubmitted, setIsSubmitted]        = useState(false);
+  const [score, setScore]                    = useState(0);
   const [isQuizFinished, setIsQuizFinished] = useState(false);
   const addPoints = useUserStore(s => s.addPoints);
   const currentQ  = quiz[currentQIndex];
