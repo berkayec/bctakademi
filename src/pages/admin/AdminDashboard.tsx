@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +8,7 @@ import {
   CheckCircle, XCircle, Users, Mail, GraduationCap, ShieldCheck,
   Loader2, BookOpen, FileText, Newspaper, Plus, Pencil, Trash2,
   ChevronRight, ChevronDown, Video, Presentation,
-  Save, X
+  Save, X, Upload, File, Link
 } from 'lucide-react';
 
 type UserStatus = 'pending_admin' | 'active' | 'rejected' | 'pending_email';
@@ -23,7 +23,7 @@ interface AdminUser {
   created_at: string;
 }
 
-// ─── API helper — Authorization: Bearer header kullanır ───────────────────
+// ─── API helper ───────────────────────────────────────────────────────────
 async function adminFetch(url: string, key: string, options?: RequestInit) {
   const res = await fetch(url, {
     ...options,
@@ -36,12 +36,32 @@ async function adminFetch(url: string, key: string, options?: RequestInit) {
   return res.json();
 }
 
+// R2'ye dosya yükle — multipart/form-data gönderir, Content-Type header'ı koyma
+async function uploadFile(file: File, adminKey: string): Promise<string | null> {
+  const formData = new FormData();
+  formData.append('file', file);
+  try {
+    const res = await fetch('/api/upload', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${adminKey}` },
+      body: formData,
+    });
+    const json = await res.json();
+    if (json.success) return json.url as string;
+    toast.error(json.error || 'Yükleme başarısız.');
+    return null;
+  } catch {
+    toast.error('Dosya yüklenemedi.');
+    return null;
+  }
+}
+
 // ─── Modal ────────────────────────────────────────────────────────────────
-function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
+function Modal({ title, onClose, children, wide }: { title: string; onClose: () => void; children: React.ReactNode; wide?: boolean }) {
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-card border border-border rounded-[2rem] shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-6 border-b border-border">
+      <div className={`bg-card border border-border rounded-[2rem] shadow-2xl w-full ${wide ? 'max-w-3xl' : 'max-w-lg'} max-h-[92vh] overflow-y-auto`}>
+        <div className="flex items-center justify-between p-6 border-b border-border sticky top-0 bg-card z-10">
           <h3 className="text-lg font-bold text-foreground">{title}</h3>
           <button onClick={onClose} className="text-muted-foreground hover:text-foreground p-1">
             <X className="w-5 h-5" />
@@ -64,20 +84,85 @@ function Field({ label, required, children }: { label: string; required?: boolea
   );
 }
 
+// ─── Dosya yükleme kutusu ─────────────────────────────────────────────────
+function FileUploadBox({
+  adminKey,
+  accept,
+  label,
+  onUploaded,
+  currentUrl,
+}: {
+  adminKey: string;
+  accept: string;
+  label: string;
+  onUploaded: (url: string) => void;
+  currentUrl?: string;
+}) {
+  const [uploading, setUploading] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleFile = async (file: File) => {
+    setUploading(true);
+    const url = await uploadFile(file, adminKey);
+    setUploading(false);
+    if (url) {
+      onUploaded(url);
+      toast.success('Dosya yüklendi!');
+    }
+  };
+
+  return (
+    <div className="space-y-2">
+      <div
+        className="border-2 border-dashed border-border rounded-2xl p-6 text-center cursor-pointer hover:border-teal-500/50 hover:bg-teal-500/5 transition-all"
+        onClick={() => inputRef.current?.click()}
+        onDragOver={e => e.preventDefault()}
+        onDrop={e => {
+          e.preventDefault();
+          const file = e.dataTransfer.files[0];
+          if (file) handleFile(file);
+        }}
+      >
+        {uploading ? (
+          <div className="flex flex-col items-center gap-2">
+            <Loader2 className="w-8 h-8 text-teal-500 animate-spin" />
+            <p className="text-sm text-muted-foreground">Yükleniyor...</p>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center gap-2">
+            <Upload className="w-8 h-8 text-muted-foreground" />
+            <p className="text-sm font-bold text-foreground">{label}</p>
+            <p className="text-xs text-muted-foreground">Tıkla veya sürükle-bırak</p>
+          </div>
+        )}
+        <input ref={inputRef} type="file" accept={accept} className="hidden" onChange={e => {
+          const file = e.target.files?.[0];
+          if (file) handleFile(file);
+        }} />
+      </div>
+      {currentUrl && (
+        <div className="flex items-center gap-2 p-3 bg-muted/30 rounded-xl border border-border text-xs">
+          <File className="w-4 h-4 text-teal-500 shrink-0" />
+          <a href={currentUrl} target="_blank" rel="noreferrer" className="text-teal-500 hover:underline truncate flex-1">
+            {currentUrl.split('/').pop()}
+          </a>
+          <span className="text-muted-foreground shrink-0">Mevcut dosya</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── ANA COMPONENT ────────────────────────────────────────────────────────
 export function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<'users' | 'lessons' | 'blog' | 'resources'>('users');
   const { search } = useLocation();
 
-  // Key sessionStorage'dan okunur — AppShell URL'den siler ama sessionStorage'a yazar
   const keyFromUrl = new URLSearchParams(search).get('key') || '';
   const key = keyFromUrl || sessionStorage.getItem('bct_admin_verified_key') || '';
 
-  // Key URL'den geldiyse sessionStorage'a kaydet (bu component yeniden mount olduğunda kaybolmasın)
   useEffect(() => {
-    if (keyFromUrl) {
-      sessionStorage.setItem('bct_admin_verified_key', keyFromUrl);
-    }
+    if (keyFromUrl) sessionStorage.setItem('bct_admin_verified_key', keyFromUrl);
   }, [keyFromUrl]);
 
   if (!key) {
@@ -114,15 +199,12 @@ export function AdminDashboard() {
 
         <div className="flex gap-2 overflow-x-auto pb-1">
           {tabs.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+            <button key={tab.id} onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm whitespace-nowrap transition-all border ${
                 activeTab === tab.id
                   ? 'bg-teal-500 text-white border-teal-500 shadow-lg shadow-teal-500/20'
                   : 'bg-card text-muted-foreground border-border hover:border-teal-500/40'
-              }`}
-            >
+              }`}>
               <tab.icon className="w-4 h-4" />
               {tab.label}
             </button>
@@ -288,10 +370,7 @@ function LessonsTab({ adminKey }: { adminKey: string }) {
     };
     const url = id ? `${urlMap[type]}/${id}` : urlMap[type];
     try {
-      const r = await adminFetch(url, adminKey, {
-        method: id ? 'PUT' : 'POST',
-        body: JSON.stringify(data),
-      });
+      const r = await adminFetch(url, adminKey, { method: id ? 'PUT' : 'POST', body: JSON.stringify(data) });
       if (r.success) { toast.success(id ? 'Güncellendi!' : 'Oluşturuldu!'); setModal(null); load(); }
       else toast.error(r.error || 'Hata oluştu.');
     } catch { toast.error('Sunucuya bağlanılamadı.'); }
@@ -334,12 +413,8 @@ function LessonsTab({ adminKey }: { adminKey: string }) {
               <span className="text-xs text-muted-foreground">({cat.courses?.length || 0} kurs)</span>
             </div>
             <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
-              <button onClick={() => setModal({ type: 'edit-category', data: cat })} className="p-1.5 text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted transition-colors">
-                <Pencil className="w-3.5 h-3.5"/>
-              </button>
-              <button onClick={() => handleDelete('category', cat.id)} className="p-1.5 text-muted-foreground hover:text-red-500 rounded-lg hover:bg-red-500/10 transition-colors">
-                <Trash2 className="w-3.5 h-3.5"/>
-              </button>
+              <button onClick={() => setModal({ type: 'edit-category', data: cat })} className="p-1.5 text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted transition-colors"><Pencil className="w-3.5 h-3.5"/></button>
+              <button onClick={() => handleDelete('category', cat.id)} className="p-1.5 text-muted-foreground hover:text-red-500 rounded-lg hover:bg-red-500/10 transition-colors"><Trash2 className="w-3.5 h-3.5"/></button>
             </div>
           </div>
 
@@ -361,12 +436,8 @@ function LessonsTab({ adminKey }: { adminKey: string }) {
                       <span className="text-xs text-muted-foreground">({course.units?.length || 0} ünite)</span>
                     </div>
                     <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
-                      <button onClick={() => setModal({ type: 'edit-course', data: course })} className="p-1.5 text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted transition-colors">
-                        <Pencil className="w-3 h-3"/>
-                      </button>
-                      <button onClick={() => handleDelete('course', course.id)} className="p-1.5 text-muted-foreground hover:text-red-500 rounded-lg hover:bg-red-500/10 transition-colors">
-                        <Trash2 className="w-3 h-3"/>
-                      </button>
+                      <button onClick={() => setModal({ type: 'edit-course', data: course })} className="p-1.5 text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted transition-colors"><Pencil className="w-3 h-3"/></button>
+                      <button onClick={() => handleDelete('course', course.id)} className="p-1.5 text-muted-foreground hover:text-red-500 rounded-lg hover:bg-red-500/10 transition-colors"><Trash2 className="w-3 h-3"/></button>
                     </div>
                   </div>
 
@@ -388,12 +459,8 @@ function LessonsTab({ adminKey }: { adminKey: string }) {
                               <span className="text-[10px] text-muted-foreground">({unit.topics?.length || 0} konu)</span>
                             </div>
                             <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
-                              <button onClick={() => setModal({ type: 'edit-unit', data: unit })} className="p-1 text-muted-foreground hover:text-foreground rounded hover:bg-muted transition-colors">
-                                <Pencil className="w-3 h-3"/>
-                              </button>
-                              <button onClick={() => handleDelete('unit', unit.id)} className="p-1 text-muted-foreground hover:text-red-500 rounded hover:bg-red-500/10 transition-colors">
-                                <Trash2 className="w-3 h-3"/>
-                              </button>
+                              <button onClick={() => setModal({ type: 'edit-unit', data: unit })} className="p-1 text-muted-foreground hover:text-foreground rounded hover:bg-muted transition-colors"><Pencil className="w-3 h-3"/></button>
+                              <button onClick={() => handleDelete('unit', unit.id)} className="p-1 text-muted-foreground hover:text-red-500 rounded hover:bg-red-500/10 transition-colors"><Trash2 className="w-3 h-3"/></button>
                             </div>
                           </div>
                           {expandedUnit === unit.id && (
@@ -408,12 +475,8 @@ function LessonsTab({ adminKey }: { adminKey: string }) {
                                 <div key={topic.id} className="flex items-center justify-between px-4 pl-16 py-2 hover:bg-muted/30">
                                   <span className="text-xs text-muted-foreground">{topic.title}</span>
                                   <div className="flex items-center gap-1">
-                                    <button onClick={() => setModal({ type: 'edit-topic', data: topic })} className="p-1 text-muted-foreground hover:text-foreground rounded hover:bg-muted transition-colors">
-                                      <Pencil className="w-3 h-3"/>
-                                    </button>
-                                    <button onClick={() => handleDelete('topic', topic.id)} className="p-1 text-muted-foreground hover:text-red-500 rounded hover:bg-red-500/10 transition-colors">
-                                      <Trash2 className="w-3 h-3"/>
-                                    </button>
+                                    <button onClick={() => setModal({ type: 'edit-topic', data: topic })} className="p-1 text-muted-foreground hover:text-foreground rounded hover:bg-muted transition-colors"><Pencil className="w-3 h-3"/></button>
+                                    <button onClick={() => handleDelete('topic', topic.id)} className="p-1 text-muted-foreground hover:text-red-500 rounded hover:bg-red-500/10 transition-colors"><Trash2 className="w-3 h-3"/></button>
                                   </div>
                                 </div>
                               ))}
@@ -430,16 +493,23 @@ function LessonsTab({ adminKey }: { adminKey: string }) {
         </div>
       ))}
 
-      {modal && <LessonsModal modal={modal} onClose={() => setModal(null)} onSave={handleSave}/>}
+      {modal && <LessonsModal modal={modal} adminKey={adminKey} onClose={() => setModal(null)} onSave={handleSave}/>}
     </div>
   );
 }
 
-function LessonsModal({ modal, onClose, onSave }: { modal: any; onClose: () => void; onSave: (type: string, data: any, id?: string) => void }) {
+function LessonsModal({ modal, adminKey, onClose, onSave }: {
+  modal: any;
+  adminKey: string;
+  onClose: () => void;
+  onSave: (type: string, data: any, id?: string) => void;
+}) {
   const isEdit = modal.type.startsWith('edit-');
   const entityType = modal.type.replace('new-', '').replace('edit-', '');
   const d = modal.data || {};
   const [form, setForm] = useState({ ...d });
+  // 'url' veya 'upload' — topic için dosya ekleme seçimi
+  const [attachMode, setAttachMode] = useState<'url' | 'upload'>('url');
 
   const titleMap: Record<string, string> = {
     category: 'Kategori', course: 'Kurs', unit: 'Ünite', topic: 'Konu'
@@ -456,7 +526,7 @@ function LessonsModal({ modal, onClose, onSave }: { modal: any; onClose: () => v
   };
 
   return (
-    <Modal title={`${isEdit ? 'Düzenle' : 'Yeni'} ${titleMap[entityType] || entityType}`} onClose={onClose}>
+    <Modal title={`${isEdit ? 'Düzenle' : 'Yeni'} ${titleMap[entityType] || entityType}`} onClose={onClose} wide={entityType === 'topic'}>
       <Field label="Başlık" required>
         <Input value={form.title||''} onChange={e=>setForm({...form,title:e.target.value})} className="rounded-xl bg-muted/50 border-border"/>
       </Field>
@@ -486,12 +556,65 @@ function LessonsModal({ modal, onClose, onSave }: { modal: any; onClose: () => v
 
       {entityType === 'topic' && (
         <>
-          <Field label="İçerik">
-            <Textarea value={form.content||''} onChange={e=>setForm({...form,content:e.target.value})} className="rounded-xl bg-muted/50 border-border min-h-[120px]"/>
+          {/* Büyük içerik alanı */}
+          <Field label="İçerik (Metin)">
+            <Textarea
+              value={form.content||''}
+              onChange={e=>setForm({...form,content:e.target.value})}
+              className="rounded-xl bg-muted/50 border-border font-mono text-sm leading-relaxed"
+              style={{ minHeight: '280px', resize: 'vertical' }}
+              placeholder="Ders içeriğini buraya yaz..."
+            />
           </Field>
+
+          {/* YouTube */}
           <Field label="YouTube Video ID (opsiyonel)">
             <Input value={form.video_youtube_id||''} onChange={e=>setForm({...form,video_youtube_id:e.target.value})} className="rounded-xl bg-muted/50 border-border" placeholder="dQw4w9WgXcQ"/>
           </Field>
+
+          {/* PDF / Sunum ekleme */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">PDF veya Sunum Ekle (opsiyonel)</label>
+              <div className="flex gap-1 bg-muted rounded-lg p-1">
+                <button onClick={() => setAttachMode('url')}
+                  className={`px-3 py-1 rounded-md text-xs font-bold transition-all flex items-center gap-1 ${attachMode === 'url' ? 'bg-background text-foreground shadow' : 'text-muted-foreground'}`}>
+                  <Link className="w-3 h-3"/> URL
+                </button>
+                <button onClick={() => setAttachMode('upload')}
+                  className={`px-3 py-1 rounded-md text-xs font-bold transition-all flex items-center gap-1 ${attachMode === 'upload' ? 'bg-background text-foreground shadow' : 'text-muted-foreground'}`}>
+                  <Upload className="w-3 h-3"/> Yükle
+                </button>
+              </div>
+            </div>
+
+            {attachMode === 'url' ? (
+              <Input
+                value={form.attachment_url||''}
+                onChange={e=>setForm({...form,attachment_url:e.target.value})}
+                className="rounded-xl bg-muted/50 border-border"
+                placeholder="https://... (PDF, PPT, vs.)"
+              />
+            ) : (
+              <FileUploadBox
+                adminKey={adminKey}
+                accept=".pdf,.ppt,.pptx,.doc,.docx"
+                label="PDF, Sunum veya Belge Yükle"
+                currentUrl={form.attachment_url}
+                onUploaded={url => setForm({...form, attachment_url: url})}
+              />
+            )}
+
+            {form.attachment_url && (
+              <div className="flex items-center gap-2 p-3 bg-teal-500/10 border border-teal-500/20 rounded-xl text-xs">
+                <File className="w-4 h-4 text-teal-500 shrink-0"/>
+                <span className="text-teal-600 dark:text-teal-400 font-medium truncate flex-1">{form.attachment_url}</span>
+                <button onClick={() => setForm({...form,attachment_url:''})} className="text-muted-foreground hover:text-red-500 shrink-0">
+                  <X className="w-3.5 h-3.5"/>
+                </button>
+              </div>
+            )}
+          </div>
         </>
       )}
 
@@ -532,10 +655,7 @@ function BlogTab({ adminKey }: { adminKey: string }) {
   const handleSave = async (data: any, id?: string) => {
     const url = id ? `/api/admin/blog/${id}` : '/api/admin/blog';
     try {
-      const r = await adminFetch(url, adminKey, {
-        method: id ? 'PUT' : 'POST',
-        body: JSON.stringify(data),
-      });
+      const r = await adminFetch(url, adminKey, { method: id ? 'PUT' : 'POST', body: JSON.stringify(data) });
       if (r.success) { toast.success(id ? 'Güncellendi!' : 'Yazı oluşturuldu!'); setModal(null); load(); }
       else toast.error(r.error || 'Hata.');
     } catch { toast.error('Sunucuya bağlanılamadı.'); }
@@ -562,9 +682,7 @@ function BlogTab({ adminKey }: { adminKey: string }) {
       <div className="space-y-3">
         {posts.map(post => (
           <div key={post.id} className="bg-card border border-border rounded-2xl p-4 flex items-center gap-4">
-            {post.image_url && (
-              <img src={post.image_url} alt={post.title} className="w-16 h-12 rounded-xl object-cover shrink-0 opacity-80"/>
-            )}
+            {post.image_url && <img src={post.image_url} alt={post.title} className="w-16 h-12 rounded-xl object-cover shrink-0 opacity-80"/>}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="font-semibold text-foreground text-sm truncate">{post.title}</span>
@@ -574,22 +692,18 @@ function BlogTab({ adminKey }: { adminKey: string }) {
               <p className="text-xs text-muted-foreground mt-0.5">{post.author} · {post.category} · {post.read_time}</p>
             </div>
             <div className="flex items-center gap-1 shrink-0">
-              <button onClick={() => setModal({ data: post })} className="p-2 text-muted-foreground hover:text-foreground rounded-xl hover:bg-muted transition-colors">
-                <Pencil className="w-4 h-4"/>
-              </button>
-              <button onClick={() => handleDelete(post.id)} className="p-2 text-muted-foreground hover:text-red-500 rounded-xl hover:bg-red-500/10 transition-colors">
-                <Trash2 className="w-4 h-4"/>
-              </button>
+              <button onClick={() => setModal({ data: post })} className="p-2 text-muted-foreground hover:text-foreground rounded-xl hover:bg-muted transition-colors"><Pencil className="w-4 h-4"/></button>
+              <button onClick={() => handleDelete(post.id)} className="p-2 text-muted-foreground hover:text-red-500 rounded-xl hover:bg-red-500/10 transition-colors"><Trash2 className="w-4 h-4"/></button>
             </div>
           </div>
         ))}
       </div>
-      {modal && <BlogModal data={modal.data} onClose={() => setModal(null)} onSave={handleSave}/>}
+      {modal && <BlogModal data={modal.data} adminKey={adminKey} onClose={() => setModal(null)} onSave={handleSave}/>}
     </div>
   );
 }
 
-function BlogModal({ data, onClose, onSave }: { data?: any; onClose: () => void; onSave: (d: any, id?: string) => void }) {
+function BlogModal({ data, adminKey, onClose, onSave }: { data?: any; adminKey: string; onClose: () => void; onSave: (d: any, id?: string) => void }) {
   const [form, setForm] = useState({
     title: data?.title || '',
     excerpt: data?.excerpt || '',
@@ -601,17 +715,38 @@ function BlogModal({ data, onClose, onSave }: { data?: any; onClose: () => void;
     is_featured: data?.is_featured || false,
     is_published: data?.is_published ?? true,
   });
+  const [imgMode, setImgMode] = useState<'url' | 'upload'>('url');
 
   return (
-    <Modal title={data ? 'Blog Yazısını Düzenle' : 'Yeni Blog Yazısı'} onClose={onClose}>
+    <Modal title={data ? 'Blog Yazısını Düzenle' : 'Yeni Blog Yazısı'} onClose={onClose} wide>
       <Field label="Başlık" required><Input value={form.title} onChange={e=>setForm({...form,title:e.target.value})} className="rounded-xl bg-muted/50 border-border"/></Field>
-      <Field label="Özet"><Textarea value={form.excerpt} onChange={e=>setForm({...form,excerpt:e.target.value})} className="rounded-xl bg-muted/50 border-border min-h-[60px]"/></Field>
-      <Field label="İçerik"><Textarea value={form.content} onChange={e=>setForm({...form,content:e.target.value})} className="rounded-xl bg-muted/50 border-border min-h-[100px]"/></Field>
+      <Field label="Özet"><Textarea value={form.excerpt} onChange={e=>setForm({...form,excerpt:e.target.value})} className="rounded-xl bg-muted/50 border-border min-h-[80px]"/></Field>
+      <Field label="İçerik">
+        <Textarea value={form.content} onChange={e=>setForm({...form,content:e.target.value})}
+          className="rounded-xl bg-muted/50 border-border"
+          style={{ minHeight: '240px', resize: 'vertical' }}/>
+      </Field>
       <div className="grid grid-cols-2 gap-3">
         <Field label="Yazar"><Input value={form.author} onChange={e=>setForm({...form,author:e.target.value})} className="rounded-xl bg-muted/50 border-border"/></Field>
         <Field label="Kategori"><Input value={form.category} onChange={e=>setForm({...form,category:e.target.value})} className="rounded-xl bg-muted/50 border-border"/></Field>
       </div>
-      <Field label="Görsel URL"><Input value={form.image_url} onChange={e=>setForm({...form,image_url:e.target.value})} className="rounded-xl bg-muted/50 border-border" placeholder="https://..."/></Field>
+
+      {/* Kapak görseli */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Kapak Görseli</label>
+          <div className="flex gap-1 bg-muted rounded-lg p-1">
+            <button onClick={() => setImgMode('url')} className={`px-3 py-1 rounded-md text-xs font-bold transition-all flex items-center gap-1 ${imgMode==='url'?'bg-background text-foreground shadow':'text-muted-foreground'}`}><Link className="w-3 h-3"/>URL</button>
+            <button onClick={() => setImgMode('upload')} className={`px-3 py-1 rounded-md text-xs font-bold transition-all flex items-center gap-1 ${imgMode==='upload'?'bg-background text-foreground shadow':'text-muted-foreground'}`}><Upload className="w-3 h-3"/>Yükle</button>
+          </div>
+        </div>
+        {imgMode === 'url' ? (
+          <Input value={form.image_url} onChange={e=>setForm({...form,image_url:e.target.value})} className="rounded-xl bg-muted/50 border-border" placeholder="https://..."/>
+        ) : (
+          <FileUploadBox adminKey={adminKey} accept="image/*" label="Görsel Yükle" currentUrl={form.image_url} onUploaded={url=>setForm({...form,image_url:url})}/>
+        )}
+      </div>
+
       <Field label="Okuma Süresi"><Input value={form.read_time} onChange={e=>setForm({...form,read_time:e.target.value})} className="rounded-xl bg-muted/50 border-border" placeholder="5 dk okuma"/></Field>
       <div className="flex gap-4">
         <label className="flex items-center gap-2 cursor-pointer text-sm"><input type="checkbox" checked={form.is_featured} onChange={e=>setForm({...form,is_featured:e.target.checked})} className="rounded"/> Öne Çıkan</label>
@@ -647,10 +782,7 @@ function ResourcesTab({ adminKey }: { adminKey: string }) {
   const handleSave = async (data: any, id?: string) => {
     const url = id ? `/api/admin/resources/${id}` : '/api/admin/resources';
     try {
-      const r = await adminFetch(url, adminKey, {
-        method: id ? 'PUT' : 'POST',
-        body: JSON.stringify(data),
-      });
+      const r = await adminFetch(url, adminKey, { method: id ? 'PUT' : 'POST', body: JSON.stringify(data) });
       if (r.success) { toast.success(id ? 'Güncellendi!' : 'Kaynak oluşturuldu!'); setModal(null); load(); }
       else toast.error(r.error || 'Hata.');
     } catch { toast.error('Sunucuya bağlanılamadı.'); }
@@ -683,9 +815,7 @@ function ResourcesTab({ adminKey }: { adminKey: string }) {
       <div className="space-y-3">
         {resources.map(res => (
           <div key={res.id} className="bg-card border border-border rounded-2xl p-4 flex items-center gap-4">
-            <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center shrink-0">
-              {typeIcon(res.type)}
-            </div>
+            <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center shrink-0">{typeIcon(res.type)}</div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="font-semibold text-foreground text-sm">{res.title}</span>
@@ -696,22 +826,18 @@ function ResourcesTab({ adminKey }: { adminKey: string }) {
               <p className="text-xs text-muted-foreground mt-0.5 truncate">{res.description}</p>
             </div>
             <div className="flex items-center gap-1 shrink-0">
-              <button onClick={() => setModal({ data: res })} className="p-2 text-muted-foreground hover:text-foreground rounded-xl hover:bg-muted transition-colors">
-                <Pencil className="w-4 h-4"/>
-              </button>
-              <button onClick={() => handleDelete(res.id)} className="p-2 text-muted-foreground hover:text-red-500 rounded-xl hover:bg-red-500/10 transition-colors">
-                <Trash2 className="w-4 h-4"/>
-              </button>
+              <button onClick={() => setModal({ data: res })} className="p-2 text-muted-foreground hover:text-foreground rounded-xl hover:bg-muted transition-colors"><Pencil className="w-4 h-4"/></button>
+              <button onClick={() => handleDelete(res.id)} className="p-2 text-muted-foreground hover:text-red-500 rounded-xl hover:bg-red-500/10 transition-colors"><Trash2 className="w-4 h-4"/></button>
             </div>
           </div>
         ))}
       </div>
-      {modal && <ResourceModal data={modal.data} onClose={() => setModal(null)} onSave={handleSave}/>}
+      {modal && <ResourceModal data={modal.data} adminKey={adminKey} onClose={() => setModal(null)} onSave={handleSave}/>}
     </div>
   );
 }
 
-function ResourceModal({ data, onClose, onSave }: { data?: any; onClose: () => void; onSave: (d: any, id?: string) => void }) {
+function ResourceModal({ data, adminKey, onClose, onSave }: { data?: any; adminKey: string; onClose: () => void; onSave: (d: any, id?: string) => void }) {
   const [form, setForm] = useState({
     title: data?.title || '',
     description: data?.description || '',
@@ -722,6 +848,13 @@ function ResourceModal({ data, onClose, onSave }: { data?: any; onClose: () => v
     file_url: data?.file_url || '',
     is_published: data?.is_published ?? true,
   });
+  const [fileMode, setFileMode] = useState<'url' | 'upload'>('url');
+
+  const acceptMap: Record<string, string> = {
+    PDF:   '.pdf',
+    Sunum: '.ppt,.pptx,.pdf',
+    Video: 'video/*',
+  };
 
   return (
     <Modal title={data ? 'Kaynağı Düzenle' : 'Yeni Kaynak'} onClose={onClose}>
@@ -739,7 +872,29 @@ function ResourceModal({ data, onClose, onSave }: { data?: any; onClose: () => v
         <Field label="Dosya Boyutu"><Input value={form.file_size} onChange={e=>setForm({...form,file_size:e.target.value})} className="rounded-xl bg-muted/50 border-border" placeholder="4.2 MB"/></Field>
         <Field label="Süre (Video)"><Input value={form.duration} onChange={e=>setForm({...form,duration:e.target.value})} className="rounded-xl bg-muted/50 border-border" placeholder="15:20"/></Field>
       </div>
-      <Field label="Dosya / İndirme URL"><Input value={form.file_url} onChange={e=>setForm({...form,file_url:e.target.value})} className="rounded-xl bg-muted/50 border-border" placeholder="https://..."/></Field>
+
+      {/* Dosya yükleme */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Dosya</label>
+          <div className="flex gap-1 bg-muted rounded-lg p-1">
+            <button onClick={() => setFileMode('url')} className={`px-3 py-1 rounded-md text-xs font-bold transition-all flex items-center gap-1 ${fileMode==='url'?'bg-background text-foreground shadow':'text-muted-foreground'}`}><Link className="w-3 h-3"/>URL</button>
+            <button onClick={() => setFileMode('upload')} className={`px-3 py-1 rounded-md text-xs font-bold transition-all flex items-center gap-1 ${fileMode==='upload'?'bg-background text-foreground shadow':'text-muted-foreground'}`}><Upload className="w-3 h-3"/>Yükle</button>
+          </div>
+        </div>
+        {fileMode === 'url' ? (
+          <Input value={form.file_url} onChange={e=>setForm({...form,file_url:e.target.value})} className="rounded-xl bg-muted/50 border-border" placeholder="https://..."/>
+        ) : (
+          <FileUploadBox
+            adminKey={adminKey}
+            accept={acceptMap[form.type] || '*'}
+            label={`${form.type} Dosyası Yükle`}
+            currentUrl={form.file_url}
+            onUploaded={url => setForm({...form, file_url: url})}
+          />
+        )}
+      </div>
+
       <label className="flex items-center gap-2 cursor-pointer text-sm"><input type="checkbox" checked={form.is_published} onChange={e=>setForm({...form,is_published:e.target.checked})} className="rounded"/> Yayında</label>
       <div className="flex gap-3 pt-2">
         <Button onClick={() => onSave(form, data?.id)} className="flex-1 bg-teal-500 hover:bg-teal-600 text-white rounded-xl border-none gap-1.5">
