@@ -5,18 +5,15 @@ import { Env } from './core-utils';
 // YARDIMCI FONKSİYONLAR
 // ═══════════════════════════════════════════════════════════════════════════
 
-/** Gelen değeri string'e dönüştür, null byte ve kontrol karakterlerini temizle */
 function sanitize(str: unknown): string {
   if (typeof str !== 'string') return '';
   return str.replace(/\0/g, '').trim().slice(0, 255);
 }
 
-/** RFC 5321 uyumlu e-posta kontrolü */
 function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) && email.length <= 254;
 }
 
-/** Rastgele ID üreteci (admin CMS için) */
 function nanoid(len = 12): string {
   const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
   let id = '';
@@ -24,10 +21,6 @@ function nanoid(len = 12): string {
   return id;
 }
 
-/**
- * Timing-safe string karşılaştırması.
- * Basit === ile karşılaştırma timing attack'a açıktır.
- */
 function timingSafeEqual(a: string, b: string): boolean {
   if (a.length !== b.length) return false;
   let mismatch = 0;
@@ -37,27 +30,17 @@ function timingSafeEqual(a: string, b: string): boolean {
   return mismatch === 0;
 }
 
-/**
- * Admin anahtarını Authorization header'dan oku.
- * URL query param olarak taşımak; server loglarına, tarayıcı geçmişine
- * ve Referer header'larına sızmasına neden olur.
- */
 function getAdminKeyFromRequest(req: Request): string | null {
   const auth = req.headers.get('Authorization');
   if (auth?.startsWith('Bearer ')) return auth.slice(7).trim();
   return null;
 }
 
-/** Admin anahtarı doğrulama */
 function checkAdminKey(key: string | null, env: Env): boolean {
   if (!key || !env.ADMIN_KEY) return false;
   return timingSafeEqual(key, env.ADMIN_KEY);
 }
 
-/**
- * HTML escape — e-posta şablonlarında kullanıcı verisi doğrudan
- * interpolate edilmemeli. Aksi halde XSS açığı oluşur.
- */
 function escapeHtml(str: string): string {
   return str
     .replace(/&/g, '&amp;')
@@ -67,10 +50,6 @@ function escapeHtml(str: string): string {
     .replace(/'/g, '&#x27;');
 }
 
-/**
- * D1 tabanlı rate limiter.
- * migrations/004_rate_limits.sql çalıştırılmış olmalı.
- */
 async function checkRateLimit(
   db: D1Database,
   key: string,
@@ -135,9 +114,7 @@ async function sendVerificationEmail(
             <p style="color:#64748b;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">Doğrulama Kodun</p>
             <p style="font-size:40px;font-weight:900;letter-spacing:.3em;color:#0f172a;margin:0">${code}</p>
           </div>
-          <p style="color:#94a3b8;font-size:12px">Bu kod 15 dakika geçerlidir. Bu işlemi sen başlatmadıysan bu e-postayı görmezden gelebilirsin.</p>
-          <hr style="border:none;border-top:1px solid #e2e8f0;margin:24px 0"/>
-          <p style="color:#cbd5e1;font-size:11px;text-align:center">Sorularınız için: <a href="mailto:destek@bctakademi.com" style="color:#f97316">destek@bctakademi.com</a></p>
+          <p style="color:#94a3b8;font-size:12px">Bu kod 15 dakika geçerlidir.</p>
         </div>
       `,
     }),
@@ -155,7 +132,6 @@ async function sendAdminNotification(
   role: string,
   detail: string
 ): Promise<void> {
-  // Admin linkinde ADMIN_KEY URL'ye koyulmamalı — sadece panel adresini gönder
   await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
@@ -171,32 +147,15 @@ async function sendAdminNotification(
           <div style="background:#f97316;border-radius:12px;padding:16px 24px;margin-bottom:24px">
             <h2 style="color:#fff;margin:0">🔔 Yeni Üyelik Başvurusu</h2>
           </div>
-          <p style="color:#475569">E-postasını doğrulayan bir kullanıcı admin onayı bekliyor.</p>
           <table style="width:100%;border-collapse:collapse;margin-top:16px">
-            <tr style="background:#f8fafc">
-              <td style="padding:12px 16px;font-weight:700;color:#64748b;width:120px">Ad Soyad</td>
-              <td style="padding:12px 16px;color:#0f172a;font-weight:600">${escapeHtml(username)}</td>
-            </tr>
-            <tr>
-              <td style="padding:12px 16px;font-weight:700;color:#64748b">E-posta</td>
-              <td style="padding:12px 16px;color:#0f172a">${escapeHtml(email)}</td>
-            </tr>
-            <tr style="background:#f8fafc">
-              <td style="padding:12px 16px;font-weight:700;color:#64748b">Rol</td>
-              <td style="padding:12px 16px;color:#0f172a">${escapeHtml(role)}</td>
-            </tr>
-            <tr>
-              <td style="padding:12px 16px;font-weight:700;color:#64748b">Detay</td>
-              <td style="padding:12px 16px;color:#0f172a">${escapeHtml(detail || '—')}</td>
-            </tr>
+            <tr style="background:#f8fafc"><td style="padding:12px 16px;font-weight:700;color:#64748b;width:120px">Ad Soyad</td><td style="padding:12px 16px;color:#0f172a;font-weight:600">${escapeHtml(username)}</td></tr>
+            <tr><td style="padding:12px 16px;font-weight:700;color:#64748b">E-posta</td><td style="padding:12px 16px;color:#0f172a">${escapeHtml(email)}</td></tr>
+            <tr style="background:#f8fafc"><td style="padding:12px 16px;font-weight:700;color:#64748b">Rol</td><td style="padding:12px 16px;color:#0f172a">${escapeHtml(role)}</td></tr>
+            <tr><td style="padding:12px 16px;font-weight:700;color:#64748b">Detay</td><td style="padding:12px 16px;color:#0f172a">${escapeHtml(detail || '—')}</td></tr>
           </table>
           <div style="margin-top:32px;text-align:center">
-            <a href="https://bctakademi.com/admin-control-portal"
-               style="background:#0f172a;color:#fff;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px">
-              Admin Paneline Git →
-            </a>
+            <a href="https://bctakademi.com/admin-control-portal" style="background:#0f172a;color:#fff;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:700;font-size:14px">Admin Paneline Git →</a>
           </div>
-          <p style="color:#94a3b8;font-size:11px;margin-top:24px;text-align:center">Bu mail otomatik gönderilmiştir.</p>
         </div>
       `,
     }),
@@ -224,29 +183,8 @@ async function sendStatusEmail(
         ? 'BCT Akademi — Hesabınız Onaylandı! 🎉'
         : 'BCT Akademi — Başvurunuz Hakkında',
       html: isApproved
-        ? `
-          <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px">
-            <h2 style="color:#0f172a">Merhaba ${safeUsername} 🎉</h2>
-            <p style="color:#475569">BCT Akademi'ye hoş geldin! Hesabın onaylandı, artık tüm içeriklere erişebilirsin.</p>
-            <div style="text-align:center;margin:32px 0">
-              <a href="https://bctakademi.com/portal"
-                 style="background:#f97316;color:#fff;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:700">
-                Portala Git →
-              </a>
-            </div>
-            <p style="color:#94a3b8;font-size:12px">Sorularınız için: <a href="mailto:destek@bctakademi.com" style="color:#f97316">destek@bctakademi.com</a></p>
-          </div>
-        `
-        : `
-          <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px">
-            <h2 style="color:#0f172a">Merhaba ${safeUsername}</h2>
-            <p style="color:#475569">Maalesef BCT Akademi'ye üyelik başvurunuz bu aşamada onaylanamamıştır.</p>
-            <p style="color:#475569">Daha fazla bilgi için bizimle iletişime geçebilirsiniz.</p>
-            <p style="color:#94a3b8;font-size:12px;margin-top:24px">
-              <a href="mailto:destek@bctakademi.com" style="color:#f97316">destek@bctakademi.com</a>
-            </p>
-          </div>
-        `,
+        ? `<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px"><h2 style="color:#0f172a">Merhaba ${safeUsername} 🎉</h2><p style="color:#475569">BCT Akademi'ye hoş geldin! Hesabın onaylandı.</p><div style="text-align:center;margin:32px 0"><a href="https://bctakademi.com/portal" style="background:#f97316;color:#fff;padding:14px 32px;border-radius:10px;text-decoration:none;font-weight:700">Portala Git →</a></div></div>`
+        : `<div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px"><h2 style="color:#0f172a">Merhaba ${safeUsername}</h2><p style="color:#475569">Maalesef başvurunuz onaylanamamıştır.</p></div>`,
     }),
   });
 }
@@ -287,14 +225,11 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
   // AUTH
   // ─────────────────────────────────────────────────────────────────────────
 
-  // POST /api/signup — Rate limit: IP başına 5 istek / 15 dakika
   app.post('/api/signup', async (c) => {
     try {
       const ip = c.req.header('CF-Connecting-IP') ?? 'unknown';
       const allowed = await checkRateLimit(c.env.DB, `signup:${ip}`, 5, 900);
-      if (!allowed) {
-        return c.json({ success: false, error: 'Çok fazla deneme. 15 dakika sonra tekrar deneyin.' }, 429);
-      }
+      if (!allowed) return c.json({ success: false, error: 'Çok fazla deneme. 15 dakika sonra tekrar deneyin.' }, 429);
 
       const body     = await c.req.json();
       const username = sanitize(body.username);
@@ -302,79 +237,54 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
       const role     = sanitize(body.role);
       const detail   = sanitize(body.detail);
 
-      if (!username || username.length < 2) {
-        return c.json({ success: false, error: 'Ad en az 2 karakter olmalıdır.' }, 400);
-      }
-      if (!email || !isValidEmail(email)) {
-        return c.json({ success: false, error: 'Geçersiz e-posta adresi.' }, 400);
-      }
+      if (!username || username.length < 2) return c.json({ success: false, error: 'Ad en az 2 karakter olmalıdır.' }, 400);
+      if (!email || !isValidEmail(email)) return c.json({ success: false, error: 'Geçersiz e-posta adresi.' }, 400);
       const validRoles = ['student', 'teacher', 'pro', 'other'];
-      if (!validRoles.includes(role)) {
-        return c.json({ success: false, error: 'Geçersiz rol seçimi.' }, 400);
-      }
+      if (!validRoles.includes(role)) return c.json({ success: false, error: 'Geçersiz rol seçimi.' }, 400);
 
       const code = Math.floor(100000 + Math.random() * 900000).toString();
 
-      const existing = await c.env.DB.prepare(
-        'SELECT id, status FROM users WHERE email = ?'
-      ).bind(email).first<{ id: number; status: string }>();
+      const existing = await c.env.DB.prepare('SELECT id, status FROM users WHERE email = ?')
+        .bind(email).first<{ id: number; status: string }>();
 
       if (existing) {
         if (existing.status === 'active') {
-          // Güvenlik: aktif hesap varlığını açıkça bildirme — enum user attack'ını önle
-          return c.json({
-            success: false,
-            error: 'Bu e-posta ile işlem yapılamıyor. Destek için iletişime geçin.',
-          }, 400);
+          return c.json({ success: false, error: 'Bu e-posta ile işlem yapılamıyor. Destek için iletişime geçin.' }, 400);
         }
         await c.env.DB.prepare(
           `UPDATE users SET verification_code = ?, code_expires_at = datetime('now', '+15 minutes') WHERE email = ?`
         ).bind(code, email).run();
       } else {
         await c.env.DB.prepare(
-          `INSERT INTO users (username, email, role, detail, verification_code, code_expires_at, status)
-           VALUES (?, ?, ?, ?, ?, datetime('now', '+15 minutes'), 'pending_email')`
+          `INSERT INTO users (username, email, role, detail, verification_code, code_expires_at, status) VALUES (?, ?, ?, ?, ?, datetime('now', '+15 minutes'), 'pending_email')`
         ).bind(username, email, role, detail, code).run();
       }
 
       await sendVerificationEmail(c.env, email, username, code);
       return c.json({ success: true, message: 'Doğrulama kodu gönderildi.' });
-
     } catch (error: unknown) {
       console.error('[signup]', error);
       return c.json({ success: false, error: 'Kayıt sırasında bir hata oluştu.' }, 500);
     }
   });
 
-  // POST /api/verify — Rate limit: e-posta başına 10 deneme / 15 dakika
   app.post('/api/verify', async (c) => {
     try {
       const body  = await c.req.json();
       const email = sanitize(body.email).toLowerCase();
-      const code  = sanitize(body.code).replace(/\D/g, ''); // sadece rakam
+      const code  = sanitize(body.code).replace(/\D/g, '');
 
-      if (!email || !isValidEmail(email)) {
-        return c.json({ success: false, error: 'Geçersiz e-posta.' }, 400);
-      }
-      if (!code || code.length !== 6) {
-        return c.json({ success: false, error: '6 haneli kod giriniz.' }, 400);
-      }
+      if (!email || !isValidEmail(email)) return c.json({ success: false, error: 'Geçersiz e-posta.' }, 400);
+      if (!code || code.length !== 6) return c.json({ success: false, error: '6 haneli kod giriniz.' }, 400);
 
       const allowed = await checkRateLimit(c.env.DB, `verify:${email}`, 10, 900);
-      if (!allowed) {
-        return c.json({ success: false, error: 'Çok fazla deneme. 15 dakika bekleyin.' }, 429);
-      }
+      if (!allowed) return c.json({ success: false, error: 'Çok fazla deneme. 15 dakika bekleyin.' }, 429);
 
       const user = await c.env.DB.prepare(
-        `SELECT username, email, role, detail FROM users
-         WHERE email = ?
-           AND verification_code = ?
-           AND code_expires_at > datetime('now')`
+        `SELECT username, email, role, detail FROM users WHERE email = ? AND verification_code = ? AND code_expires_at > datetime('now')`
       ).bind(email, code).first<{ username: string; email: string; role: string; detail: string }>();
 
-      if (!user) {
-        return c.json({ success: false, error: 'Kod geçersiz veya süresi dolmuş.' }, 400);
-      }
+      if (!user) return c.json({ success: false, error: 'Kod geçersiz veya süresi dolmuş.' }, 400);
 
       await c.env.DB.prepare(
         `UPDATE users SET status = 'pending_admin', verification_code = NULL, code_expires_at = NULL WHERE email = ?`
@@ -387,61 +297,41 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
       }
 
       return c.json({ success: true, message: 'Doğrulandı, admin onayı bekleniyor.' });
-
     } catch (error: unknown) {
       console.error('[verify]', error);
       return c.json({ success: false, error: 'Doğrulama sırasında bir hata oluştu.' }, 500);
     }
   });
 
-  // POST /api/login — Rate limit: IP başına 20 deneme / 15 dakika
   app.post('/api/login', async (c) => {
     try {
       const ip = c.req.header('CF-Connecting-IP') ?? 'unknown';
       const allowed = await checkRateLimit(c.env.DB, `login:${ip}`, 20, 900);
-      if (!allowed) {
-        return c.json({ success: false, error: 'Çok fazla giriş denemesi. Lütfen bekleyin.' }, 429);
-      }
+      if (!allowed) return c.json({ success: false, error: 'Çok fazla giriş denemesi. Lütfen bekleyin.' }, 429);
 
       const body  = await c.req.json();
       const email = sanitize(body.email).toLowerCase();
 
-      if (!email || !isValidEmail(email)) {
-        return c.json({ success: false, error: 'Geçersiz e-posta.' }, 400);
-      }
+      if (!email || !isValidEmail(email)) return c.json({ success: false, error: 'Geçersiz e-posta.' }, 400);
 
       const user = await c.env.DB.prepare(
         'SELECT username, email, role, detail, status, avatar, points FROM users WHERE email = ?'
-      ).bind(email).first<{
-        username: string;
-        email: string;
-        role: string;
-        detail: string;
-        status: string;
-        avatar: string;
-        points: number;
-      }>();
+      ).bind(email).first<{ username: string; email: string; role: string; detail: string; status: string; avatar: string; points: number }>();
 
-      if (!user) {
-        return c.json({ success: false, error: 'Bu e-posta ile kayıtlı bir hesap bulunamadı.' }, 404);
-      }
+      if (!user) return c.json({ success: false, error: 'Bu e-posta ile kayıtlı bir hesap bulunamadı.' }, 404);
 
       return c.json({ success: true, data: user });
-
     } catch (error: unknown) {
       console.error('[login]', error);
       return c.json({ success: false, error: 'Giriş sırasında bir hata oluştu.' }, 500);
     }
   });
 
-  // POST /api/contact — İletişim formu, saatte 5 istek
   app.post('/api/contact', async (c) => {
     try {
       const ip = c.req.header('CF-Connecting-IP') ?? 'unknown';
       const allowed = await checkRateLimit(c.env.DB, `contact:${ip}`, 5, 3600);
-      if (!allowed) {
-        return c.json({ success: false, error: 'Çok fazla istek. Lütfen daha sonra tekrar deneyin.' }, 429);
-      }
+      if (!allowed) return c.json({ success: false, error: 'Çok fazla istek. Lütfen daha sonra tekrar deneyin.' }, 429);
 
       const body    = await c.req.json();
       const name    = sanitize(body.name);
@@ -455,21 +345,13 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
 
       await fetch('https://api.resend.com/emails', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${c.env.RESEND_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
+        headers: { Authorization: `Bearer ${c.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
           from: 'BCT Akademi İletişim <noreply@bctakademi.com>',
           to: ['destek@bctakademi.com'],
           reply_to: email,
           subject: `[İletişim] ${escapeHtml(subject)}`,
-          html: `
-            <p><b>Ad:</b> ${escapeHtml(name)}</p>
-            <p><b>E-posta:</b> ${escapeHtml(email)}</p>
-            <p><b>Konu:</b> ${escapeHtml(subject)}</p>
-            <p><b>Mesaj:</b><br/>${escapeHtml(message).replace(/\n/g, '<br/>')}</p>
-          `,
+          html: `<p><b>Ad:</b> ${escapeHtml(name)}</p><p><b>E-posta:</b> ${escapeHtml(email)}</p><p><b>Konu:</b> ${escapeHtml(subject)}</p><p><b>Mesaj:</b><br/>${escapeHtml(message).replace(/\n/g, '<br/>')}</p>`,
         }),
       });
 
@@ -480,7 +362,6 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     }
   });
 
-  // POST /api/profile — Profil güncelleme
   app.post('/api/profile', async (c) => {
     try {
       const body     = await c.req.json();
@@ -489,12 +370,8 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
       const detail   = sanitize(body.detail);
       const avatar   = sanitize(body.avatar);
 
-      if (!email || !isValidEmail(email)) {
-        return c.json({ success: false, error: 'Geçersiz e-posta.' }, 400);
-      }
-      if (!username || username.length < 2) {
-        return c.json({ success: false, error: 'Ad en az 2 karakter olmalıdır.' }, 400);
-      }
+      if (!email || !isValidEmail(email)) return c.json({ success: false, error: 'Geçersiz e-posta.' }, 400);
+      if (!username || username.length < 2) return c.json({ success: false, error: 'Ad en az 2 karakter olmalıdır.' }, 400);
 
       await c.env.DB.prepare(
         `UPDATE users SET username = ?, detail = ?, avatar = ?, updated_at = datetime('now') WHERE email = ?`
@@ -507,7 +384,6 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     }
   });
 
-  // POST /api/client-errors — Frontend hata raporlama
   app.post('/api/client-errors', async (c) => {
     try {
       const body = await c.req.json().catch(() => ({}));
@@ -519,54 +395,37 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
   });
 
   // ─────────────────────────────────────────────────────────────────────────
-  // ADMIN — Authorization: Bearer <ADMIN_KEY> header gerekli
-  // Giriş: https://bctakademi.com/admin-control-portal?key=ADMIN_KEY_DEĞERIN
+  // ADMIN
   // ─────────────────────────────────────────────────────────────────────────
 
-  // GET /api/admin/users
   app.get('/api/admin/users', async (c) => {
-    if (!checkAdminKey(getAdminKeyFromRequest(c.req.raw), c.env)) {
-      return c.json({ error: 'Yetkisiz erişim.' }, 401);
-    }
+    if (!checkAdminKey(getAdminKeyFromRequest(c.req.raw), c.env)) return c.json({ error: 'Yetkisiz erişim.' }, 401);
     const users = await c.env.DB.prepare(
       'SELECT id, username, email, role, detail, status, created_at FROM users ORDER BY created_at DESC'
     ).all();
     return c.json({ success: true, data: users.results });
   });
 
-  // POST /api/admin/update-status
   app.post('/api/admin/update-status', async (c) => {
     try {
-      if (!checkAdminKey(getAdminKeyFromRequest(c.req.raw), c.env)) {
-        return c.json({ error: 'Yetkisiz erişim.' }, 401);
-      }
+      if (!checkAdminKey(getAdminKeyFromRequest(c.req.raw), c.env)) return c.json({ error: 'Yetkisiz erişim.' }, 401);
 
       const body   = await c.req.json();
       const email  = sanitize(body.email).toLowerCase();
       const status = sanitize(body.status);
 
-      if (!email || !isValidEmail(email)) {
-        return c.json({ error: 'Geçersiz e-posta.' }, 400);
-      }
+      if (!email || !isValidEmail(email)) return c.json({ error: 'Geçersiz e-posta.' }, 400);
 
       const allowed = ['active', 'rejected', 'pending_admin', 'pending_email'] as const;
       type AllowedStatus = typeof allowed[number];
-      if (!allowed.includes(status as AllowedStatus)) {
-        return c.json({ error: 'Geçersiz durum değeri.' }, 400);
-      }
+      if (!allowed.includes(status as AllowedStatus)) return c.json({ error: 'Geçersiz durum değeri.' }, 400);
 
-      await c.env.DB.prepare(
-        'UPDATE users SET status = ? WHERE email = ?'
-      ).bind(status, email).run();
+      await c.env.DB.prepare('UPDATE users SET status = ? WHERE email = ?').bind(status, email).run();
 
       if (status === 'active' || status === 'rejected') {
-        const user = await c.env.DB.prepare(
-          'SELECT username FROM users WHERE email = ?'
-        ).bind(email).first<{ username: string }>();
-
-        if (user) {
-          await sendStatusEmail(c.env, email, user.username, status === 'active');
-        }
+        const user = await c.env.DB.prepare('SELECT username FROM users WHERE email = ?')
+          .bind(email).first<{ username: string }>();
+        if (user) await sendStatusEmail(c.env, email, user.username, status === 'active');
       }
 
       return c.json({ success: true, message: 'Durum güncellendi.' });
@@ -577,21 +436,14 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
   });
 
   // ─────────────────────────────────────────────────────────────────────────
-  // İÇERİK API'LERİ — Public (GET)
+  // İÇERİK API'LERİ
   // ─────────────────────────────────────────────────────────────────────────
 
-  // GET /api/curriculum
   app.get('/api/curriculum', async (c) => {
     try {
-      const categories = await c.env.DB.prepare(
-        'SELECT * FROM categories ORDER BY sort_order ASC'
-      ).all();
-
-      const courses = await c.env.DB.prepare(
-        'SELECT * FROM courses WHERE is_published = 1 ORDER BY category_id, sort_order ASC'
-      ).all();
-
-      const units = await c.env.DB.prepare(
+      const categories = await c.env.DB.prepare('SELECT * FROM categories ORDER BY sort_order ASC').all();
+      const courses    = await c.env.DB.prepare('SELECT * FROM courses WHERE is_published = 1 ORDER BY category_id, sort_order ASC').all();
+      const units      = await c.env.DB.prepare(
         'SELECT id, course_id, title, description, estimated_reading_time, sort_order FROM units WHERE is_published = 1 ORDER BY course_id, sort_order ASC'
       ).all();
 
@@ -620,17 +472,19 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     }
   });
 
-  // GET /api/units/:unitId/topics
+  // ─── Topics — attachment_url ve video_youtube_id dahil ────────────────
   app.get('/api/units/:unitId/topics', async (c) => {
     try {
       const { unitId } = c.req.param();
 
-      if (!/^[a-zA-Z0-9_-]+$/.test(unitId)) {
-        return c.json({ success: false, error: 'Geçersiz ünite ID.' }, 400);
-      }
+      if (!/^[a-zA-Z0-9_-]+$/.test(unitId)) return c.json({ success: false, error: 'Geçersiz ünite ID.' }, 400);
 
+      // Tüm alanları seç: content, attachment_url, video_youtube_id dahil
       const topics = await c.env.DB.prepare(
-        'SELECT * FROM topics WHERE unit_id = ? AND is_published = 1 ORDER BY sort_order ASC'
+        `SELECT id, unit_id, title, content, video_youtube_id, attachment_url, sort_order, is_published
+         FROM topics
+         WHERE unit_id = ? AND is_published = 1
+         ORDER BY sort_order ASC`
       ).bind(unitId).all();
 
       const quizzes = await c.env.DB.prepare(
@@ -641,15 +495,16 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
 
       const quizByTopic: Record<string, unknown[]> = {};
       for (const q of (quizzes.results as any[])) {
-        const options = typeof q.options === 'string'
-          ? JSON.parse(q.options)
-          : (q.options ?? []);
+        const options = typeof q.options === 'string' ? JSON.parse(q.options) : (q.options ?? []);
         if (!quizByTopic[q.topic_id]) quizByTopic[q.topic_id] = [];
         quizByTopic[q.topic_id].push({ ...q, options });
       }
 
       const result = (topics.results as any[]).map(t => ({
         ...t,
+        // null → boş string normalize et
+        video_youtube_id: t.video_youtube_id || '',
+        attachment_url:   t.attachment_url   || '',
         quiz: quizByTopic[t.id] ?? [],
       }));
 
@@ -660,7 +515,6 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     }
   });
 
-  // GET /api/blog
   app.get('/api/blog', async (c) => {
     try {
       const posts = await c.env.DB.prepare(
@@ -673,7 +527,6 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     }
   });
 
-  // GET /api/resources
   app.get('/api/resources', async (c) => {
     try {
       const resources = await c.env.DB.prepare(
@@ -704,8 +557,7 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
       const title = sanitize(body.title);
       const sort  = Number(body.sort_order) || 0;
       if (!title) return c.json({ error: 'Başlık gerekli.' }, 400);
-      await c.env.DB.prepare('INSERT INTO categories (id, title, sort_order) VALUES (?, ?, ?)')
-        .bind(id, title, sort).run();
+      await c.env.DB.prepare('INSERT INTO categories (id, title, sort_order) VALUES (?, ?, ?)').bind(id, title, sort).run();
       return c.json({ success: true, id });
     } catch (e: unknown) { return c.json({ error: (e as Error).message }, 500); }
   });
@@ -827,29 +679,36 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     return c.json({ success: true });
   });
 
+  // ─── Admin Topics — attachment_url ve video_youtube_id dahil ─────────
   app.get('/api/admin/topics', async (c) => {
     if (!checkAdminKey(getAdminKeyFromRequest(c.req.raw), c.env)) return c.json({ error: 'Yetkisiz.' }, 401);
     const unitId = c.req.query('unit_id');
     const r = unitId
-      ? await c.env.DB.prepare('SELECT * FROM topics WHERE unit_id = ? ORDER BY sort_order ASC').bind(unitId).all()
-      : await c.env.DB.prepare('SELECT * FROM topics ORDER BY unit_id, sort_order ASC').all();
+      ? await c.env.DB.prepare(
+          'SELECT id, unit_id, title, content, video_youtube_id, attachment_url, sort_order, is_published FROM topics WHERE unit_id = ? ORDER BY sort_order ASC'
+        ).bind(unitId).all()
+      : await c.env.DB.prepare(
+          'SELECT id, unit_id, title, content, video_youtube_id, attachment_url, sort_order, is_published FROM topics ORDER BY unit_id, sort_order ASC'
+        ).all();
     return c.json({ success: true, data: r.results });
   });
 
   app.post('/api/admin/topics', async (c) => {
     try {
       if (!checkAdminKey(getAdminKeyFromRequest(c.req.raw), c.env)) return c.json({ error: 'Yetkisiz.' }, 401);
-      const body    = await c.req.json();
-      const id      = sanitize(body.id) || nanoid();
-      const unitId  = sanitize(body.unit_id);
-      const title   = sanitize(body.title);
-      const content = typeof body.content === 'string' ? body.content.slice(0, 50000) : '';
-      const sort    = Number(body.sort_order) || 0;
-      const pub     = body.is_published !== false ? 1 : 0;
+      const body            = await c.req.json();
+      const id              = sanitize(body.id) || nanoid();
+      const unitId          = sanitize(body.unit_id);
+      const title           = sanitize(body.title);
+      const content         = typeof body.content === 'string' ? body.content.slice(0, 50000) : '';
+      const videoYoutubeId  = sanitize(body.video_youtube_id || '');
+      const attachmentUrl   = typeof body.attachment_url === 'string' ? body.attachment_url.slice(0, 1000) : '';
+      const sort            = Number(body.sort_order) || 0;
+      const pub             = body.is_published !== false ? 1 : 0;
       if (!unitId || !title) return c.json({ error: 'Ünite ve başlık gerekli.' }, 400);
       await c.env.DB.prepare(
-        'INSERT INTO topics (id, unit_id, title, content, sort_order, is_published) VALUES (?,?,?,?,?,?)'
-      ).bind(id, unitId, title, content, sort, pub).run();
+        'INSERT INTO topics (id, unit_id, title, content, video_youtube_id, attachment_url, sort_order, is_published) VALUES (?,?,?,?,?,?,?,?)'
+      ).bind(id, unitId, title, content, videoYoutubeId, attachmentUrl, sort, pub).run();
       return c.json({ success: true, id });
     } catch (e: unknown) { return c.json({ error: (e as Error).message }, 500); }
   });
@@ -860,12 +719,18 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
       const body = await c.req.json();
       const { id } = c.req.param();
       await c.env.DB.prepare(
-        `UPDATE topics SET unit_id=?, title=?, content=?, sort_order=?, is_published=?, updated_at=datetime('now') WHERE id=?`
+        `UPDATE topics
+         SET unit_id=?, title=?, content=?, video_youtube_id=?, attachment_url=?, sort_order=?, is_published=?, updated_at=datetime('now')
+         WHERE id=?`
       ).bind(
-        sanitize(body.unit_id), sanitize(body.title),
+        sanitize(body.unit_id),
+        sanitize(body.title),
         typeof body.content === 'string' ? body.content.slice(0, 50000) : '',
+        sanitize(body.video_youtube_id || ''),
+        typeof body.attachment_url === 'string' ? body.attachment_url.slice(0, 1000) : '',
         Number(body.sort_order) || 0,
-        body.is_published !== false ? 1 : 0, id
+        body.is_published !== false ? 1 : 0,
+        id
       ).run();
       return c.json({ success: true });
     } catch (e: unknown) { return c.json({ error: (e as Error).message }, 500); }
@@ -895,8 +760,7 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
       const title = sanitize(body.title);
       if (!title) return c.json({ error: 'Başlık gerekli.' }, 400);
       await c.env.DB.prepare(
-        `INSERT INTO blog_posts (id, title, excerpt, content, author, category, image_url, read_time, featured, is_published, published_at)
-         VALUES (?,?,?,?,?,?,?,?,?,?,?)`
+        `INSERT INTO blog_posts (id, title, excerpt, content, author, category, image_url, read_time, featured, is_published, published_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)`
       ).bind(
         id, title,
         typeof body.excerpt === 'string' ? body.excerpt.slice(0, 500) : '',
@@ -993,7 +857,6 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
   // KULLANICI İLERLEMESİ
   // ─────────────────────────────────────────────────────────────────────────
 
-  // POST /api/progress
   app.post('/api/progress', async (c) => {
     try {
       const body       = await c.req.json();
@@ -1007,13 +870,9 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
 
       const validTypes = ['topic', 'unit', 'video', 'resource', 'quiz'] as const;
       type ValidType = typeof validTypes[number];
-      if (!validTypes.includes(entityType as ValidType)) {
-        return c.json({ error: 'Geçersiz entity_type.' }, 400);
-      }
+      if (!validTypes.includes(entityType as ValidType)) return c.json({ error: 'Geçersiz entity_type.' }, 400);
 
-      const xpMap: Record<ValidType, number> = {
-        topic: 10, unit: 100, video: 20, resource: 10, quiz: 15,
-      };
+      const xpMap: Record<ValidType, number> = { topic: 10, unit: 100, video: 20, resource: 10, quiz: 15 };
       const xp = xpMap[entityType as ValidType];
 
       const existing = await c.env.DB.prepare(
@@ -1028,12 +887,9 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
       }
 
       return c.json({ success: true, xp_earned: existing ? 0 : xp });
-    } catch (e: unknown) {
-      return c.json({ error: (e as Error).message }, 500);
-    }
+    } catch (e: unknown) { return c.json({ error: (e as Error).message }, 500); }
   });
 
-  // GET /api/progress?email=...
   app.get('/api/progress', async (c) => {
     const email = c.req.query('email')?.toLowerCase();
     if (!email || !isValidEmail(email)) return c.json({ error: 'Geçerli email gerekli.' }, 400);
@@ -1043,7 +899,6 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     return c.json({ success: true, data: r.results });
   });
 
-  // POST /api/progress/sync
   app.post('/api/progress/sync', async (c) => {
     try {
       const body     = await c.req.json();
@@ -1052,16 +907,13 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
 
       if (!email || !isValidEmail(email)) return c.json({ error: 'Geçerli email gerekli.' }, 400);
 
-      const xpMap: Record<string, number> = {
-        topic: 10, unit: 100, video: 20, resource: 10, quiz: 15,
-      };
-
+      const xpMap: Record<string, number> = { topic: 10, unit: 100, video: 20, resource: 10, quiz: 15 };
       let totalNewXP = 0;
+
       for (const item of progress.slice(0, 500)) {
         const entityType = sanitize(item.entity_type);
         const entityId   = sanitize(item.entity_id);
-        if (!entityType || !entityId) continue;
-        if (!xpMap[entityType]) continue;
+        if (!entityType || !entityId || !xpMap[entityType]) continue;
 
         const existing = await c.env.DB.prepare(
           'SELECT id FROM user_progress WHERE user_email = ? AND entity_type = ? AND entity_id = ?'
@@ -1077,26 +929,19 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
       }
 
       if (totalNewXP > 0) await addXP(c.env, email, totalNewXP);
-
       return c.json({ success: true, xp_synced: totalNewXP });
-    } catch (e: unknown) {
-      return c.json({ error: (e as Error).message }, 500);
-    }
+    } catch (e: unknown) { return c.json({ error: (e as Error).message }, 500); }
   });
 
   // ─────────────────────────────────────────────────────────────────────────
   // LİDERLİK TABLOSU
   // ─────────────────────────────────────────────────────────────────────────
 
-  // GET /api/leaderboard?period=all|weekly|monthly&limit=50
   app.get('/api/leaderboard', async (c) => {
     try {
       const period = c.req.query('period') || 'all';
       const limit  = Math.min(Number(c.req.query('limit')) || 50, 100);
-
-      const xpColMap: Record<string, string> = {
-        weekly: 'weekly_xp', monthly: 'monthly_xp', all: 'total_xp',
-      };
+      const xpColMap: Record<string, string> = { weekly: 'weekly_xp', monthly: 'monthly_xp', all: 'total_xp' };
       const xpCol = xpColMap[period] ?? 'total_xp';
 
       const rows = await c.env.DB.prepare(`
@@ -1110,10 +955,9 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
 
       const data = (rows.results as any[]).map((row, i) => {
         const parts = (row.username || '').trim().split(' ');
-        const display =
-          parts.length >= 2
-            ? `${parts[0]} ${parts[parts.length - 1][0]}.`
-            : parts[0] || 'Kullanıcı';
+        const display = parts.length >= 2
+          ? `${parts[0]} ${parts[parts.length - 1][0]}.`
+          : parts[0] || 'Kullanıcı';
         return { rank: i + 1, display_name: display, avatar: row.avatar ?? null, xp: row.xp };
       });
 
@@ -1124,50 +968,40 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     }
   });
 
-  // GET /api/leaderboard/me?email=...&period=...
   app.get('/api/leaderboard/me', async (c) => {
     try {
       const email  = c.req.query('email')?.toLowerCase();
       const period = c.req.query('period') || 'all';
-
       if (!email || !isValidEmail(email)) return c.json({ error: 'Geçerli email gerekli.' }, 400);
 
-      const xpColMap: Record<string, string> = {
-        weekly: 'weekly_xp', monthly: 'monthly_xp', all: 'total_xp',
-      };
+      const xpColMap: Record<string, string> = { weekly: 'weekly_xp', monthly: 'monthly_xp', all: 'total_xp' };
       const xpCol = xpColMap[period] ?? 'total_xp';
 
-      const myXP = await c.env.DB.prepare(
-        `SELECT ${xpCol} AS xp FROM user_xp WHERE user_email = ?`
-      ).bind(email).first<{ xp: number }>();
+      const myXP = await c.env.DB.prepare(`SELECT ${xpCol} AS xp FROM user_xp WHERE user_email = ?`)
+        .bind(email).first<{ xp: number }>();
 
       if (!myXP) return c.json({ success: true, rank: null, xp: 0 });
 
       const above = await c.env.DB.prepare(
-        `SELECT COUNT(*) as cnt FROM user_xp x
-         LEFT JOIN users u ON u.email = x.user_email
-         WHERE u.status = 'active' AND x.${xpCol} > ?`
+        `SELECT COUNT(*) as cnt FROM user_xp x LEFT JOIN users u ON u.email = x.user_email WHERE u.status = 'active' AND x.${xpCol} > ?`
       ).bind(myXP.xp).first<{ cnt: number }>();
 
       return c.json({ success: true, rank: (above?.cnt ?? 0) + 1, xp: myXP.xp, period });
-    } catch (e: unknown) {
-      return c.json({ error: (e as Error).message }, 500);
-    }
+    } catch (e: unknown) { return c.json({ error: (e as Error).message }, 500); }
   });
 
-  // ══════════════════════════════════════════════════════════════════════════
-  // R2 DOSYA YÜKLEME — POST /api/upload
-  // ══════════════════════════════════════════════════════════════════════════
+  // ─────────────────────────────────────────────────────────────────────────
+  // R2 DOSYA YÜKLEME
+  // ─────────────────────────────────────────────────────────────────────────
 
   app.post('/api/upload', async (c) => {
-    // Sadece admin erişebilir
     const authHeader = c.req.header('Authorization');
     if (!authHeader || authHeader !== `Bearer ${c.env.ADMIN_KEY}`) {
       return c.json({ error: 'Yetkisiz.' }, 401);
     }
 
     if (!c.env.BUCKET) {
-      return c.json({ error: 'R2 bucket bağlı değil. wrangler.jsonc\'yi kontrol edin.' }, 500);
+      return c.json({ error: 'R2 bucket bağlı değil.' }, 500);
     }
 
     try {
@@ -1175,7 +1009,6 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
       const file = formData.get('file') as File | null;
       if (!file) return c.json({ error: 'Dosya bulunamadı.' }, 400);
 
-      // Güvenli dosya adı oluştur
       const ext = (file.name.split('.').pop() || 'bin').toLowerCase().replace(/[^a-z0-9]/g, '');
       const safeExt = ['pdf', 'ppt', 'pptx', 'doc', 'docx', 'png', 'jpg', 'jpeg', 'webp', 'gif', 'mp4', 'webm'].includes(ext)
         ? ext : 'bin';
@@ -1185,7 +1018,6 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
         httpMetadata: { contentType: file.type || 'application/octet-stream' },
       });
 
-      // R2 public URL — pub-5921cdf12f744e97a1a20e32a9d1bfae.r2.dev
       const url = `https://pub-5921cdf12f744e97a1a20e32a9d1bfae.r2.dev/${key}`;
       return c.json({ success: true, url, key });
     } catch (e: unknown) {
