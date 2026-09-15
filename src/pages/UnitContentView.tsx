@@ -10,7 +10,6 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { useUserStore } from '@/store/use-user-store';
 import { useCurriculum, useUnitTopics } from '@/hooks/use-curriculum';
 import { toast } from 'sonner';
 
@@ -68,15 +67,9 @@ export function UnitContentView() {
   const [scrollProgress, setScrollProgress]     = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const trackedSessionVideos = useRef<Set<string>>(new Set());
 
   const { data: curriculum_data, loading: currLoading } = useCurriculum();
   const { topics, loading: topicsLoading }              = useUnitTopics(unitId);
-
-  const completeUnit    = useUserStore(s => s.completeUnit);
-  const trackVideo      = useUserStore(s => s.trackVideo);
-  const isAuthenticated = useUserStore(s => s.isAuthenticated);
-  const user            = useUserStore(s => s.user);
 
   const category = curriculum_data.find(c => c.id === categoryId);
   const course   = category?.courses.find(c => c.id === courseId);
@@ -106,28 +99,6 @@ export function UnitContentView() {
 
   const currentTopic = topics[activeTopicIndex];
 
-  useEffect(() => {
-    if (
-      currentTopic?.videoYoutubeId &&
-      isAuthenticated &&
-      !trackedSessionVideos.current.has(currentTopic.videoYoutubeId)
-    ) {
-      trackVideo(currentTopic.videoYoutubeId);
-      trackedSessionVideos.current.add(currentTopic.videoYoutubeId);
-      if (user?.email) {
-        fetch('/api/progress', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: user.email,
-            entity_type: 'video',
-            entity_id: currentTopic.videoYoutubeId,
-          }),
-        }).catch(() => {});
-      }
-    }
-  }, [currentTopic?.id, currentTopic?.videoYoutubeId, isAuthenticated, trackVideo, user?.email]);
-
   const loading = currLoading || topicsLoading;
 
   if (loading) {
@@ -154,17 +125,8 @@ export function UnitContentView() {
 
   const handleComplete = () => {
     if (activeTopicIndex === topics.length - 1) {
-      completeUnit(unitMeta.id);
-      if (user?.email) {
-        fetch('/api/progress', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: user.email, entity_type: 'unit', entity_id: unitMeta.id }),
-        }).catch(() => {});
-      }
       setUnitCompleted(true);
       toast.success('Ünite Tamamlandı!', {
-        description: '+100 XP kazandınız.',
         icon: <Trophy className="text-teal-500 w-4 h-4" />,
       });
     } else {
@@ -255,8 +217,7 @@ export function UnitContentView() {
               <span className="flex items-center gap-2"><BookOpen className="w-3.5 h-3.5" /> KONU {activeTopicIndex + 1}/{topics.length}</span>
             </div>
 
-            {/* ── YENİ SARMALAYAN LAYOUT (Grid kaldırıldı, Float eklendi) ── */}
-            <div className="block overflow-hidden w-full"> 
+            <div className="block overflow-hidden w-full">
               {currentTopic?.videoYoutubeId && (
                 <div className="w-full lg:w-[55%] lg:float-left lg:mr-10 lg:mb-6">
                   <div className="aspect-video bg-black rounded-[2.5rem] overflow-hidden shadow-2xl border border-border">
@@ -278,8 +239,7 @@ export function UnitContentView() {
                   {currentTopic?.content}
                 </div>
               </div>
-              
-              {/* Float'ı temizlemek için */}
+
               <div className="clear-both"></div>
             </div>
 
@@ -308,7 +268,7 @@ export function UnitContentView() {
                     />
                   </div>
                 ) : (
-                  <a
+                  
                     href={currentTopic.attachment_url}
                     target="_blank"
                     rel="noreferrer"
@@ -335,13 +295,7 @@ export function UnitContentView() {
             {/* Quiz */}
             {currentTopic?.quiz && currentTopic.quiz.length > 0 && (
               <div id="quiz-section" className="pt-10 border-t border-border">
-                <QuizSection
-                  key={currentTopic.id}
-                  quiz={currentTopic.quiz}
-                  isAuthenticated={isAuthenticated}
-                  topicId={currentTopic.id}
-                  userEmail={user?.email}
-                />
+                <QuizSection key={currentTopic.id} quiz={currentTopic.quiz} />
               </div>
             )}
           </div>
@@ -380,41 +334,19 @@ export function UnitContentView() {
   );
 }
 
-function QuizSection({
-  quiz, isAuthenticated, topicId, userEmail,
-}: {
-  quiz: any[];
-  isAuthenticated: boolean;
-  topicId: string;
-  userEmail?: string;
-}) {
+function QuizSection({ quiz }: { quiz: any[] }) {
   const [currentQIndex, setCurrentQIndex]   = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isSubmitted, setIsSubmitted]        = useState(false);
   const [score, setScore]                    = useState(0);
   const [isQuizFinished, setIsQuizFinished] = useState(false);
-  const addPoints = useUserStore(s => s.addPoints);
   const currentQ  = quiz[currentQIndex];
 
   const handleSubmit = () => {
     setIsSubmitted(true);
     if (selectedOption === currentQ.correctAnswer) {
       setScore(prev => prev + 1);
-      if (isAuthenticated) {
-        addPoints(15);
-        if (userEmail) {
-          fetch('/api/progress', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              email: userEmail,
-              entity_type: 'quiz',
-              entity_id: `${topicId}-q${currentQIndex}`,
-            }),
-          }).catch(() => {});
-        }
-      }
-      toast.success('+15 XP!', { icon: <Trophy className="w-4 h-4 text-orange-500" /> });
+      toast.success('Doğru cevap!', { icon: <Trophy className="w-4 h-4 text-orange-500" /> });
     }
   };
 
