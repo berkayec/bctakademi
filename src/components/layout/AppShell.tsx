@@ -10,7 +10,7 @@ import { useUserStore } from '@/store/use-user-store';
 import { PendingApproval } from '@/components/PendingApproval';
 
 // Siteyi bakıma almak için: true yapın, kapatmak için false
-const MAINTENANCE_MODE = true;
+const MAINTENANCE_MODE = false;
 
 // Authorization header ile doğrulama — URL'de key kalmasın
 async function verifyAdminKey(key: string): Promise<boolean> {
