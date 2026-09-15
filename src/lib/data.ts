@@ -1,12 +1,11 @@
 import { FileText, Video, Presentation } from 'lucide-react';
 
 export const navLinks = [
-  { name: 'Ana Sayfa',  href: '/' },
-  { name: 'Dersler',    href: '/dersler' },
-  { name: 'Kaynaklar',  href: '/kaynaklar' },
-  { name: 'Blog',       href: '/blog' },
-  { name: 'Liderlik',   href: '/liderlik-tablosu' },
-  { name: 'İletişim',   href: '/iletisim' },
+  { name: 'Ana Sayfa', href: '/' },
+  { name: 'Dersler',   href: '/dersler' },
+  { name: 'Kaynaklar', href: '/kaynaklar' },
+  { name: 'Blog',      href: '/blog' },
+  { name: 'İletişim',  href: '/iletisim' },
 ];
 
 export const resources = [
