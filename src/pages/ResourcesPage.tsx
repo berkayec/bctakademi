@@ -7,7 +7,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Search, Download, ExternalLink, Loader2, FileWarning, FileText, Video, Presentation } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { useUserStore } from '@/store/use-user-store';
 
 interface ApiResource {
   id:          string;
@@ -34,10 +33,6 @@ export function ResourcesPage() {
   const [resources, setResources]     = useState<ApiResource[]>([]);
   const [loading, setLoading]         = useState(true);
 
-  const isAuthenticated = useUserStore(s => s.isAuthenticated);
-  const trackResource   = useUserStore(s => s.trackResource);
-  const user            = useUserStore(s => s.user);
-
   useEffect(() => {
     (async () => {
       setLoading(true);
@@ -47,7 +42,6 @@ export function ResourcesPage() {
         if (json.success && Array.isArray(json.data) && json.data.length > 0) {
           setResources(json.data);
         } else {
-          // Statik fallback
           setResources(staticResources.map(r => ({
             id:          r.id,
             title:       r.title,
@@ -81,23 +75,8 @@ export function ResourcesPage() {
 
   const handleResourceClick = async (res: ApiResource) => {
     setProcessingId(res.id);
-    await new Promise(r => setTimeout(r, 600));
-
-    if (isAuthenticated) {
-      trackResource(res.id);
-      // D1'e kaydet
-      if (user?.email) {
-        fetch('/api/progress', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: user.email, entity_type: 'resource', entity_id: res.id }),
-        }).catch(() => {});
-      }
-    }
-
-    if (res.file_url) {
-      window.open(res.file_url, '_blank');
-    }
+    await new Promise(r => setTimeout(r, 300));
+    if (res.file_url) window.open(res.file_url, '_blank');
     setProcessingId(null);
   };
 
